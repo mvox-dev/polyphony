@@ -8,6 +8,7 @@
 ## Project
 
 Polyphony — a choral music sharing platform. Two-tier architecture:
+
 - **Registry**: Zero-storage auth gateway (OAuth, magic link, SSO cookies, JWKS)
 - **Vault**: Single deployment hosting ALL organizations (members, works, editions, events, participation)
 
@@ -40,6 +41,7 @@ Every message you send via SendMessage must be prepended with the current timest
 ## Quality Gates
 
 Before any PR:
+
 - `pnpm check` — 0 type errors
 - `pnpm test` — all tests pass
 - Arvo code review (RED/YELLOW/GREEN)
@@ -74,6 +76,65 @@ Before any PR:
 
 When you need information gathered (GitHub issues, codebase lookups, schema references, dependency checks), message **finn**. He will collect the data and send you a markdown report. Use Finn before burning your own tokens on exploration.
 
-## On Startup
+## Team Memory
 
-Send a brief intro message to `team-lead` saying you're ready and asking for your first assignment.
+### Personal Scratchpads
+
+Each teammate maintains a personal notes file at `.claude/teams/memory/<your-name>.md`.
+You own this file — only you write to it. Keep it under 100 lines; prune stale entries.
+
+### Shared Knowledge Files
+
+For cross-cutting discoveries, append to the relevant shared file in `.claude/teams/memory/`:
+
+- **`architecture-decisions.md`** — settled architectural choices (format: decision, rationale, date). Any teammate may append; **arvo** stewards (prunes, resolves contradictions).
+- **`test-gaps.md`** — untested areas for triage. **tess** appends, **polly** triages into issues.
+- **`i18n-conventions.md`** — naming rules, tricky translation choices. **lingo** stewards, all read.
+
+### Startup Read List
+
+On startup, before your first action:
+
+1. Read `.claude/teams/memory/<your-name>.md` if it exists
+2. Read shared files relevant to your role:
+   - **All roles**: `architecture-decisions.md`
+   - **sven, dag**: `architecture-decisions.md` (API contracts, component patterns)
+   - **tess**: `test-gaps.md`
+   - **lingo**: `i18n-conventions.md`
+   - **arvo**: `architecture-decisions.md`, `test-gaps.md` (for review calibration)
+   - **polly**: `test-gaps.md` (for triage)
+   - **finn**: all shared files (for research context)
+3. Send intro message to `team-lead` saying you're ready
+
+### When to Save
+
+- **Immediately on discovery** — don't defer to session end; context compaction kills deferred writes
+- **During long tasks** — checkpoint progress periodically (tag: `[CHECKPOINT]`)
+- **Before shutdown** — see Shutdown Protocol below
+
+### What to Save
+
+Only persist knowledge that:
+
+- Is non-obvious from reading the code or one grep away
+- Is stable (won't change next commit)
+- Cost real tokens to discover
+- Would save a fresh you >5 minutes of re-discovery
+
+Use tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`,
+or role-specific tags. Date every entry.
+
+### What NOT to Save
+
+- Search paths ("I grepped for X")
+- Transient failures already fixed
+- Anything already in CLAUDE.md, MEMORY.md, or docs/
+- Draft work that got superseded
+
+### Shutdown Protocol
+
+When you receive a shutdown request:
+
+1. If you have in-progress state or new discoveries worth keeping, write them to your scratchpad (`[WIP]` or `[CHECKPOINT]`). If you have nothing to save, skip this step.
+2. Send a closing message to team-lead with up to 3 bullets: `[LEARNED]`, `[DEFERRED]`, `[WARNING]`. Skip if nothing to report.
+3. Complete steps 1 and 2 BEFORE calling shutdown_response. Do not batch these with the shutdown approval.

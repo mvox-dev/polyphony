@@ -46,5 +46,8 @@ apps/vault/src/lib/paraglide/
 *.temp
 .cache/
 
+# Agent team memory (session-specific scratchpads)
+.claude/teams/memory/
+
 # Seed documents (internal notes)
 docs/seed documents/
