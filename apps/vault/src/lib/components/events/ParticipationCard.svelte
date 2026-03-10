@@ -372,27 +372,34 @@
         <table class="w-full">
           <thead class="border-b border-gray-200 bg-gray-50">
             <tr>
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">{m.common_member()}</th>
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">{m.common_section()}</th>
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">{m.events_rsvp()}</th>
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">{m.events_attendance()}</th>
+              <th class="px-2 py-2 text-left text-sm font-medium text-gray-700 sm:px-4">{m.common_member()}</th>
+              <th class="hidden px-2 py-2 text-left text-sm font-medium text-gray-700 sm:table-cell sm:px-4">{m.common_section()}</th>
+              <th class="px-2 py-2 text-left text-sm font-medium text-gray-700 sm:px-4">{m.events_rsvp()}</th>
+              <th class="px-2 py-2 text-left text-sm font-medium text-gray-700 sm:px-4">{m.events_attendance()}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             {#each getSortedParticipation() as member}
               <tr>
-                <td class="px-4 py-2 text-sm">{member.memberName}</td>
-                <td class="px-4 py-2 text-sm">
+                <td class="px-2 py-2 text-sm sm:px-4">
+                  <div>
+                    {member.memberName}
+                    <div class="text-xs text-gray-500 sm:hidden">
+                      {member.primarySection?.abbreviation || ""}
+                    </div>
+                  </div>
+                </td>
+                <td class="hidden px-2 py-2 text-sm sm:table-cell sm:px-4">
                   {member.primarySection?.abbreviation || "-"}
                 </td>
-                <td class="px-4 py-2 text-sm">
+                <td class="px-2 py-2 text-sm sm:px-4">
                   {#if member.plannedStatus}
                     <span class="capitalize">{member.plannedStatus}</span>
                   {:else}
                     <span class="text-gray-400">{m.participation_no_response()}</span>
                   {/if}
                 </td>
-                <td class="px-4 py-2">
+                <td class="px-2 py-2 sm:px-4">
                   <StatusButtons
                     options={attendanceOptions}
                     current={member.actualStatus}
