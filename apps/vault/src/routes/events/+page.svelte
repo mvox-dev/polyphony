@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, tick } from 'svelte';
 	import type { PageData } from './$types';
 	import type { EventType, PlannedStatus } from '$lib/types';
 	import { getLocale } from '$lib/utils/locale';
@@ -34,6 +34,23 @@
 
 	// Get the locale for date formatting
 	let locale = $derived(getLocale(data.locale));
+
+	// Find the first event that is today or in the future for auto-scroll
+	let todayStr = new Date().toISOString().slice(0, 10);
+	let scrollTargetId = $derived.by(() => {
+		const target = filteredEvents.find((e) => e.starts_at.slice(0, 10) >= todayStr);
+		return target ? `event-${target.id}` : null;
+	});
+
+	// Auto-scroll to today's/next upcoming event on load
+	$effect(() => {
+		const id = scrollTargetId;
+		if (id) {
+			tick().then(() => {
+				document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			});
+		}
+	});
 
 	// Get RSVP button styles
 	function getRsvpButtonStyle(currentStatus: PlannedStatus | null, buttonStatus: PlannedStatus): string {
@@ -202,6 +219,7 @@
 		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each filteredEvents as event (event.id)}
 				{@const { date, time } = formatDateTimeComponents(event.starts_at, locale)}
+				<div id="event-{event.id}">
 				<Card variant="clickable" href="/events/{event.id}" padding="lg">
 					<!-- Event Type Badge -->
 					<div class="mb-3">
@@ -331,6 +349,7 @@
 						{/if}
 					</div>
 				</Card>
+				</div>
 			{/each}
 		</div>
 	{/if}

@@ -427,7 +427,7 @@
 								<div class="flex gap-2">
 									<select
 										bind:value={selectedEditionId}
-										class="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+										class="min-w-0 flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
 									>
 										<option value="">{m.repertoire_select_edition()}</option>
 										{#each availableEditions as ed (ed.id)}
@@ -478,7 +478,7 @@
 				<div class="flex gap-2">
 					<select
 						bind:value={selectedWorkId}
-						class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+						class="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
 					>
 						<option value="">{m.repertoire_select_work()}</option>
 						{#if groupedAvailableWorks().inSeason.length > 0}
