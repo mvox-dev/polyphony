@@ -94,33 +94,33 @@
 </svelte:head>
 
 <div class="container mx-auto max-w-6xl px-4 py-8">
-	<div class="mb-8 flex items-center justify-between">
-		<div>
+	<div class="mb-8">
+		<div class="flex flex-wrap items-center justify-between gap-3">
 			<h1 class="text-3xl font-bold">{m.events_title()}</h1>
-			<p class="mt-2 text-gray-600">
-				{#if data.season}
-					{data.season.name}
-				{:else}
-					{m.events_no_season()}
-				{/if}
-			</p>
-		</div>
-		<div class="flex gap-3">
-			<a
-				href="/events/roster"
-				class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 transition hover:bg-gray-50"
-			>
-				{m.events_view_roster_btn()}
-			</a>
-			{#if data.canCreate}
+			<div class="flex gap-3">
 				<a
-					href="/events/new"
-					class="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+					href="/events/roster"
+					class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
 				>
-					{m.events_create_btn()}
+					{m.events_view_roster_btn()}
 				</a>
-			{/if}
+				{#if data.canCreate}
+					<a
+						href="/events/new"
+						class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700"
+					>
+						{m.events_create_btn()}
+					</a>
+				{/if}
+			</div>
 		</div>
+		<p class="mt-2 text-gray-600">
+			{#if data.season}
+				{data.season.name}
+			{:else}
+				{m.events_no_season()}
+			{/if}
+		</p>
 	</div>
 
 	<!-- Season Navigation -->
@@ -134,7 +134,7 @@
 	{/if}
 
 	<!-- Filter Buttons -->
-	<div class="mb-6 flex gap-2">
+	<div class="mb-6 flex flex-wrap gap-2">
 		<button
 			onclick={() => (selectedFilter = 'all')}
 			class="rounded-lg border px-4 py-2 text-sm transition {selectedFilter === 'all'
