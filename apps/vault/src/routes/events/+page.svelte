@@ -318,7 +318,7 @@
 							</div>
 						{:else}
 							<div class="border-t border-gray-200 pt-4">
-								<p class="text-xs text-gray-500 mb-2">{m.events_rsvp_label()} ({m.event_rsvp_locked_suffix()})</p>
+								<p class="text-xs text-gray-500 mb-2">{m.events_rsvp_label()} {m.event_rsvp_locked_suffix()}</p>
 								<div class="grid grid-cols-4 gap-2">
 									<button
 										disabled

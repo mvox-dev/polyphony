@@ -49,7 +49,7 @@
   </div>
 
   <!-- Event Details Card -->
-  <EventDetailsCard bind:event canManage={data.canManage} />
+  <EventDetailsCard bind:event canManage={data.canManage} locale={data.locale} />
 
   <!-- Participation Section -->
   <ParticipationCard
