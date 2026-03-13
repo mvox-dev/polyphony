@@ -300,13 +300,33 @@
 							</div>
 						{:else}
 							<div class="border-t border-gray-200 pt-4">
-								<p class="text-xs text-gray-500 text-center">
-									{#if event.myRsvp}
-										{m.events_rsvp_label()} <span class="font-medium capitalize">{event.myRsvp}</span> {m.event_rsvp_locked_suffix()}
-									{:else}
-										{m.events_rsvp_locked()}
-									{/if}
-								</p>
+								<p class="text-xs text-gray-500 mb-2">{m.events_rsvp_label()} ({m.event_rsvp_locked_suffix()})</p>
+								<div class="grid grid-cols-4 gap-2">
+									<button
+										disabled
+										class="rounded border px-2 py-1 text-xs font-medium {getRsvpButtonStyle(event.myRsvp, 'yes')} opacity-60 cursor-default"
+									>
+										{m.common_yes()}
+									</button>
+									<button
+										disabled
+										class="rounded border px-2 py-1 text-xs font-medium {getRsvpButtonStyle(event.myRsvp, 'no')} opacity-60 cursor-default"
+									>
+										{m.common_no()}
+									</button>
+									<button
+										disabled
+										class="rounded border px-2 py-1 text-xs font-medium {getRsvpButtonStyle(event.myRsvp, 'maybe')} opacity-60 cursor-default"
+									>
+										{m.roster_rsvp_maybe_title()}
+									</button>
+									<button
+										disabled
+										class="rounded border px-2 py-1 text-xs font-medium {getRsvpButtonStyle(event.myRsvp, 'late')} opacity-60 cursor-default"
+									>
+										{m.event_rsvp_late()}
+									</button>
+								</div>
 							</div>
 						{/if}
 					</div>
