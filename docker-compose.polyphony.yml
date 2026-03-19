@@ -37,6 +37,10 @@ services:
     image: polyphony-dev-claude:latest
     container_name: polyphony-dev
     hostname: polyphony-dev
+    # network_mode: host required on WARP-protected hosts (same as apex-research).
+    # Bridge networking can't resolve DNS or route traffic through the WARP tunnel.
+    # Port mapping is ignored with host networking — services bind directly to host ports.
+    network_mode: host
     environment:
       - HOME=/home/ai-teams
       - TZ=Europe/Tallinn
