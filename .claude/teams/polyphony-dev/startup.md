@@ -92,10 +92,10 @@ fi
 Spawn order (sequential with confirmation gates):
 
 1. **finn** (research coordinator) — wait for intro report
-2. **arvo** (reviewer) — wait for intro report
-3. **tess** + **sven** + **dag** (parallel if working on independent issues)
-4. **lingo** (only if i18n work is needed this session)
-5. **polly** (only if product decisions are needed this session)
+2. **bentham** (reviewer) — wait for intro report
+3. **tallis** + **byrd** + **josquin** (parallel if working on independent issues)
+4. **comenius** (only if i18n work is needed this session)
+5. **victoria** (only if requirements analysis is needed this session)
 
 **Before each spawn:** Check `config.json` for existing members with the same name.
 - If agent already registered → `SendMessage` with the new task. Do NOT re-spawn.
@@ -105,7 +105,7 @@ Spawn order (sequential with confirmation gates):
 
 ```
 1. jq '.members[].name' "$HOME/.claude/teams/polyphony-dev/config.json"  # check duplicates
-2. Read prompt from polyphony-dev.json roster entry
+2. Read prompt from roster.json entry
 3. Agent(name="<name>", model="<model>", prompt="<prompt>", run_in_background: true)
 4. Wait for intro message from agent
 ```

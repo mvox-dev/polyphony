@@ -1,5 +1,5 @@
 # Test Gaps
 
-Untested areas for triage. **tess** appends, **polly** triages into GitHub issues.
+Untested areas for triage. **tallis** appends, **victoria** triages into GitHub issues.
 
-Format: `[GAP] YYYY-MM-DD — <module/area> — <what's untested> — <issue # or UNFILED>. (*PD:tess*)`
+Format: `[GAP] YYYY-MM-DD — <module/area> — <what's untested> — <issue # or UNFILED>. (*PD:tallis*)`
