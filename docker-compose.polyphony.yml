@@ -61,8 +61,8 @@ services:
       # Comment out on local dev (no WARP). On RC server, bind-mount the cert.
       # - /usr/local/share/ca-certificates/managed-warp.pem:/opt/warp-ca.pem:ro
     ports:
-      - "5173:5173"   # vault dev server
-      - "5174:5174"   # registry dev server
+      - "5175:5173"   # vault dev server (5173 taken by apex dashboard)
+      - "5176:5174"   # registry dev server
     working_dir: /home/ai-teams/workspace
     stdin_open: true
     tty: true
