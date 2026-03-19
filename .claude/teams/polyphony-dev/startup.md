@@ -1,17 +1,24 @@
 # polyphony-dev — Startup Checklist
 
-Machine-specific paths and step-by-step startup procedure for the polyphony-dev team.
+Paths and step-by-step startup procedure for the polyphony-dev team.
 
 ## Paths
 
+All paths derived from two anchors:
+
+| Anchor | How to resolve |
+|---|---|
+| `REPO` | `git rev-parse --show-toplevel` or the working directory |
+| `TEAM_DIR` | `$HOME/.claude/teams/polyphony-dev` (runtime, ephemeral) |
+
 | Item | Path |
 |---|---|
-| Repo root | `/c/Users/mihkel.putrinsh/Documents/github/.mmp/polyphony` |
-| Team config dir | `<repo>/.claude/teams/polyphony-dev/` |
-| Runtime dir | `$HOME/.claude/teams/polyphony-dev/` |
-| Roster | `<repo>/.claude/teams/polyphony-dev/roster.json` |
-| Common prompt | `<repo>/.claude/teams/polyphony-dev/common-prompt.md` |
-| Memory dir | `<repo>/.claude/teams/polyphony-dev/memory/` |
+| Repo root | `$REPO/` |
+| Team config dir | `$REPO/.claude/teams/polyphony-dev/` |
+| Runtime dir | `$TEAM_DIR/` |
+| Roster | `$REPO/.claude/teams/polyphony-dev/roster.json` |
+| Common prompt | `$REPO/.claude/teams/polyphony-dev/common-prompt.md` |
+| Memory dir | `$REPO/.claude/teams/polyphony-dev/memory/` |
 
 ## Startup Sequence
 
@@ -32,7 +39,8 @@ Read these files in order:
 ### Phase 1: Sync
 
 ```bash
-cd /c/Users/mihkel.putrinsh/Documents/github/.mmp/polyphony && git pull
+REPO="$(git rev-parse --show-toplevel)"
+cd "$REPO" && git pull
 ```
 
 **Expected outcome:** Prompts, roster, and memory files are at HEAD.
@@ -118,7 +126,8 @@ Send ready message to user. Wait for task assignment.
 
 ## Known Environment Issues
 
-- **`$HOME` on Windows/Git Bash** may resolve to an empty string in some bash invocations. If any path operation fails with a root-level path (`/.claude/...`), re-resolve: `HOME="/c/Users/$(whoami)"`.
+- **Container environment:** This team runs inside a Docker container (Ubuntu 24.04). `$HOME=/home/ai-teams`, workspace at `/home/ai-teams/workspace`.
+- **`$HOME` edge case:** If `$HOME` is empty in any shell context, re-resolve: `HOME="/home/ai-teams"`.
 - **TeamCreate silent failure** — can return success but not write `config.json`. Always verify with `ls` after TeamCreate. Max 1 retry with TeamDelete before retry.
 - **pnpm, not npm** — this is a pnpm workspace. All commands use `pnpm`.
 
