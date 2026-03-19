@@ -26,6 +26,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.polyphony
+      # network: host required on WARP-protected hosts (RC server).
+      # Without this, Docker build uses the bridge network which is NOT routed
+      # through the WARP tunnel — apt-get update fails to reach Ubuntu repos.
+      # Safe to keep for non-WARP hosts: host networking during build is harmless.
+      network: host
       args:
         GIT_USER_NAME: "${GIT_USER_NAME:-polyphony-dev}"
         GIT_USER_EMAIL: "${GIT_USER_EMAIL:-mihkel.putrinsh@evr.ee}"

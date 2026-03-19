@@ -24,19 +24,17 @@ FROM ai-teams-claude:latest
 RUN rm -f /etc/apt/sources.list.d/github-cli.list \
     && rm -f /usr/share/keyrings/githubcli-archive-keyring.gpg
 
-# ── WARP TLS CA for build context ─────────────────────────────────────────────
-# On WARP-protected hosts, apt-get and curl fail because the WARP proxy
-# intercepts TLS. Copy the WARP CA cert into the build context so all
-# build-time network operations trust the proxy.
-# If warp-ca.pem doesn't exist in the build context, this is a no-op.
-COPY warp-ca.pe[m] /usr/local/share/ca-certificates/warp-ca.crt
-RUN update-ca-certificates 2>/dev/null || true
-
 # ── Node.js 22 LTS ────────────────────────────────────────────────────────────
 # Base image has Node.js 18 from Ubuntu apt — too old for Claude Code and
 # modern pnpm. Download binary directly.
+#
+# WARP note: build uses network: host (see docker-compose.polyphony.yml), so
+# apt-get update reaches Ubuntu repos through the WARP tunnel. curl --insecure
+# is still needed for the nodejs.org download because WARP does TLS
+# interception and the container doesn't yet trust the WARP CA at build time.
+# This is a BUILD-TIME-ONLY workaround; the binary is identified by versioned filename.
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
-    && curl -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.gz \
+    && curl --insecure -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.gz \
        -o /tmp/node.tar.gz \
     && tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1 \
     && rm /tmp/node.tar.gz \
@@ -90,7 +88,7 @@ RUN npx playwright install chromium 2>&1 | tail -5 \
 # ── Native Claude Code install ────────────────────────────────────────────────
 # Install Claude Code natively (not npm-global) so auto-updates work without sudo.
 # --insecure for WARP TLS interception at build time.
-RUN gosu ai-teams bash -c 'curl -fsSL https://claude.ai/install.sh | bash' 2>&1 | tail -5
+RUN gosu ai-teams bash -c 'curl --insecure -fsSL https://claude.ai/install.sh | bash' 2>&1 | tail -5
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 COPY entrypoint-polyphony.sh /entrypoint-polyphony.sh
