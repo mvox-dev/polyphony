@@ -21,9 +21,17 @@ export default defineConfig(({ mode }) => ({
 				})
 			],
 	resolve: {
-		alias: {
-			'$lib': path.resolve(__dirname, './src/lib')
-		},
+		alias: [
+			// In test mode, mock Paraglide build artifacts (gitignored, may not exist in clean checkout).
+			// These MUST come before the $lib alias so they match first.
+			...(mode === 'test' ? [
+				{ find: '$lib/paraglide/runtime.js', replacement: path.resolve(__dirname, './src/tests/mocks/paraglide-runtime.ts') },
+				{ find: '$lib/paraglide/runtime', replacement: path.resolve(__dirname, './src/tests/mocks/paraglide-runtime.ts') },
+				{ find: '$lib/paraglide/server.js', replacement: path.resolve(__dirname, './src/tests/mocks/paraglide-server.ts') },
+				{ find: '$lib/paraglide/server', replacement: path.resolve(__dirname, './src/tests/mocks/paraglide-server.ts') },
+			] : []),
+			{ find: '$lib', replacement: path.resolve(__dirname, './src/lib') },
+		],
 		// Force client-side Svelte in test environment
 		conditions: mode === 'test' ? ['browser'] : undefined
 	},
