@@ -1,0 +1,76 @@
+# polyphony-dev Container — Docker Compose (*FR:Brunel*)
+#
+# Usage:
+#   docker compose -f docker-compose.polyphony.yml build
+#   docker compose -f docker-compose.polyphony.yml up -d
+#   docker compose -f docker-compose.polyphony.yml exec polyphony-dev bash
+#   docker compose -f docker-compose.polyphony.yml down          # stop, keep volumes
+#   docker compose -f docker-compose.polyphony.yml down -v       # stop + wipe volumes
+#
+# Container layout:
+#   User:       ai-teams  (uid=1000)
+#   $HOME:      /home/ai-teams/
+#   ~/.claude/: /home/ai-teams/.claude   → polyphony-claude-home (Claude state)
+#   Repo:       /home/ai-teams/workspace → polyphony-repo (pnpm workspace, read-write)
+#
+# Port mapping (host → container):
+#   5173 → 5173  — vault dev server
+#   5174 → 5174  — registry dev server
+#
+# No bind mounts to host filesystem.
+# No broker/comms (single-team setup).
+# No SSH server (dev team works inside the container).
+
+services:
+  polyphony-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.polyphony
+      args:
+        GIT_USER_NAME: "${GIT_USER_NAME:-polyphony-dev}"
+        GIT_USER_EMAIL: "${GIT_USER_EMAIL:-mihkel.putrinsh@evr.ee}"
+    image: polyphony-dev-claude:latest
+    container_name: polyphony-dev
+    hostname: polyphony-dev
+    environment:
+      - HOME=/home/ai-teams
+      - TZ=Europe/Tallinn
+      - REPO_URL=${REPO_URL:-https://github.com/mitselek/polyphony.git}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+      - TEAM_NAME=${TEAM_NAME:-polyphony-dev}
+      # Playwright: point to shared browser cache installed in Dockerfile
+      - PLAYWRIGHT_BROWSERS_PATH=/opt/playwright/cache
+      # NODE_EXTRA_CA_CERTS: only needed on WARP-protected hosts.
+      # Set in .env if deploying on RC server or corporate host with WARP.
+      # Leave unset for local dev (no WARP).
+      - NODE_EXTRA_CA_CERTS=${NODE_EXTRA_CA_CERTS:-}
+    volumes:
+      # Claude auto-memory and team config — isolated to this team
+      - polyphony-claude-home:/home/ai-teams/.claude
+      # pnpm workspace repo — cloned and pnpm install'd by entrypoint
+      # node_modules live here (inside the volume, not on host)
+      - polyphony-repo:/home/ai-teams/workspace
+      # WARP CA cert — only needed on WARP-protected hosts.
+      # Comment out on local dev (no WARP). On RC server, bind-mount the cert.
+      # - /usr/local/share/ca-certificates/managed-warp.pem:/opt/warp-ca.pem:ro
+    ports:
+      - "5173:5173"   # vault dev server
+      - "5174:5174"   # registry dev server
+    working_dir: /home/ai-teams/workspace
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  # Claude auto-memory, scratchpads, team config.
+  # Wipe: docker volume rm polyphony_polyphony-claude-home
+  polyphony-claude-home:
+    name: polyphony_polyphony-claude-home
+
+  # Polyphony repo with installed pnpm workspace.
+  # node_modules live inside the volume — not on host filesystem.
+  # Wipe to force re-clone + re-install: docker volume rm polyphony_polyphony-repo
+  polyphony-repo:
+    name: polyphony_polyphony-repo

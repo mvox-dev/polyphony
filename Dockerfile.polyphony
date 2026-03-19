@@ -1,0 +1,98 @@
+# polyphony-dev Container (*FR:Brunel*)
+#
+# Extends ai-teams-claude:latest (ubuntu 24.04, nodejs 18, npm, git, gh, gosu, claude)
+# with pnpm, wrangler, Playwright/Chromium, and Europe/Tallinn timezone.
+#
+# Named volumes (no host bind mounts):
+#   polyphony-claude-home  → /home/ai-teams/.claude    (Claude state + auto-memory)
+#   polyphony-repo         → /home/ai-teams/workspace  (git repo, pnpm deps installed here)
+#
+# Ports:
+#   5173  — vault dev server (vite)
+#   5174  — registry dev server (vite)
+#
+# Build:
+#   docker compose -f docker-compose.polyphony.yml build
+#
+# Note: no SSH server — dev team works inside the container, no PO SSH inspection needed.
+
+FROM ai-teams-claude:latest
+
+# ── Fix inherited apt sources ──────────────────────────────────────────────────
+# Base image adds GitHub CLI apt repo with a key that may go stale.
+# gh is already installed — remove the apt source, it's not needed.
+RUN rm -f /etc/apt/sources.list.d/github-cli.list \
+    && rm -f /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+# ── Node.js 22 LTS ────────────────────────────────────────────────────────────
+# Base image has Node.js 18 from Ubuntu apt — too old for Claude Code and
+# modern pnpm. Download binary directly. --insecure needed on WARP-protected
+# hosts where the TLS interception CA is not yet in the container trust store.
+# BUILD-TIME ONLY workaround — the binary is identified by versioned filename.
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && curl --insecure -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.gz \
+       -o /tmp/node.tar.gz \
+    && tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1 \
+    && rm /tmp/node.tar.gz \
+    && node --version \
+    && npm install -g npm@latest 2>&1 | tail -1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Timezone + Playwright system deps ─────────────────────────────────────────
+# tzdata: sets Europe/Tallinn system timezone (git timestamps, syslog, Python)
+# Playwright Chromium system deps: libnss3, libatk*, libdrm2, libxkb*, libgbm1,
+#   libasound2t64 — minimal set for headless Chromium in CI/container.
+#   Source: playwright install-deps chromium (ubuntu-24.04 list).
+# DEBIAN_FRONTEND=noninteractive prevents tzdata interactive prompt.
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        tzdata \
+        libnss3 \
+        libatk1.0-0t64 \
+        libatk-bridge2.0-0t64 \
+        libcups2t64 \
+        libdrm2 \
+        libxkbcommon0 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxfixes3 \
+        libxrandr2 \
+        libgbm1 \
+        libasound2t64 \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -snf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime \
+    && echo "Europe/Tallinn" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata
+ENV DEBIAN_FRONTEND=
+
+# ── pnpm ──────────────────────────────────────────────────────────────────────
+# Install pnpm globally via npm. Version pinned to match packageManager field
+# in polyphony/package.json (pnpm@9.15.0). Agents run pnpm from the workspace.
+RUN npm install -g pnpm@9.15.0 2>&1 | tail -2
+
+# ── Playwright Chromium browser ───────────────────────────────────────────────
+# Install Chromium browser binary for Playwright E2E tests.
+# --with-deps is redundant here (we installed deps above) but harmless.
+# Must run as root before user drop; browser goes to /root/.cache/ms-playwright.
+# We copy it to a shared location so ai-teams user can use it.
+# Version locked to what @playwright/test@^1.48.2 downloads (Chromium ~1148).
+RUN npx playwright install chromium 2>&1 | tail -5 \
+    && mkdir -p /opt/playwright \
+    && cp -r /root/.cache/ms-playwright /opt/playwright/cache \
+    && chmod -R a+rX /opt/playwright
+
+# ── Native Claude Code install ────────────────────────────────────────────────
+# Install Claude Code natively (not npm-global) so auto-updates work without sudo.
+# --insecure for WARP TLS interception at build time.
+RUN gosu ai-teams bash -c 'curl --insecure -fsSL https://claude.ai/install.sh | bash' 2>&1 | tail -5
+
+# ── Entrypoint ────────────────────────────────────────────────────────────────
+COPY entrypoint-polyphony.sh /entrypoint-polyphony.sh
+RUN chmod +x /entrypoint-polyphony.sh
+
+WORKDIR /home/ai-teams/workspace
+
+EXPOSE 5173 5174
+
+ENTRYPOINT ["/entrypoint-polyphony.sh"]
+CMD ["bash"]
