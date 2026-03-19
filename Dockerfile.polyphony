@@ -77,12 +77,12 @@ RUN npm install -g pnpm@9.15.0 2>&1 | tail -2
 # ── Playwright Chromium browser ───────────────────────────────────────────────
 # Install Chromium browser binary for Playwright E2E tests.
 # --with-deps is redundant here (we installed deps above) but harmless.
-# Must run as root before user drop; browser goes to /root/.cache/ms-playwright.
-# We copy it to a shared location so ai-teams user can use it.
-# Version locked to what @playwright/test@^1.48.2 downloads (Chromium ~1148).
+# Browser downloads to whichever $HOME/.cache/ms-playwright/ is active.
+# On this image, HOME=/home/ai-teams (set in base Dockerfile).
+# Copy to a shared location so all users can access it.
 RUN npx playwright install chromium 2>&1 | tail -5 \
     && mkdir -p /opt/playwright \
-    && cp -r /root/.cache/ms-playwright /opt/playwright/cache \
+    && cp -r /home/ai-teams/.cache/ms-playwright /opt/playwright/cache \
     && chmod -R a+rX /opt/playwright
 
 # ── Native Claude Code install ────────────────────────────────────────────────
