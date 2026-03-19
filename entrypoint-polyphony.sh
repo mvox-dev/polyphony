@@ -250,7 +250,7 @@ if [ ! -f "$SETTINGS_FILE" ]; then
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "default"
   },
   "includeCoAuthoredBy": false
 }
