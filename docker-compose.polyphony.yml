@@ -13,13 +13,15 @@
 #   ~/.claude/: /home/ai-teams/.claude   → polyphony-claude-home (Claude state)
 #   Repo:       /home/ai-teams/workspace → polyphony-repo (pnpm workspace, read-write)
 #
-# Port mapping (host → container):
-#   5173 → 5173  — vault dev server
-#   5174 → 5174  — registry dev server
+# Ports (network_mode: host — bind directly on host, no port mapping):
+#   2223  — SSH (ai-teams user, pubkey auth, auto-tmux on login)
+#   5173  — vault dev server (vite)
+#   5174  — registry dev server (vite)
+#
+# Connect: ssh -i ~/.ssh/id_ed25519_polyphony -p 2223 ai-teams@<host>
 #
 # Bind mounts: WARP CA cert only (read-only, host path on RC server).
 # No broker/comms (single-team setup).
-# No SSH server (dev team works inside the container).
 
 services:
   polyphony-dev:
@@ -49,6 +51,9 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
       - TEAM_NAME=${TEAM_NAME:-polyphony-dev}
+      # SSH public key(s) for ai-teams user. Injected into authorized_keys by entrypoint.
+      # Add SSH_PUBLIC_KEY_2, SSH_PUBLIC_KEY_3 etc. for multiple keys.
+      - SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:-}
       # Playwright: point to shared browser cache installed in Dockerfile
       - PLAYWRIGHT_BROWSERS_PATH=/opt/playwright/cache
       # NODE_EXTRA_CA_CERTS: Node.js does NOT use the system CA store.

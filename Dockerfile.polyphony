@@ -1,20 +1,22 @@
 # polyphony-dev Container (*FR:Brunel*)
 #
 # Extends ai-teams-claude:latest (ubuntu 24.04, nodejs 18, npm, git, gh, gosu, claude)
-# with pnpm, wrangler, Playwright/Chromium, and Europe/Tallinn timezone.
+# with pnpm, wrangler, Playwright/Chromium, SSH server, tmux, and Europe/Tallinn timezone.
 #
 # Named volumes (no host bind mounts):
 #   polyphony-claude-home  → /home/ai-teams/.claude    (Claude state + auto-memory)
 #   polyphony-repo         → /home/ai-teams/workspace  (git repo, pnpm deps installed here)
 #
 # Ports:
+#   2223  — SSH (PO access, auto-tmux on login)
 #   5173  — vault dev server (vite)
 #   5174  — registry dev server (vite)
 #
 # Build:
 #   docker compose -f docker-compose.polyphony.yml build
 #
-# Note: no SSH server — dev team works inside the container, no PO SSH inspection needed.
+# Connect:
+#   ssh -i ~/.ssh/id_ed25519_polyphony -p 2223 ai-teams@<host>
 
 FROM ai-teams-claude:latest
 
@@ -42,15 +44,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && npm install -g npm@latest 2>&1 | tail -1 \
     && rm -rf /var/lib/apt/lists/*
 
-# ── Timezone + Playwright system deps ─────────────────────────────────────────
-# tzdata: sets Europe/Tallinn system timezone (git timestamps, syslog, Python)
-# Playwright Chromium system deps: libnss3, libatk*, libdrm2, libxkb*, libgbm1,
-#   libasound2t64 — minimal set for headless Chromium in CI/container.
-#   Source: playwright install-deps chromium (ubuntu-24.04 list).
+# ── Timezone + SSH server + tmux + Playwright system deps ────────────────────
+# tzdata: Europe/Tallinn system timezone
+# openssh-server: PO SSH access on port 2223
+# tmux: auto-tmux on SSH login (session persistence)
+# locales: en_US.UTF-8 for tmux -u Unicode rendering
+# Playwright Chromium system deps: minimal headless Chromium set for Ubuntu 24.04
+#   (source: playwright install-deps chromium ubuntu-24.04 list)
 # DEBIAN_FRONTEND=noninteractive prevents tzdata interactive prompt.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
         tzdata \
+        openssh-server \
+        tmux \
+        locales \
         libnss3 \
         libatk1.0-0t64 \
         libatk-bridge2.0-0t64 \
@@ -64,10 +71,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libgbm1 \
         libasound2t64 \
     && rm -rf /var/lib/apt/lists/* \
+    && sed -i 's/# en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && locale-gen \
     && ln -snf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime \
     && echo "Europe/Tallinn" > /etc/timezone \
-    && dpkg-reconfigure -f noninteractive tzdata
+    && dpkg-reconfigure -f noninteractive tzdata \
+    && mkdir -p /run/sshd \
+    && ssh-keygen -A \
+    && sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config \
+    && sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
+    && sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config \
+    && sed -i 's/^#\?UsePAM.*/UsePAM no/' /etc/ssh/sshd_config \
+    && sed -i 's/^#\?Port .*/Port 2223/' /etc/ssh/sshd_config \
+    && echo 'Port 2223' >> /etc/ssh/sshd_config
 ENV DEBIAN_FRONTEND=
+
+# ── ai-teams SSH access ────────────────────────────────────────────────────────
+# Unlock account for SSH pubkey auth.
+# UsePAM=no rejects locked accounts (! in /etc/shadow) even for pubkey auth.
+# '*' = no password (pubkey works). '!' = locked (all auth rejected).
+# Prepare .ssh dir; authorized_keys injected by entrypoint from SSH_PUBLIC_KEY* env vars.
+RUN usermod -p '*' ai-teams \
+    && mkdir -p /home/ai-teams/.ssh \
+    && chmod 700 /home/ai-teams/.ssh \
+    && chown 1000:1000 /home/ai-teams/.ssh
 
 # ── pnpm ──────────────────────────────────────────────────────────────────────
 # Install pnpm globally via npm. Version pinned to match packageManager field
@@ -96,7 +122,7 @@ RUN chmod +x /entrypoint-polyphony.sh
 
 WORKDIR /home/ai-teams/workspace
 
-EXPOSE 5173 5174
+EXPOSE 2223 5173 5174
 
 ENTRYPOINT ["/entrypoint-polyphony.sh"]
 CMD ["bash"]

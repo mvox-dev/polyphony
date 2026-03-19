@@ -4,16 +4,19 @@
 # Runs as root. Prepares the polyphony-dev container before handing off to ai-teams.
 #
 # Steps:
-#  0.  Fix hostname resolution (network_mode: host only — skip for bridge/default)
-#  0b. WARP TLS CA → system CA store (no-op if /opt/warp-ca.pem not mounted)
-#  1.  Fix volume ownership (Docker creates named volumes as root)
-#  2.  Validate required env vars
-#  3.  Clone/pull polyphony repo
-#  4.  pnpm install (first run or after lockfile change)
-#  5.  Runtime validation gates
-#  6.  Persist env vars to .bashrc (covers SSH / interactive shells)
-#  7.  Claude settings.json (first run only)
-#  8.  Drop privileges and exec
+#  0.   Fix hostname resolution (network_mode: host only — skip for bridge/default)
+#  0b.  WARP TLS CA → system CA store (no-op if /opt/warp-ca.pem not mounted)
+#  1.   Fix volume ownership (Docker creates named volumes as root)
+#  2.   Validate required env vars
+#  3.   Clone/pull polyphony repo
+#  4.   pnpm install (first run or after lockfile change)
+#  5.   Runtime validation gates
+#  6.   Persist env vars to .bashrc (covers SSH / interactive shells)
+#  6b.  tmux config + auto-tmux on SSH login
+#  6c.  Git attribution
+#  7.   Claude settings.json (first run only)
+#  7b.  SSH key install + start sshd on port 2223
+#  8.   Drop privileges and exec
 #
 # Required env vars:
 #   GITHUB_TOKEN      — PAT with read access to mitselek/polyphony
@@ -23,6 +26,8 @@
 #   REPO_URL          — repo URL (default: github.com/mitselek/polyphony.git)
 #   TEAM_NAME         — team name (default: polyphony-dev)
 #   NODE_EXTRA_CA_CERTS — path to WARP CA cert (set in compose on WARP hosts)
+#   SSH_PUBLIC_KEY    — public key for ai-teams SSH access (port 2223)
+#   SSH_PUBLIC_KEY_2  — additional key (supports SSH_PUBLIC_KEY_N pattern)
 set -e
 
 CONTAINER_USER="ai-teams"
@@ -204,7 +209,34 @@ for var in "${!SHELL_VARS[@]}"; do
     fi
 done
 
-# ── Step 6b: Git attribution ──────────────────────────────────────────────────
+# ── Step 6b: tmux config + auto-tmux on SSH login ────────────────────────────
+# Write .tmux.conf for Unicode rendering and usability.
+# Recreate on every start (container filesystem, not in volume).
+cat > "${HOME_DIR}/.tmux.conf" << 'TMUX_EOF'
+set -g default-terminal "tmux-256color"
+set -gq utf8 on
+set -gq status-utf8 on
+set -g mouse on
+set -g history-limit 50000
+set -g status-interval 5
+TMUX_EOF
+chown "${CONTAINER_UID}:${CONTAINER_GID}" "${HOME_DIR}/.tmux.conf"
+
+# Auto-tmux + auto-cd on SSH login: attach to existing session or create new one.
+# Only triggers for interactive SSH sessions (not for docker exec or entrypoint itself).
+# Guard: skip if already inside tmux ($TMUX is set) or not an interactive shell.
+if ! grep -q 'auto-tmux' "$BASHRC" 2>/dev/null; then
+    cat >> "$BASHRC" << 'AUTOTMUX_EOF'
+
+# auto-tmux: attach or create session on SSH login
+if [ -z "$TMUX" ] && [ -n "$SSH_CONNECTION" ]; then
+    cd /home/ai-teams/workspace
+    exec tmux -u new-session -A -s polyphony
+fi
+AUTOTMUX_EOF
+fi
+
+# ── Step 6c: Git attribution ──────────────────────────────────────────────────
 gosu "${CONTAINER_USER}" git config --global user.name "polyphony-dev"
 gosu "${CONTAINER_USER}" git config --global user.email "${GIT_USER_EMAIL:-mihkel.putrinsh@evr.ee}"
 
@@ -225,6 +257,35 @@ if [ ! -f "$SETTINGS_FILE" ]; then
 SETTINGS_EOF
     chown "${CONTAINER_UID}:${CONTAINER_GID}" "$SETTINGS_FILE"
     echo "[entrypoint] Claude settings.json created."
+fi
+
+# ── Step 7b: SSH setup ────────────────────────────────────────────────────────
+# Collect all SSH_PUBLIC_KEY* env vars into authorized_keys for ai-teams.
+# Supports SSH_PUBLIC_KEY, SSH_PUBLIC_KEY_2, SSH_PUBLIC_KEY_3, etc.
+KEY_COUNT=0
+KEYS=""
+for var in $(env | grep '^SSH_PUBLIC_KEY' | sort | cut -d= -f1); do
+    val="${!var}"
+    if [ -n "$val" ]; then
+        KEYS="${KEYS}${val}\n"
+        KEY_COUNT=$((KEY_COUNT + 1))
+    fi
+done
+
+if [ "$KEY_COUNT" -gt 0 ]; then
+    mkdir -p "${HOME_DIR}/.ssh"
+    printf "%b" "$KEYS" > "${HOME_DIR}/.ssh/authorized_keys"
+    chmod 700 "${HOME_DIR}/.ssh"
+    chmod 600 "${HOME_DIR}/.ssh/authorized_keys"
+    chown -R "${CONTAINER_UID}:${CONTAINER_GID}" "${HOME_DIR}/.ssh"
+    echo "[entrypoint] ${KEY_COUNT} SSH public key(s) installed for ${CONTAINER_USER}."
+
+    # Start sshd in background on port 2223 (2222 taken by apex-research).
+    # /run/sshd must exist (created in Dockerfile).
+    /usr/sbin/sshd -p 2223
+    echo "[entrypoint] sshd started on port 2223."
+else
+    echo "[entrypoint] WARNING: No SSH_PUBLIC_KEY* vars set — SSH access disabled."
 fi
 
 # ── Step 8: Drop privileges and exec ──────────────────────────────────────────
