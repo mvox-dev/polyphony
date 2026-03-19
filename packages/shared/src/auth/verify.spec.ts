@@ -126,17 +126,17 @@ describe('verifyAuthToken', () => {
 	describe('expiry validation', () => {
 		it('rejects expired token', async () => {
 			const vaultId = 'vault-789';
+			const registryUrl = 'https://registry-expiry-test.example.com';
 			const payload = {
-				iss: 'https://registry.example.com',
+				iss: registryUrl,
 				sub: 'user@example.com',
 				aud: vaultId,
 				nonce: 'abc123',
 				email: 'user@example.com'
 			};
 
-			// Create token (we'll manually create an expired one)
-			// For now, just test that expiry validation exists by using a manually crafted expired token
-			// This test will be updated to properly test expiry
+			// Sign token at current (real) time — exp = now + 300s
+			vi.useFakeTimers();
 			const token = await signToken(payload, testKeys.privateKey);
 
 			const jwks = await pemToJwk(testKeys.publicKey, 'test-key-4');
@@ -145,13 +145,74 @@ describe('verifyAuthToken', () => {
 				json: async () => ({ keys: [jwks] })
 			});
 
-			// This won't be expired, so let's skip proper expiry testing for now
-			// and just verify the token works (we'll add proper expiry testing later)
-			const result = await verifyAuthToken(token, {
-				registryUrl: 'https://registry.example.com',
-				vaultId
+			// Advance time by 6 minutes — token (5 min TTL) is now expired
+			vi.advanceTimersByTime(6 * 60 * 1000);
+
+			await expect(
+				verifyAuthToken(token, { registryUrl, vaultId })
+			).rejects.toThrow('exp');
+
+			vi.useRealTimers();
+		});
+
+		it('rejects token expired by just one second', async () => {
+			const vaultId = 'vault-789-boundary';
+			const registryUrl = 'https://registry-expiry-boundary.example.com';
+			const payload = {
+				iss: registryUrl,
+				sub: 'user@example.com',
+				aud: vaultId,
+				nonce: 'boundary-nonce',
+				email: 'user@example.com'
+			};
+
+			vi.useFakeTimers();
+			const token = await signToken(payload, testKeys.privateKey);
+
+			const jwks = await pemToJwk(testKeys.publicKey, 'test-key-4b');
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({ keys: [jwks] })
 			});
+
+			// Advance exactly 5 min + 1 second past expiry
+			vi.advanceTimersByTime(5 * 60 * 1000 + 1000);
+
+			await expect(
+				verifyAuthToken(token, { registryUrl, vaultId })
+			).rejects.toThrow();
+
+			vi.useRealTimers();
+		});
+
+		it('accepts token that has not yet expired', async () => {
+			const vaultId = 'vault-789-valid';
+			const registryUrl = 'https://registry-expiry-valid.example.com';
+			const payload = {
+				iss: registryUrl,
+				sub: 'user@example.com',
+				aud: vaultId,
+				nonce: 'valid-nonce',
+				email: 'user@example.com'
+			};
+
+			vi.useFakeTimers();
+			const token = await signToken(payload, testKeys.privateKey);
+
+			const jwks = await pemToJwk(testKeys.publicKey, 'test-key-4c');
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({ keys: [jwks] })
+			});
+
+			// Advance by 4 minutes — token still valid (5 min TTL)
+			vi.advanceTimersByTime(4 * 60 * 1000);
+
+			const result = await verifyAuthToken(token, { registryUrl, vaultId });
 			expect(result).toBeDefined();
+			expect(result.email).toBe('user@example.com');
+
+			vi.useRealTimers();
 		});
 	});
 
