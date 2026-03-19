@@ -95,13 +95,17 @@ describe('Auth Middleware', () => {
 	describe('createAuthMiddleware', () => {
 		it('allows request when role meets minimum', async () => {
 			const mockDb = createMockDb();
-			const middleware = createAuthMiddleware('librarian');
+			const middleware = createAuthMiddleware('admin');
 
 			const result = await middleware({
 				db: mockDb as unknown as D1Database,
-				memberId: 'member-123',
+				memberId: 'admin-456',
 				orgId: TEST_ORG_ID
 			});
+
+			expect(result.authorized).toBe(true);
+			expect(result.member).toBeDefined();
+			expect(result.member?.id).toBe('admin-456');
 		});
 
 		it('allows request when role exceeds minimum', async () => {
@@ -126,6 +130,10 @@ describe('Auth Middleware', () => {
 				memberId: 'member-123',
 				orgId: TEST_ORG_ID
 			});
+
+			expect(result.authorized).toBe(false);
+			expect(result.status).toBe(403);
+			expect(result.error).toBe('Insufficient permissions');
 		});
 
 		it('rejects request when not authenticated', async () => {
