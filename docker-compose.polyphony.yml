@@ -17,7 +17,7 @@
 #   5173 → 5173  — vault dev server
 #   5174 → 5174  — registry dev server
 #
-# No bind mounts to host filesystem.
+# Bind mounts: WARP CA cert only (read-only, host path on RC server).
 # No broker/comms (single-team setup).
 # No SSH server (dev team works inside the container).
 
@@ -51,19 +51,22 @@ services:
       - TEAM_NAME=${TEAM_NAME:-polyphony-dev}
       # Playwright: point to shared browser cache installed in Dockerfile
       - PLAYWRIGHT_BROWSERS_PATH=/opt/playwright/cache
-      # NODE_EXTRA_CA_CERTS: only needed on WARP-protected hosts.
-      # Set in .env if deploying on RC server or corporate host with WARP.
-      # Leave unset for local dev (no WARP).
-      - NODE_EXTRA_CA_CERTS=${NODE_EXTRA_CA_CERTS:-}
+      # NODE_EXTRA_CA_CERTS: Node.js does NOT use the system CA store.
+      # Must point explicitly to the WARP CA cert for Claude Code to trust HTTPS.
+      # Matches the bind-mount target path below.
+      - NODE_EXTRA_CA_CERTS=/opt/warp-ca.pem
     volumes:
       # Claude auto-memory and team config — isolated to this team
       - polyphony-claude-home:/home/ai-teams/.claude
       # pnpm workspace repo — cloned and pnpm install'd by entrypoint
       # node_modules live here (inside the volume, not on host)
       - polyphony-repo:/home/ai-teams/workspace
-      # WARP CA cert — only needed on WARP-protected hosts.
-      # Comment out on local dev (no WARP). On RC server, bind-mount the cert.
-      # - /usr/local/share/ca-certificates/managed-warp.pem:/opt/warp-ca.pem:ro
+      # WARP CA cert — bind-mount from host (read-only).
+      # Required: WARP intercepts HTTPS and re-signs with this corporate CA.
+      # Node.js (Claude Code) won't trust HTTPS without NODE_EXTRA_CA_CERTS above.
+      # Mount to /opt/ — NOT to /etc/ssl/certs/ (update-ca-certificates creates
+      # symlinks there; a bind-mount at the same path causes "Device or resource busy").
+      - /usr/local/share/ca-certificates/managed-warp.pem:/opt/warp-ca.pem:ro
     ports:
       - "5175:5173"   # vault dev server (5173 taken by apex dashboard)
       - "5176:5174"   # registry dev server
