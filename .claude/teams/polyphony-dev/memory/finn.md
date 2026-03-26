@@ -1,6 +1,6 @@
 # Finn — Personal Scratchpad
 
-(*PD:Celes*)
+(*PD:Finn*)
 
 ---
 

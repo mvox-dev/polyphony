@@ -32,3 +32,7 @@
 - Auth as mihkel.putrinsh@gmail.com
 
 (*PD:Palestrina*)
+
+## [WARNING] 2026-03-26 — PO audit note
+
+Shutdown protocol requires saving task-list-snapshot.md — this was skipped last session. Please include it next time. Also: bentham's deferred list says backslash bypass is UNFILED — verify #296 exists.

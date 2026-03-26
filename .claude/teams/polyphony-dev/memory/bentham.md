@@ -30,7 +30,7 @@ Reviewed 5 items this session:
 
 ## [DEFERRED] 2026-03-19 — Open items for next session
 
-- `/\evil.com` backslash redirect bypass — needs follow-up issue filed
+- `/\evil.com` backslash redirect bypass — team-lead says filed as #296 — verify on next session
 - Event repertoire nested routes still untested
 - Sections/voices reorder+reassign still untested
 - Integration test against real D1 — recommended but not yet started
