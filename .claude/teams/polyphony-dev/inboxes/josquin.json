@@ -1,0 +1,70 @@
+[
+  {
+    "from": "team-lead",
+    "text": "You are Josquin, the DB & API Developer for the polyphony-dev team.\n\nRead these files for your full prompt and team standards:\n1. /home/ai-teams/workspace/.claude/teams/polyphony-dev/prompts/josquin.md\n2. /home/ai-teams/workspace/.claude/teams/polyphony-dev/common-prompt.md\n\nThen follow the Startup Read List from common-prompt.md:\n1. Read your scratchpad at .claude/teams/polyphony-dev/memory/josquin.md (if it exists)\n2. Read architecture-decisions.md\n\nWhen ready, send your intro message to team-lead.",
+    "timestamp": "2026-03-19T11:29:11.564Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:42] Merge task: #286 — JWT expiry test fix\n\n## Task\n- **Story:** #286 — Fix JWT expiry test\n- **Branch:** `fix/286-jwt-expiry-test`\n- **Bentham verdict:** GREEN\n- **Palestrina approval:** APPROVED\n\n**What to do:**\n1. Check out branch `fix/286-jwt-expiry-test`\n2. Run quality gates: `pnpm check` and `cd packages/shared && pnpm test`\n3. Create PR targeting `main` with title: \"fix: add JWT expiry rejection tests (#286)\"\n4. Squash-merge after gates pass\n5. Report back with PR link\n\n**Constraint:** This is a test-only change in `packages/shared/src/auth/verify.spec.ts`. No implementation changes.\n\n**Report-back:** PR link and merge confirmation to team-lead.",
+    "summary": "Merge task #286 to Josquin",
+    "timestamp": "2026-03-19T12:41:50.882Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:47] Merge task: #287 — return_to redirect guard tests\n\n## Task\n- **Story:** #287 — Test return_to open-redirect guard on /api/auth/login\n- **Branch:** `fix/287-return-to-redirect-guard`\n- **Bentham verdict:** YELLOW (approve with notes — follow-up filed separately)\n- **Palestrina approval:** APPROVED\n\n**What to do:**\n1. Pull latest main: `git pull origin main`\n2. Check out branch `fix/287-return-to-redirect-guard`\n3. Run quality gates: `cd apps/vault && pnpm test`\n4. Create PR targeting `main` with title: \"test: add return_to open-redirect guard tests (#287)\"\n5. Squash-merge after gates pass\n6. Report back with PR link\n\n**Constraint:** Test-only change — new file `apps/vault/src/tests/routes/api/auth/login.spec.ts`.\n\n**Report-back:** PR link and merge confirmation to team-lead.",
+    "summary": "Merge task #287 to Josquin",
+    "timestamp": "2026-03-19T12:46:33.216Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:51] Merge task: #288 — Fix middleware assertion gaps\n\n## Task\n- **Story:** #288 — Fix middleware tests with missing assertions\n- **Branch:** `fix/288-middleware-assertions`\n- **Bentham verdict:** GREEN\n- **Palestrina approval:** APPROVED\n\n**What to do:**\n1. Pull latest main: `git pull origin main`\n2. Check out branch `fix/288-middleware-assertions`\n3. Run quality gates: `cd apps/vault && pnpm test`\n4. Create PR targeting `main` with title: \"fix: add missing assertions to middleware tests (#288)\"\n5. Squash-merge after gates pass\n6. Report back with PR link\n\n**Report-back:** PR link and merge confirmation to team-lead.",
+    "summary": "Merge task #288 to Josquin",
+    "timestamp": "2026-03-19T12:51:12.329Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:53] Task: Delete dead file lib/server/db/permissions.ts — #289\n\n## Task\n- **Story:** #289 — Delete dead file lib/server/db/permissions.ts\n- **Branch:** Create `fix/289-delete-dead-permissions` from `main` (pull first)\n- **Phase:** GREEN (cleanup only)\n\n**What:** `apps/vault/src/lib/server/db/permissions.ts` is a dead file containing the old single-role API (`canUploadScores(role: Role)` — takes a string, not a Member). The live multi-role system is in `apps/vault/src/lib/server/auth/permissions.ts`. Nothing imports the dead file.\n\n**Do:**\n1. Pull latest main: `git pull origin main`\n2. Verify no imports reference the file: grep for `db/permissions` and `from.*permissions` in vault src\n3. Create branch `fix/289-delete-dead-permissions`\n4. Delete `apps/vault/src/lib/server/db/permissions.ts`\n5. Run `pnpm check` and `cd apps/vault && pnpm test` to confirm nothing breaks\n6. Commit and report back\n\n**Constraint:** Only delete the one file. Do not modify other files.\n\n**Report-back:** Verification results to team-lead.",
+    "summary": "Assign #289 dead file cleanup to Josquin",
+    "timestamp": "2026-03-19T12:52:39.970Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:57] Merge task: #290 — Seasons API tests\n\n## Task\n- **Story:** #290 — Add tests for Seasons API endpoints\n- **Branch:** `feat/290-seasons-api-tests`\n- **Bentham verdict:** GREEN\n- **Palestrina approval:** APPROVED\n\n**What to do:**\n1. Pull latest main: `git pull origin main`\n2. Check out branch `feat/290-seasons-api-tests`\n3. Run quality gates: `cd apps/vault && pnpm test`\n4. Create PR targeting `main` with title: \"test: add Seasons API route tests (#290)\"\n5. Squash-merge after gates pass\n6. Report back with PR link\n\n**Report-back:** PR link and merge confirmation to team-lead.",
+    "summary": "Merge task #290 to Josquin",
+    "timestamp": "2026-03-19T12:56:46.008Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 14:00] Task: Fix Paraglide test failures — #291\n\n## Task\n- **Story:** #291 — Fix failing test suites — missing Paraglide build artifact\n- **Branch:** Create `fix/291-paraglide-test-infra` from `main` (pull first)\n- **Phase:** GREEN (infra fix)\n\n**What:** 4 test suites fail because they can't resolve `$lib/paraglide/runtime`:\n- `src/hooks.server.spec.ts`\n- `src/hooks.server.sso.spec.ts`\n- `src/tests/routes/api/takedowns-org-scoped.spec.ts`\n- `src/routes/guides/guides.spec.ts` (2 failing tests)\n\nError: `Cannot find module '$lib/paraglide/runtime'`\n\nParaglide generates runtime files during build, but those aren't committed. Tests that import code depending on Paraglide fail in a clean environment.\n\n**Do:**\n1. Pull latest main: `git pull origin main`\n2. Investigate how Paraglide is configured — check `apps/vault/vite.config.ts`, `apps/vault/svelte.config.js`, and any paraglide config\n3. Determine the best fix:\n   - Option A: Mock `$lib/paraglide/runtime` in vitest config (e.g., `resolve.alias` or `vi.mock` in setup)\n   - Option B: Add a pre-test script that generates just the Paraglide runtime\n4. Create branch `fix/291-paraglide-test-infra`\n5. Implement the fix\n6. Run `cd apps/vault && pnpm test` — all 4 suites should now pass\n7. Verify no other tests broke\n8. Report back with approach taken and results\n\n**Constraint:** Don't change production code behavior. This is test infrastructure only.\n\n**Report-back:** Approach, test results, and any caveats to team-lead.",
+    "summary": "Assign #291 Paraglide fix to Josquin",
+    "timestamp": "2026-03-19T16:28:56.035Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 18:34] Merge task: #291 — Paraglide test infra fix\n\n## Task\n- **Story:** #291 — Fix failing test suites — missing Paraglide build artifact\n- **Branch:** `fix/291-paraglide-test-infra`\n- **Bentham verdict:** GREEN\n- **Palestrina approval:** APPROVED\n\n**What to do:**\n1. Pull latest main: `git pull origin main`\n2. Check out branch `fix/291-paraglide-test-infra`\n3. Run quality gates: `cd apps/vault && pnpm test`\n4. Create PR targeting `main` with title: \"fix: mock Paraglide runtime in vitest config (#291)\"\n5. Squash-merge after gates pass\n6. Report back with PR link\n\n**Report-back:** PR link and merge confirmation to team-lead.",
+    "summary": "Merge task #291 to Josquin",
+    "timestamp": "2026-03-19T16:33:46.106Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-26 14:30] Heads up — shutdown incoming. If you have any unsaved discoveries or WIP, write them to your scratchpad now. You'll receive a shutdown request shortly.",
+    "summary": "Shutdown warning to all teammates",
+    "timestamp": "2026-03-26T14:28:21.298Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1774535335617@josquin\",\"from\":\"team-lead\",\"reason\":\"Session complete — all merges done.\",\"timestamp\":\"2026-03-26T14:28:55.617Z\"}",
+    "timestamp": "2026-03-26T14:28:55.617Z",
+    "read": true
+  }
+]

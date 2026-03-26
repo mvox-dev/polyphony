@@ -1,0 +1,494 @@
+[
+  {
+    "from": "finn",
+    "text": "[2026-03-19 13:28] Finn online. Research Coordinator ready.\n\nStartup complete — scratchpad fresh (no prior session), shared memory files (architecture-decisions, test-gaps, i18n-conventions) are all empty headers. Ready to receive research requests.",
+    "summary": "Finn online, ready for research requests",
+    "timestamp": "2026-03-19T11:28:42.821Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"finn\",\"timestamp\":\"2026-03-19T11:28:45.704Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T11:28:45.704Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 13:28] Bentham online and ready for reviews.\n\nStartup complete:\n- Read my prompt and common standards\n- No prior scratchpad (fresh session)\n- `architecture-decisions.md` and `test-gaps.md` are initialized but empty — no prior decisions or gaps recorded yet\n\nStanding by for code review assignments. Send me a branch or diff and I'll return a RED/YELLOW/GREEN verdict.",
+    "summary": "Bentham ready for code reviews",
+    "timestamp": "2026-03-19T11:28:54.099Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T11:28:55.966Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T11:28:55.966Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "byrd",
+    "text": "[2026-03-19 13:29] Byrd online. Scratchpad is fresh (no prior session). Architecture decisions file is empty. Ready for assignment — awaiting tasks.",
+    "summary": "Byrd online and ready for assignment",
+    "timestamp": "2026-03-19T11:29:28.195Z",
+    "color": "purple",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "[2026-03-19 13:29] Tallis online. Scratchpad doesn't exist yet (fresh start). test-gaps.md is empty. Ready to receive story assignments for RED phase. Awaiting tasks.",
+    "summary": "Tallis ready, awaiting story assignments",
+    "timestamp": "2026-03-19T11:29:29.832Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "byrd",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"byrd\",\"timestamp\":\"2026-03-19T11:29:31.156Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T11:29:31.156Z",
+    "color": "purple",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-19T11:29:31.895Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T11:29:31.895Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 13:29] Josquin online and ready. Scratchpad is empty (fresh start). Architecture decisions file read — no entries yet. Standing by for task assignment. (*PD:Josquin*)",
+    "summary": "Josquin ready for task assignment",
+    "timestamp": "2026-03-19T11:29:32.683Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T11:29:35.356Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T11:29:35.356Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "[2026-03-19 14:33] Test Coverage Audit — Full Report\n\n---\n\n## 1. Test File Inventory\n\n**Note on vault test layout:** Vault uses two patterns — co-located (`src/lib/server/db/foo.spec.ts` next to `foo.ts`) and centralized (`src/tests/lib/server/db/foo.spec.ts`). Both count as coverage.\n\n### packages/shared — 4 spec files\n\n```\nsrc/types/orgid.spec.ts\nsrc/auth/verify.spec.ts\nsrc/crypto/jwt.spec.ts\nsrc/crypto/jwks.spec.ts\n```\n\n### apps/registry — 13 spec files\n\n**Co-located:**\n```\nsrc/lib/setup.spec.ts\nsrc/lib/server/db/keys.spec.ts\n```\n\n**Centralized (src/tests/):**\n```\nsrc/tests/lib/server/db/activity.spec.ts\nsrc/tests/lib/server/db/snapshots.spec.ts\nsrc/tests/lib/auth-codes.spec.ts\nsrc/tests/acceptance.spec.ts\nsrc/tests/routes/api/notify/registration.spec.ts\nsrc/tests/routes/.well-known/jwks.json/+server.spec.ts\nsrc/tests/routes/register.spec.ts\nsrc/tests/routes/auth/init.spec.ts\nsrc/tests/routes/auth/callback.spec.ts\nsrc/tests/routes/auth/logout.spec.ts\nsrc/tests/routes/auth/email.spec.ts\nsrc/tests/routes/auth/verify.spec.ts\n```\n\n### apps/vault — 83 spec files\n\n**Co-located (src/lib/):**\n```\nsrc/lib/nav.spec.ts\nsrc/lib/nav-single-org.spec.ts\nsrc/lib/nav-urls.spec.ts\nsrc/lib/content/guides/guides.spec.ts\nsrc/lib/server/cloudflare/domains.spec.ts\nsrc/lib/server/db/inventory-reports.spec.ts\nsrc/lib/server/db/season-repertoire.spec.ts\nsrc/lib/server/db/sections.spec.ts\nsrc/lib/server/db/editions.spec.ts\nsrc/lib/server/db/works.spec.ts\nsrc/lib/server/db/member-organizations.spec.ts\nsrc/lib/server/db/event-materials.spec.ts\nsrc/lib/server/db/voices.spec.ts\nsrc/lib/server/db/event-repertoire.spec.ts\nsrc/lib/server/db/member-preferences.spec.ts\nsrc/lib/server/db/copy-assignments.spec.ts\nsrc/lib/server/db/copy-assignments-query.spec.ts\nsrc/lib/server/db/seasons.spec.ts\nsrc/lib/server/db/organizations.spec.ts\nsrc/lib/server/db/affiliations.spec.ts\nsrc/lib/server/db/participation.spec.ts\nsrc/lib/server/db/queries/members.spec.ts\nsrc/lib/server/db/roles.spec.ts\nsrc/lib/server/db/roster.spec.ts\nsrc/lib/server/db/physical-copies.spec.ts\nsrc/lib/server/i18n/preferences.spec.ts\nsrc/lib/server/email/admin-notification.spec.ts\nsrc/lib/server/storage/edition-storage.spec.ts\nsrc/lib/components/SortableList.spec.ts\nsrc/lib/utils/section-ordering.spec.ts\nsrc/lib/utils/sticky-header.spec.ts\nsrc/lib/utils/badges.spec.ts\nsrc/lib/utils/participation-permissions.spec.ts\nsrc/lib/utils/initials.spec.ts\nsrc/lib/utils/formatters.spec.ts\nsrc/lib/stores/toast.spec.ts\nsrc/hooks.server.sso.spec.ts\nsrc/hooks.server.spec.ts\n```\n\n**Co-located (src/routes/):**\n```\nsrc/routes/invite/accept/accept.spec.ts\nsrc/routes/guides/guides.spec.ts\nsrc/routes/api/internal/stats/stats.spec.ts\n```\n\n**Centralized (src/tests/):**\n```\nsrc/tests/i18n/messages.spec.ts\nsrc/tests/lib/server/db/events.spec.ts\nsrc/tests/lib/server/db/invites-roster.spec.ts\nsrc/tests/lib/server/db/member-sections-multi-org.spec.ts\nsrc/tests/lib/server/db/org-id-not-null.spec.ts\nsrc/tests/lib/server/db/members.spec.ts\nsrc/tests/lib/server/db/settings.spec.ts\nsrc/tests/lib/server/db/members-roster.spec.ts\nsrc/tests/lib/server/db/takedowns.spec.ts\nsrc/tests/lib/server/db/multi-org-isolation.spec.ts\nsrc/tests/lib/server/db/voices-org-scoped.spec.ts\nsrc/tests/lib/server/db/multi-org-isolation-extended.spec.ts\nsrc/tests/lib/server/db/invites-renew.spec.ts\nsrc/tests/lib/server/validation/schemas.spec.ts\nsrc/tests/lib/server/auth/middleware.spec.ts\nsrc/tests/lib/server/auth/permissions.spec.ts\nsrc/tests/lib/server/auth/middleware-roster.spec.ts\nsrc/tests/lib/server/auth/trust-individual-responsibility.spec.ts\nsrc/tests/routes/api/public/scores/pd/+server.spec.ts\nsrc/tests/routes/api/public/subdomains/check/+server.spec.ts\nsrc/tests/routes/api/public/organizations/+server.spec.ts\nsrc/tests/routes/api/events.spec.ts\nsrc/tests/routes/api/sections.spec.ts\nsrc/tests/routes/api/members-roles-owner-permission.spec.ts\nsrc/tests/routes/api/events/[id].spec.ts\nsrc/tests/routes/api/events/repertoire.spec.ts\nsrc/tests/routes/api/editions.spec.ts\nsrc/tests/routes/api/works.spec.ts\nsrc/tests/routes/api/voices.spec.ts\nsrc/tests/routes/api/invites/renew.spec.ts\nsrc/tests/routes/api/invites/revoke.spec.ts\nsrc/tests/routes/api/settings.spec.ts\nsrc/tests/routes/api/profile-preferences.spec.ts\nsrc/tests/routes/api/takedowns.spec.ts\nsrc/tests/routes/api/members/sections.spec.ts\nsrc/tests/routes/api/members/voices.spec.ts\nsrc/tests/routes/api/members/invite.spec.ts\nsrc/tests/routes/api/members/roster.spec.ts\nsrc/tests/routes/api/takedowns-org-scoped.spec.ts\nsrc/tests/routes/api/participation/attendance.spec.ts\nsrc/tests/routes/api/participation/validation.spec.ts\nsrc/tests/routes/api/participation/rsvp.spec.ts\nsrc/tests/routes/api/participation/trust-individual-responsibility.spec.ts\nsrc/tests/routes/api/participation/rsvp-override.spec.ts\nsrc/tests/routes/api/participation/status.spec.ts\nsrc/tests/routes/api/organizations.spec.ts\nsrc/tests/routes/api/takedowns-process-org-auth.spec.ts\nsrc/tests/routes/api/assignments/bulk-return.spec.ts\nsrc/tests/routes/api/copies/assignment.spec.ts\nsrc/tests/routes/api/copies/copies.spec.ts\nsrc/tests/routes/api/members-roles.spec.ts\nsrc/tests/routes/api/auth/callback-roster.spec.ts\nsrc/tests/routes/api/profile.spec.ts\nsrc/tests/routes/api/editions/file.spec.ts\nsrc/tests/routes/api/events-roster.spec.ts\nsrc/tests/routes/home.spec.ts\nsrc/tests/routes/layout.spec.ts\nsrc/tests/routes/copyright.spec.ts\n```\n\n### apps/vault — Playwright E2E (5 files)\n\n```\ntests/e2e/members.spec.ts\ntests/e2e/invite.spec.ts\ntests/e2e/homepage.spec.ts\ntests/e2e/api-auth.spec.ts\ntests/e2e/copyright.spec.ts\n```\n\n---\n\n## 2. Coverage Map by Module\n\n| Module | Location | Tests Exist? |\n|--------|----------|-------------|\n| **shared** | | |\n| Crypto (JWT sign/verify) | `packages/shared/src/crypto/` | ✅ jwt.spec, jwks.spec |\n| Auth token verification | `packages/shared/src/auth/` | ✅ verify.spec |\n| Types (OrgId) | `packages/shared/src/types/` | ✅ orgid.spec |\n| Types (index) | `packages/shared/src/types/index.ts` | ❌ no test |\n| **registry** | | |\n| OAuth init | `routes/auth/+server.ts` | ✅ init.spec |\n| OAuth callback | `routes/auth/callback/+server.ts` | ✅ callback.spec |\n| Logout | `routes/auth/logout/+server.ts` | ✅ logout.spec |\n| Email auth | `routes/auth/email/+server.ts` | ✅ email.spec |\n| Email verify | `routes/auth/verify/+server.ts` | ✅ verify.spec |\n| JWKS endpoint | `routes/.well-known/jwks.json/+server.ts` | ✅ +server.spec |\n| Registration notify | `routes/api/notify/registration/+server.ts` | ✅ registration.spec |\n| Register page | `routes/register/+page.server.ts` | ✅ register.spec |\n| DB keys | `lib/server/db/keys.ts` | ✅ keys.spec |\n| DB activity | `lib/server/db/activity.ts` | ✅ activity.spec |\n| DB snapshots | `lib/server/db/snapshots.ts` | ✅ snapshots.spec |\n| Auth codes | `lib/server/auth-codes.ts` | ✅ auth-codes.spec |\n| Email service | `lib/server/email.ts` | ❌ no test |\n| Directory page | `routes/directory/+page.server.ts` | ❌ no test |\n| Dashboard page | `routes/dashboard/+page.server.ts` | ❌ no test |\n| Register success page | `routes/register/success/+page.server.ts` | ❌ no test |\n| **vault** | | |\n| DB members | `lib/server/db/members.ts` | ✅ members.spec (centralized) |\n| DB invites | `lib/server/db/invites.ts` | ✅ invites-roster/renew.spec (centralized) |\n| DB settings | `lib/server/db/settings.ts` | ✅ settings.spec (centralized) |\n| DB takedowns | `lib/server/db/takedowns.ts` | ✅ takedowns.spec (centralized) |\n| DB roles | `lib/server/db/roles.ts` | ✅ roles.spec (co-located) |\n| DB sections | `lib/server/db/sections.ts` | ✅ sections.spec |\n| DB editions | `lib/server/db/editions.ts` | ✅ editions.spec |\n| DB works | `lib/server/db/works.ts` | ✅ works.spec |\n| DB seasons | `lib/server/db/seasons.ts` | ✅ seasons.spec |\n| DB participation | `lib/server/db/participation.ts` | ✅ participation.spec |\n| DB events | *(no direct lib file)* | ✅ events.spec (centralized) |\n| DB copies | `lib/server/db/physical-copies.ts` | ✅ physical-copies.spec |\n| DB assignments | `lib/server/db/copy-assignments.ts` | ✅ copy-assignments.spec |\n| DB organizations | `lib/server/db/organizations.ts` | ✅ organizations.spec |\n| Auth middleware | `lib/server/auth/middleware.ts` | ✅ middleware.spec (centralized) |\n| Auth permissions | `lib/server/auth/permissions.ts` | ✅ permissions.spec (centralized) |\n| Validation schemas | `lib/server/validation/schemas.ts` | ✅ schemas.spec (centralized) |\n| Storage (editions) | `lib/server/storage/edition-storage.ts` | ✅ edition-storage.spec |\n| Email notifications | `lib/server/email/admin-notification.ts` | ✅ admin-notification.spec |\n| i18n preferences | `lib/server/i18n/preferences.ts` | ✅ preferences.spec |\n| Cloudflare domains | `lib/server/cloudflare/domains.ts` | ✅ domains.spec |\n| API routes (all major) | `routes/api/` | ✅ see centralized test inventory |\n| hooks.server | `src/hooks.server.ts` | ✅ hooks.server.spec (FAILING) |\n| Utils | `lib/utils/` | ✅ multiple spec files |\n| Components | `lib/components/` | ✅ SortableList.spec |\n| **Untested lib/server** | | |\n| Server constants | `lib/server/constants.ts` | ❌ no test |\n| Auth index | `lib/server/auth/index.ts` | ❌ (likely re-exports) |\n| Utils/strings | `lib/server/utils/strings.ts` | ❌ no test |\n| Utils/id | `lib/server/utils/id.ts` | ❌ no test |\n| Utils/api-responses | `lib/server/utils/api-responses.ts` | ❌ no test |\n| **Untested page routes** | | |\n| All +page.server.ts files | `routes/*/+page.server.ts` | ❌ ~20 files (see section 3) |\n| Seasons API | `routes/api/seasons/` | ❌ no test found |\n\n---\n\n## 3. Untested Source Files\n\n### packages/shared\n- `src/types/index.ts` — type declarations only, no behavior\n- `src/index.ts` — re-exports only\n- `src/crypto/index.ts` — re-exports only\n\n### apps/registry\n- `src/lib/server/email.ts`\n- `src/routes/directory/+page.server.ts`\n- `src/routes/dashboard/+page.server.ts`\n- `src/routes/register/success/+page.server.ts`\n\n### apps/vault — lib/server (genuinely untested)\n- `src/lib/server/constants.ts`\n- `src/lib/server/auth/index.ts`\n- `src/lib/server/utils/strings.ts`\n- `src/lib/server/utils/id.ts`\n- `src/lib/server/utils/api-responses.ts`\n\n### apps/vault — routes/api (no test found)\n- `src/routes/api/seasons/+server.ts`\n- `src/routes/api/seasons/[id]/+server.ts`\n- `src/routes/api/seasons/[id]/works/` (all sub-routes)\n- `src/routes/api/editions/[id]/copies/+server.ts`\n- `src/routes/api/voices/reorder/+server.ts`\n- `src/routes/api/voices/[id]/reassign/+server.ts`\n- `src/routes/api/sections/reorder/+server.ts`\n- `src/routes/api/sections/[id]/reassign/+server.ts`\n\n### apps/vault — +page.server.ts files (all untested)\n```\nsrc/routes/+page.server.ts\nsrc/routes/login/+page.server.ts\nsrc/routes/profile/+page.server.ts\nsrc/routes/settings/+page.server.ts\nsrc/routes/members/+page.server.ts\nsrc/routes/members/[id]/+page.server.ts\nsrc/routes/members/add-roster/+page.server.ts\nsrc/routes/works/+page.server.ts\nsrc/routes/works/[id]/+page.server.ts\nsrc/routes/editions/+page.server.ts\nsrc/routes/editions/[id]/+page.server.ts\nsrc/routes/editions/[id]/view/+page.server.ts\nsrc/routes/events/+page.server.ts\nsrc/routes/events/new/+page.server.ts\nsrc/routes/events/[id]/+page.server.ts\nsrc/routes/events/roster/+page.server.ts\nsrc/routes/events/roster/classic/+page.server.ts\nsrc/routes/seasons/+page.server.ts\nsrc/routes/seasons/[id]/+page.server.ts\nsrc/routes/library/inventory/+page.server.ts\nsrc/routes/library/reports/collection/+page.server.ts\nsrc/routes/library/reports/missing-copies/+page.server.ts\nsrc/routes/invite/+page.server.ts\nsrc/routes/guides/+page.server.ts\nsrc/routes/guides/[slug]/+page.server.ts\n```\n\n---\n\n## 4. Test Counts\n\n### packages/shared\n- **Files:** 4 passed\n- **Tests:** 24 passed, 0 failed\n- **Duration:** 205ms\n\n### apps/registry\n- **Files:** 13 passed, 1 skipped (14 total)\n- **Tests:** 137 passed, 2 skipped, 0 failed\n- **Duration:** 298ms\n\n### apps/vault (unit)\n- **Files:** 96 passed, 4 failed (100 total)\n- **Tests:** 1230 passed, 2 failed, 1 skipped (1233 total)\n- **Duration:** 1.97s\n\n**Failing suites:**\n```\nFAIL  src/hooks.server.spec.ts\nFAIL  src/hooks.server.sso.spec.ts\nFAIL  src/tests/routes/api/takedowns-org-scoped.spec.ts\n```\n**Error:** `Cannot find module '$lib/paraglide/runtime'` — Paraglide generated files missing from test environment (build artifact, not committed).\n\n**Failing tests (2):**\n```\nFAIL  src/routes/guides/guides.spec.ts > guides [slug] page server > returns rendered HTML for valid guide slug\nFAIL  src/routes/guides/guides.spec.ts > guides [slug] page server > throws 404 for invalid slug\n```\n**Error:** `Cannot find module '$lib/paraglide/runtime.js'` — same root cause.\n\n### apps/vault (E2E/Playwright)\n- **Files:** 5 spec files\n- Counts not run (requires full dev server + browser)\n\n---\n\n**Total unit test count across monorepo:** ~1,391 tests (24 + 139 + 1,233), with 4 failing due to missing Paraglide build artifact.",
+    "summary": "Full test coverage audit report delivered",
+    "timestamp": "2026-03-19T12:34:53.826Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"finn\",\"timestamp\":\"2026-03-19T12:35:00.911Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:35:00.911Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 14:34] Test Architecture Review — Verdict: **YELLOW**\n\n## Summary\n\nThe security-critical paths are well covered. The architectural gaps are real but non-blocking — they represent risk accumulation, not immediate danger.\n\n---\n\n## 1. Are We Testing the Right Boundaries?\n\n**Mostly yes.** Strong coverage at the right layers:\n\n- **Auth middleware** — tested (`middleware.spec.ts`, `middleware-roster.spec.ts`). Registration checks, cookie validation, roster-member rejection all covered.\n- **Permission system** — thorough (`permissions.spec.ts`). Every role × permission combination tested, including multi-role unions, org-scoped permissions, null/undefined guards, and the `canEditParticipation` trust model.\n- **DB access layer** — extensive mock-D1 tests for members, works, editions, events, sections, voices, roles, copy-assignments, participation, organizations, affiliations, seasons, inventory-reports, settings. Good.\n- **API routes** — most routes have unit tests with mocked dependencies.\n- **Server/client boundary** — `hooks.server.spec.ts` tests subdomain extraction and public/protected route classification. SSO auto-auth tested in `hooks.server.sso.spec.ts`.\n\n**Gap:** All DB tests use **mock D1**. No test ever hits a real SQLite database. This means schema mismatches, constraint violations, and trigger bugs can hide until production. Not a RED because D1 local (`wrangler d1 migrations apply --local`) exists as a manual gate, but it's a structural weakness.\n\n## 2. Missing Test Categories\n\n| Category | Status | Notes |\n|----------|--------|-------|\n| Unit tests (logic) | ✅ Strong | Permissions, validation, formatters, nav, storage chunking |\n| Unit tests (routes) | ⚠️ Gaps | See §4 below — seasons, event sub-routes, reassign/reorder |\n| Integration tests (DB) | ❌ Missing | Zero tests against real SQLite/D1 — all mocked |\n| E2E (Playwright) | ⚠️ Thin | 5 files: homepage, members, invite, copyright, api-auth. No user journeys. |\n| Contract tests (Registry↔Vault) | ❌ Missing | No tests verify that Registry's public API queries match Vault's `/api/public/*` response shapes |\n| Migration tests | ❌ Missing | 43 migrations, zero automated verification (see §5) |\n\n## 3. Security-Critical Path Coverage\n\n### ✅ Well Covered\n- **Permission matrix** — all roles tested including edge cases (roster-only `email_id=null`, org-scoped isolation, multi-role union)\n- **JWT verification** (`packages/shared/src/auth/verify.spec.ts`) — valid token, wrong audience, wrong signature, different key, JWKS caching, JWKS fetch failure, malformed JWT, missing claims\n- **JWT signing** (`packages/shared/src/crypto/jwt.spec.ts`) — basic signing verified\n- **Auth middleware** — unauthenticated rejection (401), roster-member rejection, role checking\n- **Multi-org isolation** — `multi-org-isolation.spec.ts` and `multi-org-isolation-extended.spec.ts` document the isolation contracts (though 7 tests are documented as intentionally failing pending #233)\n- **SSO auto-auth** — loop guards, redirect triggers, bypass conditions all tested\n- **Owner permission escalation** — `members-roles-owner-permission.spec.ts` tests that owner role assignment requires org_id\n- **E2E auth enforcement** — `api-auth.spec.ts` verifies 401 on unauthenticated API calls\n\n### ⚠️ Weak Spots\n- **JWT expiry** — The test in `verify.spec.ts:127-155` is essentially a **TODO**. Comment says \"we'll add proper expiry testing later\" and the test creates a non-expired token and just verifies it works. **Expired tokens are never actually tested for rejection.** This is the most concerning security gap.\n- **Vault auth callback** (`api/auth/callback`) — `callback-roster.spec.ts` exists but no basic callback test for the Vault side (Registry callback is well tested)\n- **Vault auth login/logout** — no route-level tests for `api/auth/login` or `api/auth/logout`\n\n## 4. Untested API Routes\n\nThese Vault API routes have **no corresponding test file**:\n\n**Entire Seasons sub-tree (6 endpoints):**\n- `api/seasons`, `api/seasons/[id]`\n- `api/seasons/[id]/works`, `api/seasons/[id]/works/reorder`\n- `api/seasons/[id]/works/[workId]`\n- `api/seasons/[id]/works/[workId]/editions`, `api/seasons/[id]/works/[workId]/editions/[editionId]`\n\n**Event repertoire sub-routes (4 endpoints):**\n- `api/events/[id]/works/reorder`\n- `api/events/[id]/works/[workId]`\n- `api/events/[id]/works/[workId]/editions`\n- `api/events/[id]/works/[workId]/editions/[editionId]`\n\n**CRUD sub-operations (4 endpoints):**\n- `api/sections/[id]/reassign`, `api/sections/reorder`\n- `api/voices/[id]/reassign`, `api/voices/reorder`\n\n**Other:**\n- `api/works/[id]/editions`\n- `api/editions/[id]/copies`\n- `api/auth/login`, `api/auth/logout`\n\n## 5. D1 Migration Safety\n\n**No migration tests exist.** 43 migrations with zero automated verification. Specific risks:\n\n- No idempotency checks\n- No data-preservation tests for table rebuilds (the `_new` table pattern documented in common-prompt)\n- No tests for CASCADE behavior on D1 (where `PRAGMA foreign_keys = OFF` is a no-op)\n- The multi-org isolation tests document 7 known failures from migrations that haven't landed yet (#233)\n\nThis is mitigated by the manual `wrangler d1 migrations apply --local` gate and the remote migration protocol, but as migration count grows, this becomes increasingly fragile.\n\n## 6. Architectural Verdict: YELLOW\n\n**Why not RED:**\n- Security-critical paths (permissions, JWT, auth middleware, multi-org isolation) are well tested\n- The codebase has strong TDD discipline — most new features have tests\n- E2E exists and enforces auth boundaries\n- No active security vulnerability from test gaps\n\n**Why not GREEN:**\n- JWT expiry test is a TODO — this is the single most concerning item\n- No integration tests against real D1/SQLite — all DB tests use mocks\n- No Registry↔Vault contract tests — cross-service API surface is untested\n- Seasons sub-tree (6 endpoints) entirely untested\n- 43 migrations with zero automated safety nets\n- E2E is thin — no real user journeys\n\n## Recommended Actions (Priority Order)\n\n1. **[SECURITY]** Fix JWT expiry test — actually create an expired token and verify rejection. Assign to Tallis.\n2. **[ARCHITECTURE]** Add at least one integration test that runs against real D1 local — validate that mock assumptions match real SQLite behavior.\n3. **[COVERAGE]** File issues for untested seasons routes and event repertoire sub-routes.\n4. **[ARCHITECTURE]** Add contract test: Registry queries Vault's `/api/public/organizations` — verify response shape matches what Registry expects.\n5. **[COVERAGE]** Add migration smoke tests: apply all migrations to fresh D1, verify schema matches expectations.\n\n(*PD:Bentham*)",
+    "summary": "YELLOW verdict on test architecture review",
+    "timestamp": "2026-03-19T12:35:10.419Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T12:35:28.256Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:35:28.256Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "[2026-03-19 14:34] Test Coverage Gap Assessment — Report from Tallis\n\n---\n\n## Test Coverage Gap Assessment\n\n### 1. Overall Scale\n\n- **~100 spec files** across all packages (~75 vault, ~15 registry, 4 shared)\n- **Vault**: strong DB-layer and permissions coverage; route coverage is good for core CRUD but has systematic gaps in newer features\n- **Registry**: solid auth flow coverage (OAuth callback, SSO cookies, JWKS, email auth)\n- **Shared**: crypto and JWT well-tested (62 tests as of Phase 0)\n\n---\n\n### 2. Test Quality — What's Good\n\n**Permissions** (`permissions.spec.ts`): Excellent. Tests multi-role union, conductor-specific permissions, org-scoped role isolation, and registration requirement (null email_id → no permissions). Each `it()` asserts a single rule. Parameterised helpers make coverage readable.\n\n**Edition storage** (`edition-storage.spec.ts`): Excellent. Tests chunking boundaries (exactly at threshold, 1 byte over, 1 byte under), byte-level reassembly correctness, D1 data format normalization (ArrayBuffer vs number[]), and error rejection. This is the right level of depth for a critical algorithm.\n\n**SSO hooks** (`hooks.server.sso.spec.ts`): Good. Loop-guard, auth-route bypass, cookie attribute checks — all tested individually.\n\n**Registry OAuth callback** (`callback.spec.ts`): Good. Tests missing code/state, token exchange failure, 302 redirect location, Set-Cookie with all required attributes (Domain, HttpOnly, Secure, SameSite, Max-Age), JWT structure.\n\n**DB layer tests** (`members.spec.ts`, `invites-*.spec.ts`, `multi-org-isolation.spec.ts`): Good pattern — hand-crafted `createMockDb()` with realistic state machines. Covers voice/section CRUD, primary voice enforcement, CASCADE simulation.\n\n---\n\n### 3. Mock Pattern Consistency\n\nTwo patterns in use — both acceptable:\n\n| Pattern | Where used | Notes |\n|---------|-----------|-------|\n| Hand-crafted `createMockDb()` | DB layer tests, middleware | Stateful, realistic |\n| `vi.mock('$lib/server/...')` | Route handler tests | Fast, isolated |\n\nNo anti-pattern mixing within a file. Consistent across new test files. ✅\n\n**One issue**: `apps/vault/src/lib/server/db/permissions.ts` is a **dead file** with the old single-role API (`canUploadScores(role: Role)` — takes a string, not a Member). It conflicts with the live multi-role system in `auth/permissions.ts`. It has no tests because nothing uses it anymore. It should be deleted, not tested.\n\n---\n\n### 4. Anti-Patterns Found\n\n**[HIGH]** `middleware.spec.ts` L100–105 and L126–130: Two `it()` blocks invoke the middleware but never assert the result. The `result` variable is either not captured at all or not checked. These tests look like coverage but verify nothing:\n\n```ts\n// Line 100-105 — no assertion on result\nit('allows request when role meets minimum', async () => {\n    const result = await middleware({ ... });\n    // ← nothing here\n});\n\n// Line 126-130 — same\nit('rejects request when role below minimum', async () => {\n    const result = await middleware({ ... });\n    // ← nothing here\n});\n```\n\nThese need `expect(result.authorized).toBe(true/false)` added.\n\n**[MEDIUM]** `e2e/members.spec.ts` L41–97: Voice/section badge tests are wrapped in `if (count > 0)` — if test data has no voices/sections, tests trivially pass without asserting anything. They need unconditional test data setup in fixtures.\n\n---\n\n### 5. AC Coverage for Completed Issues\n\nSpot-checked completed items from CLAUDE.md:\n- ✅ #52 Permission helpers — `permissions.spec.ts` covers all helper functions\n- ✅ #50 Auth middleware consolidation — `middleware.spec.ts` + `middleware-roster.spec.ts` cover middleware\n- ✅ #51 Zod validation schemas — `validation/schemas.spec.ts` covers schemas\n- ✅ #55 Conductor role — conductor permissions tested in `permissions.spec.ts`\n- ✅ #54 Vault settings table — `settings.spec.ts` covers CRUD\n- ✅ Events (#56-58) — events DB + route tests exist\n- ✅ Participation (#59-60) — 6 participation spec files covering RSVP, attendance, trust-individual-responsibility, validation\n\n---\n\n### 6. Critical Gaps (Prioritized)\n\n**P0 — Security risk:**\n1. `GET /api/auth/login` — `return_to` open-redirect guard is untested. The guard rejects values not starting with `/` or starting with `//`. A bug here is a security vulnerability.\n\n**P1 — New features with zero route-level tests:**\n2. **Seasons API** (GET/POST/PATCH/DELETE `/api/seasons`, `/api/seasons/[id]`, season-works endpoints) — completely untested at route level\n3. `GET/DELETE /api/members/[id]` — member removal route has no tests\n4. `GET /api/auth/logout` — session termination logic untested\n\n**P2 — CRUD gaps:**\n5. `api/voices/[id]`, `api/voices/reorder`, `api/voices/[id]/reassign` — no route tests\n6. `api/sections/[id]`, `api/sections/reorder`, `api/sections/[id]/reassign` — no route tests\n7. `api/works/[id]` — individual work GET/PATCH/DELETE untested\n8. `api/copies/[id]`, `/assign`, `/return`, `editions/[id]/copies` — copy lifecycle untested at route level\n9. `api/events/[id]/works/*` — all event-works sub-resources (add, reorder, remove, edition attach) untested\n\n**P3 — Utility tests:**\n10. `lib/server/utils/strings.ts` — `trimOrNull`/`trimOrUndefined` have no tests (used in ~15 route handlers for validation)\n\n---\n\n### 7. Recommended Next Tests (ordered by impact)\n\n1. **Fix existing**: Add missing assertions to `middleware.spec.ts` L100-105 and L126-130 (15-min fix, high signal)\n2. **Delete dead file**: `lib/server/db/permissions.ts` — remove to eliminate confusion\n3. **New: auth/login return_to** — 3-4 tests covering redirect guard logic\n4. **New: seasons API** — ~15 tests for GET/POST/PATCH/DELETE + 409 conflict handling\n5. **New: members/[id] deletion** — ~5 tests including permission check (admin only) and 404\n6. **New: strings utils** — ~6 tests for `trimOrNull` / `trimOrUndefined` edge cases\n7. **Fix E2E**: Voice/section badge tests need test fixtures that guarantee pre-existing data\n\nFull gap list appended to `test-gaps.md`.\n\n(*PD:Tallis*)",
+    "summary": "Full test coverage gap assessment delivered",
+    "timestamp": "2026-03-19T12:35:40.672Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-19T12:35:45.453Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:35:45.453Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "[2026-03-19 14:39] Story #286 — JWT expiry tests — COMPLETE\n\n## Story Handoff\n- **Story:** #286 — Fix JWT expiry test\n- **Branch:** `fix/286-jwt-expiry-test`\n- **From:** Tallis (phase: GREEN — test-only fix, no implementation needed)\n- **To:** team-lead (merge or PR)\n- **Status:** TESTS_PASSING ✅\n\n### What was done\n\nReplaced the TODO stub in `packages/shared/src/auth/verify.spec.ts:127-155` with 3 real expiry tests using `vi.useFakeTimers()`:\n\n1. **`rejects expired token`** — signs token, advances time by 6 min (TTL=5 min), verifies rejection with `exp` in error\n2. **`rejects token expired by just one second`** — boundary test: TTL+1s triggers rejection\n3. **`accepts token that has not yet expired`** — advances 4 min, confirms still valid\n\n**Finding:** The implementation already handles expiry correctly. `jose`'s `jwtVerify` enforces `exp` natively. The error propagates as `\"Token verification failed: \"exp\" claim timestamp check failed\"`. No implementation fix was needed.\n\n### Test results\n\n```\nTests  26 passed (26)   ← was 23 before (3 new tests added)\n```\n\nAll 4 spec files pass. Duration: 194ms.\n\n### Files changed\n\n- `packages/shared/src/auth/verify.spec.ts` — replaced stub (L127-155) with 3 real expiry tests\n\n(*PD:Tallis*)",
+    "summary": "#286 JWT expiry tests complete, all 26 passing",
+    "timestamp": "2026-03-19T12:39:48.445Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-19T12:39:54.344Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:39:54.344Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 14:41] Code Review: #286 — JWT expiry test fix — Verdict: **GREEN**\n\n## Review Summary\n\nClean, correct fix for the security test gap I flagged in my audit. The three tests properly verify expiry behavior using `vi.useFakeTimers()`.\n\n## Analysis\n\n### Correctness ✅\n\nAll three tests use the right approach:\n\n1. **\"rejects expired token\"** — Signs at time T, advances 6 min past 5-min TTL. `Date.now()` in `signToken` and `jwtVerify` both see the mocked clock. The `exp` check (`360 > 300`) correctly triggers rejection. Error assertion `.toThrow('exp')` matches jose's `JWTExpired` message as wrapped by `verifyAuthToken`.\n\n2. **\"rejects token expired by just one second\"** — Advances 5m01s. Boundary test: `301 > 300` → expired. Good.\n\n3. **\"accepts token that has not yet expired\"** — Advances 4 min. `240 < 300` → valid. Positive boundary. Verifies `result.email` — good assertion.\n\n### Timer Interaction ✅\n\nEach test uses a **unique `registryUrl`**, which avoids JWKS cache collisions across tests (since `fetchJWKS` caches by URL with `Date.now()` timestamps). Tallis clearly thought about this.\n\n### Boundary Coverage ✅\n\nThe three tests form a proper boundary triplet:\n- Well past expiry (6 min) — rejects\n- Just past expiry (5m01s) — rejects  \n- Just before expiry (4 min) — accepts\n\n### Minor Note (not blocking)\n\nTimer cleanup uses `vi.useRealTimers()` at the end of each test. If a test throws before reaching that line, fake timers leak. An `afterEach(() => vi.useRealTimers())` in the `describe('expiry validation')` block would be more robust. Not worth YELLOW — this is style-level, and each test uses a unique registryUrl so cross-contamination risk is negligible.\n\n### TDD Compliance ✅\n\nTest-only change in spec file. No implementation change needed — the `signToken` TTL (`TOKEN_EXPIRY_SECONDS = 5 * 60`) and jose's `jwtVerify` expiry check were already correct. The gap was purely in test coverage.\n\n## Verdict: GREEN — Ready to merge.\n\n(*PD:Bentham*)",
+    "summary": "GREEN verdict on #286 JWT expiry test",
+    "timestamp": "2026-03-19T12:41:41.312Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T12:41:54.653Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:41:54.653Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 14:43] Merge complete for #286.\n\n- **PR:** https://github.com/mitselek/polyphony/pull/295\n- **Status:** MERGED (squash-merge to main)\n- **Quality gates:** 26/26 shared tests passing. `pnpm check` has a pre-existing vault paraglide issue (unrelated to this change).\n- **Changes:** Test-only — replaced placeholder JWT expiry test with 3 proper tests using `vi.useFakeTimers()`.\n\n(*PD:Josquin*)",
+    "summary": "PR #295 merged for issue #286",
+    "timestamp": "2026-03-19T12:43:31.611Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T12:43:35.404Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:43:35.404Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "[2026-03-19 14:45] Story #287 — return_to redirect guard tests — COMPLETE\n\n## Story Handoff\n- **Story:** #287 — Test return_to open-redirect guard on /api/auth/login\n- **Branch:** `fix/287-return-to-redirect-guard`\n- **From:** Tallis (phase: GREEN — test-only, implementation already correct)\n- **To:** team-lead (merge or PR)\n- **Status:** TESTS_PASSING ✅\n\n### What was done\n\nCreated `apps/vault/src/tests/routes/api/auth/login.spec.ts` with 11 tests covering all guard branches:\n\n**Valid paths (cookie IS set):**\n- `/dashboard` → accepted ✅\n- `/members/invite` (nested) → accepted ✅\n- `/` (root) → accepted ✅\n- `/events?date=2026-03-19` (with query string) → accepted ✅\n\n**Invalid values (cookie NOT set — open-redirect guard):**\n- `https://evil.com/steal` → rejected ✅\n- `http://evil.com` → rejected ✅\n- `//evil.com/steal` (protocol-relative) → rejected ✅\n- `` (empty string) → rejected ✅\n\n**Missing param (safe default):**\n- No `return_to` param → no cookie set ✅\n\n**Redirect behaviour:**\n- Always 302 to registry regardless of `return_to` validity ✅\n- Redirect URL includes `vault_id` and `callback` params ✅\n\n**Finding:** The guard (`returnTo.startsWith('/') && !returnTo.startsWith('//')`) is already implemented and works correctly. All 11 tests pass first try. No implementation fix needed.\n\n### Test results\n\n```\nTest Files  1 passed (1)\n     Tests  11 passed (11)\n  Duration  171ms\n```\n\n### Files changed\n\n- `apps/vault/src/tests/routes/api/auth/login.spec.ts` — new file, 11 tests\n\n(*PD:Tallis*)",
+    "summary": "#287 redirect guard tests complete, 11/11 passing",
+    "timestamp": "2026-03-19T12:45:21.873Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-19T12:45:27.391Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:45:27.391Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 14:45] Code Review: #287 — return_to redirect guard tests — Verdict: **YELLOW** (approve with notes)\n\n## Review Summary\n\nTests are correct and cover the primary attack vectors well. Two untested bypass patterns worth filing as follow-ups.\n\n## Analysis\n\n### Implementation Correctness ✅\n\nVerified against source (`apps/vault/src/routes/api/auth/login/+server.ts:13`):\n\n```ts\nif (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) {\n```\n\nThe guard checks: truthy + starts with `/` + not `//`. Tests align perfectly with this logic.\n\n### Test Quality ✅\n\n- **Valid paths (4):** simple, nested, root `/`, path with query string — good coverage\n- **Invalid values (4):** `https://`, `http://`, `//`, empty string — covers the main attack vectors\n- **Missing param (1):** safe default — correct\n- **Redirect behavior (2):** verifies 302 to registry with correct params regardless of return_to validity — important to confirm the redirect still fires even on invalid input\n\nCookie assertions check `httpOnly: true` and `path: '/'` — confirms the cookie isn't readable by client JS. Good.\n\n### Mock Pattern ✅\n\nThe `vi.mock('@sveltejs/kit')` pattern with `redirect` throwing an error mimics SvelteKit's actual behavior correctly. Cookie store using `Map` is clean.\n\n### TDD Compliance ✅\n\nNew test file, no implementation changes. Tests verify existing behavior.\n\n### Untested Bypass Vectors ⚠️\n\nTwo patterns worth adding in a follow-up:\n\n1. **Backslash trick:** `\\evil.com` — Some browsers normalize `\\` to `/`, making `\\evil.com` equivalent to `//evil.com` or a relative URL. The current guard would accept it (starts with `\\`, not `/`... actually it doesn't start with `/` so it'd be rejected). Wait — `\\evil.com` doesn't start with `/` so the guard correctly rejects it. But `/\\evil.com` DOES start with `/` and doesn't start with `//` — so the guard would **accept** it and set the cookie to `/\\evil.com`. Whether this is exploitable depends on the browser interpreting the redirect target. **This is worth a test to document the behavior.**\n\n2. **Path with `@` or userinfo:** `/login@evil.com` — starts with `/`, not `//`. Would be accepted. Not directly exploitable as a redirect since the callback route controls where the redirect goes (it reads the cookie value and does a relative redirect). But worth verifying the callback's handling.\n\nNeither of these is RED-worthy because the `auth_return_to` cookie is only consumed by the callback route (which presumably does its own redirect), and the cookie is `httpOnly` + `secure` + short-lived (`maxAge: 300`). The blast radius of a bypass here is limited. But they should be documented.\n\n### Cookie Security ✅\n\n`httpOnly: true`, `sameSite: 'lax'`, `secure: true`, `maxAge: 300` (5 min) — all correct for a transient auth redirect cookie.\n\n## Verdict: YELLOW — Approve with notes\n\nThe tests are correct and cover the main vectors. File a follow-up issue to add tests for `/\\evil.com` (backslash after leading slash) to document whether the guard rejects it. Not blocking because the callback route controls the actual redirect, but defense-in-depth matters.\n\n(*PD:Bentham*)",
+    "summary": "YELLOW verdict on #287 redirect guard tests",
+    "timestamp": "2026-03-19T12:46:23.015Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T12:46:26.010Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:46:26.010Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 14:47] Merge complete for #287.\n\n- **PR:** https://github.com/mitselek/polyphony/pull/297\n- **Status:** MERGED (squash-merge to main)\n- **Quality gates:** 1290/1290 vault tests passing (1 skipped). 11 new tests in login.spec.ts all green.\n- **Changes:** Test-only — new file `apps/vault/src/tests/routes/api/auth/login.spec.ts`.\n\n(*PD:Josquin*)",
+    "summary": "PR #297 merged for issue #287",
+    "timestamp": "2026-03-19T12:47:49.331Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T12:47:52.720Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:47:52.720Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "[2026-03-19 14:50] Story #288 — Middleware assertion fixes — COMPLETE\n\n## Story Handoff\n- **Story:** #288 — Fix middleware tests with missing assertions\n- **Branch:** `fix/288-middleware-assertions`\n- **From:** Tallis (phase: GREEN)\n- **To:** team-lead (merge or PR)\n- **Status:** TESTS_PASSING ✅\n\n### What was done\n\nFixed two no-op tests in `apps/vault/src/tests/lib/server/auth/middleware.spec.ts`.\n\n**Test 1 — \"allows request when role meets minimum\" (was L97-105)**\n\nThe original test used `member-123` (roles: `[]`) with `createAuthMiddleware('librarian')`, which would actually produce `authorized: false` — contradicting the test name. The mock data was wrong.\n\nFix: Changed to use `admin-456` (roles: `['admin']`) with `createAuthMiddleware('admin')` — a member who HAS the required role. Added assertions:\n```ts\nexpect(result.authorized).toBe(true);\nexpect(result.member).toBeDefined();\nexpect(result.member?.id).toBe('admin-456');\n```\n\n**Test 2 — \"rejects request when role below minimum\" (was L120-130)**\n\nThe mock data was correct (`member-123` with `[]` requires `'admin'` → failure), just missing assertions. Added:\n```ts\nexpect(result.authorized).toBe(false);\nexpect(result.status).toBe(403);\nexpect(result.error).toBe('Insufficient permissions');\n```\n\n### Test results\n\n```\nTest Files  1 passed (1)\n     Tests  7 passed (7)\n  Duration  222ms\n```\n\n### Files changed\n\n- `apps/vault/src/tests/lib/server/auth/middleware.spec.ts` — fixed two it() blocks with correct data + assertions\n\n(*PD:Tallis*)",
+    "summary": "#288 middleware assertions fixed, 7/7 passing",
+    "timestamp": "2026-03-19T12:50:29.331Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-19T12:50:35.064Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:50:35.064Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 14:50] Code Review: #288 — Fix middleware assertion gaps — Verdict: **GREEN**\n\n## Review Summary\n\nClean fix for two tests that were either asserting nothing or using wrong mock data. Both issues masked real test failures.\n\n## Analysis\n\n### Fix 1: \"allows request when role meets minimum\"\n\n**Before:** Used `member-123` (empty roles) with `createAuthMiddleware('librarian')`. This was testing \"member with no roles passes librarian check\" — the opposite of what the test name claimed. No assertions, so it silently passed regardless of result.\n\n**After:** Uses `admin-456` (has `['admin']` role) with `createAuthMiddleware('admin')`. Mock data now matches test intent. Three assertions: `authorized=true`, `member` defined, correct `member.id`.\n\nVerified against mock setup at L13-29: `admin-456` has `['admin']` in `memberRoles`. Correct.\n\n### Fix 2: \"rejects request when role below minimum\"\n\n**Before:** Used `member-123` (empty roles) with `createAuthMiddleware('admin')` — correct setup, but **zero assertions**. The test was a no-op.\n\n**After:** Three assertions: `authorized=false`, `status=403`, `error='Insufficient permissions'`. Consistent with the `it('rejects request when not authenticated')` test at L138-144 which asserts `authorized=false`, `status=401`, `error='Authentication required'`.\n\n### Assertion Pattern Consistency ✅\n\nThe assertion pattern (`authorized`, `status`, `error`, `member`) is consistent across all four tests in the `createAuthMiddleware` block. The 401/403 distinction is correct: unauthenticated → 401, insufficient role → 403.\n\n### Note on \"allows request when role exceeds minimum\" (L107-118)\n\nThis existing test (not modified) asserts `result.authorized === false` with comment \"admin doesn't have librarian role\". This is correct — the permission model uses exact role matching, not hierarchy. Admin ≠ librarian. Not a bug, just documenting that the test name is slightly misleading (\"exceeds\" implies hierarchy). Not in scope for this PR.\n\n## Verdict: GREEN — Ready to merge.\n\n(*PD:Bentham*)",
+    "summary": "GREEN verdict on #288 middleware assertions",
+    "timestamp": "2026-03-19T12:51:02.035Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T12:51:05.900Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:51:05.900Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 14:52] Merge complete for #288.\n\n- **PR:** https://github.com/mitselek/polyphony/pull/298\n- **Status:** MERGED (squash-merge to main)\n- **Quality gates:** 1290/1290 vault tests passing (1 skipped).\n- **Changes:** Test-only — added missing assertions to two auth middleware tests.\n\n(*PD:Josquin*)",
+    "summary": "PR #298 merged for issue #288",
+    "timestamp": "2026-03-19T12:52:13.786Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T12:52:17.157Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:52:17.157Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 14:53] BLOCKER on #289 — file is NOT dead.\n\n`apps/vault/src/lib/server/db/permissions.ts` has active imports:\n\n**Production code:**\n- `apps/vault/src/routes/api/takedowns/+server.ts` — imports `getMemberRole`, `isAdminRole`\n- `apps/vault/src/routes/api/takedowns/[id]/process/+server.ts` — imports `getMemberRole`, `isAdminRole`\n\n**Test code:**\n- `apps/vault/src/tests/routes/api/takedowns.spec.ts` — imports `getMemberRole`\n- `apps/vault/src/tests/routes/api/takedowns-process-org-auth.spec.ts` — imports `getMemberRole`\n- `apps/vault/src/tests/routes/api/takedowns-org-scoped.spec.ts` — imports from `db/permissions`\n\nDeleting this file would break the takedowns API and 3 test suites. This needs a migration plan to move `getMemberRole`/`isAdminRole` into `auth/permissions.ts` first, or the takedowns routes need refactoring to use the multi-role system.\n\n**Recommendation:** Reject this as a simple delete. Needs a proper story to migrate takedowns off the old single-role API.\n\n(*PD:Josquin*)",
+    "summary": "Blocker: file has active imports, not safe to delete",
+    "timestamp": "2026-03-19T12:53:09.553Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T12:53:13.409Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:53:13.409Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "[2026-03-19 14:55] Story #290 — Seasons API tests — COMPLETE\n\n## Story Handoff\n- **Story:** #290 — Add tests for Seasons API endpoints\n- **Branch:** `feat/290-seasons-api-tests`\n- **From:** Tallis (phase: GREEN — test-only, all implementations already correct)\n- **To:** team-lead (merge or PR)\n- **Status:** TESTS_PASSING ✅\n\n### What was done\n\nCreated `apps/vault/src/tests/routes/api/seasons.spec.ts` with 27 tests covering all 5 seasons route handlers.\n\n**GET /api/seasons (4 tests)**\n- Returns list; returns empty array; filters by `?date=` param; requires auth\n\n**POST /api/seasons (8 tests)**\n- Creates with valid data (201); trims name whitespace; 400 missing name; 400 empty name; 400 missing start_date; 400 invalid date format; 409 name conflict; requires admin (403)\n\n**GET /api/seasons/[id] (5 tests)**\n- Returns by ID; 404 not found; includes events with `?events=true`; does NOT fetch events without flag; requires auth\n\n**PATCH /api/seasons/[id] (7 tests)**\n- Updates name; updates start_date; 400 empty name; 400 wrong date format; 404 not found; 409 conflict; requires admin\n\n**DELETE /api/seasons/[id] (3 tests)**\n- Deletes and returns `{success: true}`; 404 not found; requires admin\n\n### Test results\n\n```\nTest Files  1 passed (1)\n     Tests  27 passed (27)\n  Duration  262ms\n```\n\n### Files changed\n\n- `apps/vault/src/tests/routes/api/seasons.spec.ts` — new file, 27 tests\n\n(*PD:Tallis*)",
+    "summary": "#290 seasons API tests complete, 27/27 passing",
+    "timestamp": "2026-03-19T12:55:47.293Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-19T12:55:52.590Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:55:52.590Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 14:56] Code Review: #290 — Seasons API tests — Verdict: **GREEN**\n\n## Review Summary\n\nThorough, well-structured test file covering all 5 route handlers. Verified against source — tests align with implementation. This closes the \"entire seasons sub-tree untested\" gap from my audit.\n\n## Analysis\n\n### Coverage vs Implementation ✅\n\nVerified each test against the route source:\n\n| Handler | Implementation Pattern | Tests | Coverage |\n|---------|----------------------|-------|----------|\n| `GET /api/seasons` | Auth → date filter branch → getAllSeasons | 4 | ✅ Both branches, empty case, auth |\n| `POST /api/seasons` | Auth → assertAdmin → validate → create → 409 catch | 8 | ✅ Happy path, trim, 4 validation errors, conflict, auth |\n| `GET /api/seasons/[id]` | Auth → getSeason → ?events=true branch | 5 | ✅ Both branches, 404, auth |\n| `PATCH /api/seasons/[id]` | Auth → assertAdmin → validate → update → 404/409 | 7 | ✅ Both fields, 2 validation, 404, conflict, auth |\n| `DELETE /api/seasons/[id]` | Auth → assertAdmin → delete → 404 | 3 | ✅ Success, 404, auth |\n\n### Permission Checks ✅\n\n- **GET endpoints**: Test `getAuthenticatedMember` rejection (401) — correct, any authenticated member can view\n- **POST/PATCH/DELETE**: Test `assertAdmin` rejection (403) AND verify the mutation mock was NOT called — this is the right pattern (confirms early-exit before DB write)\n\n### Mock Pattern Consistency ✅\n\n- Uses same `vi.mock` + `vi.resetAllMocks()` in `beforeEach` pattern as other route tests (`events.spec.ts`, `works.spec.ts`)\n- `createMockEvent` helper with overrides is clean\n- SvelteKit `error`/`json` mocks match the patterns in `members-roles-owner-permission.spec.ts`\n\n### Validation Coverage ✅\n\nGood boundary testing on the validation logic:\n- Empty string after trim (`'   '`)\n- Wrong date format (`'01/09/2026'`, `'September 2026'`)\n- Missing required fields\n- Whitespace trimming verified\n\n### Org Scoping ✅\n\nTests pass `locals.org.id` through `createMockEvent` with `TEST_ORG_ID = createOrgId('org_crede_001')`. Verified that all DB calls in the source pass `orgId` or `locals.org.id` — the tests correctly exercise this.\n\n### One Observation (not blocking)\n\nThe `GET /api/seasons` handler returns `json(season)` (single object) for the `?date=` path, but `json(seasons)` (array) otherwise. The test correctly verifies this but doesn't assert the response structure difference (single vs array). This is fine — it's an API design choice, not a test gap.\n\n## Verdict: GREEN — Ready to merge.\n\nThis directly addresses item #3 from my test architecture audit (\"File issues for untested seasons routes\"). Good work.\n\n(*PD:Bentham*)",
+    "summary": "GREEN verdict on #290 seasons API tests",
+    "timestamp": "2026-03-19T12:56:37.588Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T12:56:40.566Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:56:40.566Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 14:57] Merge complete for #290.\n\n- **PR:** https://github.com/mitselek/polyphony/pull/299\n- **Status:** MERGED (squash-merge to main)\n- **Quality gates:** 1317/1317 vault tests passing (1 skipped), 102 test files.\n- **Changes:** Test-only — new `seasons.spec.ts` with 27 route-level tests.\n\n(*PD:Josquin*)",
+    "summary": "PR #299 merged for issue #290",
+    "timestamp": "2026-03-19T12:57:45.168Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T12:57:48.374Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T12:57:48.374Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 18:31] #291 implementation complete — ready for review.\n\n**Branch:** `fix/291-paraglide-test-infra`\n\n**Approach:** Added resolve aliases in `vite.config.ts` (test mode only) pointing to lightweight mock files:\n- `src/tests/mocks/paraglide-runtime.ts` — exports `locales`, `baseLocale`, `getLocale`, `setLocale`\n- `src/tests/mocks/paraglide-server.ts` — exports `paraglideMiddleware` (passthrough)\n- Aliases use array format ordered before `$lib` so they match first\n\n**Verification:**\n- Removed `src/lib/paraglide/` entirely → all 102 files / 1317 tests pass\n- Restored `src/lib/paraglide/` → all 102 files / 1317 tests still pass\n- No production code changed\n\n**Files changed:**\n- `apps/vault/vite.config.ts` (resolve aliases)\n- `apps/vault/src/tests/mocks/paraglide-runtime.ts` (new)\n- `apps/vault/src/tests/mocks/paraglide-server.ts` (new)\n\nReady for Tallis RED phase or direct review. (*PD:Josquin*)",
+    "summary": "#291 Paraglide test fix ready for review",
+    "timestamp": "2026-03-19T16:32:09.305Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T16:32:13.382Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T16:32:13.382Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-19 18:33] Code Review: #291 — Paraglide test infra fix — Verdict: **GREEN**\n\n## Review Summary\n\nClean infrastructure fix. The mocks are minimal and correctly scoped to test mode only. Alias ordering is correct.\n\n## Analysis\n\n### Alias Ordering ✅\n\nThe Paraglide aliases are spread into the array BEFORE the `$lib` catch-all alias (L27-33). This is critical — Vite resolves aliases in array order, so `$lib/paraglide/runtime` matches the specific mock before `$lib` catches it. The comment on L26 documents this. Correct.\n\n### Test-Mode Isolation ✅\n\nBoth the alias injection (`mode === 'test'`) and the plugin swap (L11: `svelte({ hot: false })` vs full sveltekit+paraglide) are gated on `mode === 'test'`. Production builds are completely unaffected. No production code was changed.\n\n### Mock Sufficiency ✅\n\nVerified all production imports from `$lib/paraglide/runtime` and `$lib/paraglide/server`:\n\n| Import | Source | Mock provides? |\n|--------|--------|---------------|\n| `locales` | `hooks.server.ts` | ✅ `['en', 'et', 'lv', 'uk']` — matches common-prompt's 4 locales |\n| `paraglideMiddleware` | `hooks.server.ts` | ✅ Passthrough, calls callback with `locale: 'en'` |\n| `getLocale` | `guides/+page.svelte`, `guides/[slug]/*` | ✅ Returns `'en'` |\n| `baseLocale` | (exported but not directly imported) | ✅ `'en'` |\n| `setLocale` | (exported but not directly imported) | ✅ No-op |\n| `cookieName` | (exported) | ✅ `'PARAGLIDE_LOCALE'` |\n\n### What About `$lib/paraglide/messages.js`?\n\nThere are ~30+ imports of `* as m from '$lib/paraglide/messages.js'` across Svelte components. These are NOT mocked by this PR. This is fine because:\n1. Message imports only appear in `.svelte` files (components)\n2. The test suite's unit tests target `.ts` server/lib code, not components\n3. Component tests would need a separate mock or the real build artifact\n4. No existing tests import messages — this PR doesn't break anything new\n\n### Could the Mocks Hide Real Bugs? ⚠️ (Low risk)\n\nThe `paraglideMiddleware` mock always passes `locale: 'en'`. If a test depends on locale-switching behavior through middleware, it would silently get English. However:\n- The hooks.server tests (`hooks.server.spec.ts`, `hooks.server.sso.spec.ts`) test subdomain extraction and auth routing, not locale resolution\n- The i18n preferences test (`preferences.spec.ts`) tests its own DB layer, not the Paraglide middleware\n- No current test exercises locale-dependent behavior through the middleware path\n\nIf a future test needs real locale switching, it would need to mock at a different level anyway. The passthrough is the right default.\n\n### Both `.js` and Bare Extensions Covered ✅\n\nEach mock has two alias entries: `$lib/paraglide/runtime.js` and `$lib/paraglide/runtime` (same for server). This handles both import styles found in the codebase (some files use `.js` extension, some don't).\n\n## Verdict: GREEN — Ready to merge.\n\nSolid infra fix that decouples test execution from Paraglide build artifacts. Clean checkout tests now work without `pnpm build` first.\n\n(*PD:Bentham*)",
+    "summary": "GREEN verdict on #291 Paraglide test infra",
+    "timestamp": "2026-03-19T16:33:35.694Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-19T16:33:39.530Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T16:33:39.530Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-19 18:34] Merge complete for #291.\n\n- **PR:** https://github.com/mitselek/polyphony/pull/300\n- **Status:** MERGED (squash-merge to main)\n- **Quality gates:** 102/102 test files, 1317/1317 tests passing (1 skipped).\n- **Changes:** Test infra — Paraglide mock aliases in vite.config.ts + 2 mock files.\n\n(*PD:Josquin*)",
+    "summary": "PR #300 merged for issue #291",
+    "timestamp": "2026-03-19T16:34:45.289Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-19T16:34:48.471Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-19T16:34:48.471Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "[2026-03-26 16:18] Google Stitch + MCP Claims — Verification Report\n\n---\n\n## Verdict Summary\n\n| Claim | Status |\n|-------|--------|\n| Google Stitch exists as a product | ✅ CONFIRMED |\n| Stitch MCP Server exists | ✅ CONFIRMED |\n| \"Antigravity IDE\" is real | ✅ CONFIRMED |\n| Google ADK + `AdkApp` class | ✅ CONFIRMED |\n| A2A (Agent-to-Agent) Protocol | ✅ CONFIRMED |\n| DESIGN.md standard for Stitch | ✅ CONFIRMED |\n| \"Google Stitch Prompt Guide\" on AI Developers Forum | ✅ CONFIRMED |\n| Codelab \"Prototype to Production: Bridge AI Design and Autonomous Coding\" | ⚠️ UNCONFIRMED |\n| Google Cloud publishes official MCP servers | ✅ CONFIRMED |\n\n---\n\n## Detailed Findings\n\n### 1. Google Stitch\n\n**✅ CONFIRMED**\n\n- Real product from Google Labs, publicly available (free, public preview)\n- Announced at Google I/O 2025; successor to Galileo AI (acquired by Google)\n- **What it does**: AI-powered UI design tool — generates mobile/web UI designs from text prompts or wireframes; exports HTML/CSS code\n- **API**: Yes — Stitch SDK on GitHub: https://github.com/google-labs-code/stitch-sdk\n- **Product site**: https://stitch.withgoogle.com/\n\n---\n\n### 2. Stitch MCP Server\n\n**✅ CONFIRMED**\n\n- Real MCP servers exist for Stitch (both official and community)\n- Official Google Codelab: \"Design-to-Code with Antigravity and Stitch MCP\" — confirms Antigravity integration: https://codelabs.developers.google.com/design-to-code-with-antigravity-stitch\n- Listed in MCP server directories: https://mcpservers.org/servers/kargatharaakash/stitch-mcp\n- Community implementation: https://github.com/StitchAI/stitch-ai-mcp/\n- **Cursor and Claude Code** mentioned as compatible: claimed but not independently verified in these results — the codelab confirms Antigravity specifically\n\n---\n\n### 3. Antigravity IDE\n\n**✅ CONFIRMED**\n\n- Real Google product, launched November 18, 2025 (public preview, free)\n- Agent-first IDE, heavily modified VS Code fork, uses Gemini 3 models\n- Supports Gemini 3 Pro, Claude Sonnet 4.5, Claude Opus 4.6, GPT-OSS\n- Official site: https://antigravity.google/\n- Codelab: https://codelabs.developers.google.com/getting-started-google-antigravity\n- Blog: https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/\n\n---\n\n### 4. Google Agent Development Kit (ADK) + `AdkApp`\n\n**✅ CONFIRMED**\n\n- Real official Google product for building AI agents and multi-agent systems\n- Official docs: https://google.github.io/adk-docs/\n- Google Cloud docs: https://docs.cloud.google.com/agent-builder/agent-development-kit/overview\n- `AdkApp` is a real class in the `vertexai` Python SDK (versions 1.121.0+): https://cloud.google.com/python/docs/reference/vertexai/latest/vertexai.preview.reasoning_engines.AdkApp\n\n---\n\n### 5. A2A (Agent-to-Agent) Protocol\n\n**✅ CONFIRMED**\n\n- Open, vendor-neutral protocol from Google, announced April 2025\n- Enables agents to discover each other, negotiate communication formats, and collaborate without exposing private code/data\n- Part of the ADK ecosystem\n- GitHub: https://github.com/a2aproject/A2A\n- ADK docs page: https://google.github.io/adk-docs/a2a/\n- Codelab: https://codelabs.developers.google.com/intro-a2a-purchasing-concierge\n\n---\n\n### 6. DESIGN.md Standard\n\n**✅ CONFIRMED**\n\n- Real Stitch feature — agent-friendly markdown file for exporting/importing design rules so design systems travel across projects\n- Stitch docs: https://stitch.withgoogle.com/docs/design-md/overview/\n\n---\n\n### 7. \"Google Stitch Prompt Guide\" on Google AI Developers Forum\n\n**✅ CONFIRMED**\n\n- Active thread on Google AI Developers Forum: https://discuss.ai.google.dev/t/stitch-prompt-guide/83844\n\n---\n\n### 8. Codelab \"Prototype to Production: Bridge AI Design and Autonomous Coding\"\n\n**⚠️ UNCONFIRMED — exact title not found**\n\n- This exact codelab title does NOT appear in Google's codelab library\n- Related codelabs exist: \"Design-to-Code with Antigravity and Stitch MCP\", various \"Prototype to Production\" ADK labs, but not this specific combination\n- Closest match: https://codelabs.developers.google.com/codelabs/cloud-run/how-to-connect-adk-to-deployed-cloud-run-llm\n- **This specific title may be hallucinated or paraphrased incorrectly**\n\n---\n\n### 9. Google Cloud MCP Servers\n\n**✅ CONFIRMED — extensive official support**\n\n- Google announced fully-managed remote MCP servers on December 10, 2025 (HTTPS endpoints, IAM auth, audit logging)\n- Main docs: https://docs.cloud.google.com/mcp/overview\n- 24+ official servers including:\n  - **Workspace**: Docs, Sheets, Slides, Calendar, Gmail\n  - **Database**: BigQuery, Cloud SQL, AlloyDB, Spanner, Firestore, Bigtable\n  - **Infra**: GCE, GKE, Cloud Run, Cloud Storage, Cloud Resource Manager, Google Maps\n  - **Security**: Security Command Center, Chronicle\n  - **AI/Media**: Imagen, Veo (Genmedia)\n  - **Other**: Google Analytics, Developer Knowledge, Gemini Cloud Assist\n- GitHub repos: https://github.com/google/mcp, https://github.com/googleapis/gcloud-mcp\n\n---\n\n## Bottom Line\n\n**7 of 8 specific claims check out.** The only one that can't be confirmed as stated is the specific codelab title — which may be a hallucinated name for a real-but-differently-titled codelab. Everything else (Stitch, Antigravity, ADK, A2A, MCP servers) is real and publicly available.",
+    "summary": "Google Stitch/MCP verification report — 7/8 confirmed",
+    "timestamp": "2026-03-26T14:18:39.538Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"finn\",\"timestamp\":\"2026-03-26T14:18:45.786Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:18:45.786Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "[2026-03-26 16:21] Stitch MCP — Practical Setup Guide\n\n---\n\n## Key Finding Upfront\n\nThere are **two distinct things** both called \"stitch-mcp\" — the team needs to know which one is right:\n\n| Package | What it actually is | Right for us? |\n|---------|---------------------|---------------|\n| `stitch-mcp` (kargatharaakash/npm) | Community MCP for **Google Stitch** UI design tool. Uses `gcloud` ADC auth. | ✅ YES |\n| `StitchAI/stitch-ai-mcp` (GitHub) | Memory management MCP for a different \"Stitch AI\" product. Uses `BASE_URL=api-demo.stitch-ai.co` | ❌ NO — different product |\n\nUse the `stitch-mcp` npm package (kargatharaakash).\n\n---\n\n## Step-by-Step Setup\n\n### Step 1 — Get a Stitch API Key\n\n1. Go to https://stitch.withgoogle.com\n2. Click your profile icon → **Stitch Settings**\n3. Navigate to **API Keys** → **Create Key**\n4. Copy the generated key\n\nAPI key is passed as:\n- env var: `STITCH_API_KEY`\n- or HTTP header: `X-Goog-Api-Key` to `https://stitch.googleapis.com/mcp`\n\n**Alternative auth (gcloud ADC):** The `stitch-mcp` npm package uses Google Cloud Application Default Credentials instead of a raw API key:\n```bash\ngcloud auth login\ngcloud config set project YOUR_PROJECT_ID\ngcloud auth application-default login\ngcloud auth application-default set-quota-project YOUR_PROJECT_ID\ngcloud beta services mcp enable stitch.googleapis.com\n```\n\n---\n\n### Step 2 — Install / Run\n\nNo separate install needed — runs via npx:\n\n```bash\nnpx -y stitch-mcp\n```\n\nRequirements: Node.js 18.0.0+\n\n---\n\n### Step 3 — Configure Claude Code\n\nThe current workspace settings are at `/home/ai-teams/workspace/.claude/settings.json`. There is **no `mcpServers` block yet**.\n\nAdd an `mcpServers` block. Two options depending on auth method:\n\n**Option A — npx + gcloud ADC (recommended by stitch-mcp package):**\n```json\n{\n  \"mcpServers\": {\n    \"stitch\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"stitch-mcp\"],\n      \"env\": {\n        \"GOOGLE_CLOUD_PROJECT\": \"YOUR_PROJECT_ID\"\n      }\n    }\n  }\n}\n```\n\n**Option B — Remote HTTP with API key (direct to stitch.googleapis.com):**\n```json\n{\n  \"mcpServers\": {\n    \"stitch\": {\n      \"type\": \"http\",\n      \"url\": \"https://stitch.googleapis.com/mcp\",\n      \"headers\": {\n        \"X-Goog-Api-Key\": \"${STITCH_API_KEY}\"\n      }\n    }\n  }\n}\n```\n\nThe `${STITCH_API_KEY}` syntax is supported — Claude Code expands env vars in settings.\n\n---\n\n### Step 4 — Minimum Viable Command (Option A)\n\n```bash\n# Prereq: gcloud auth\ngcloud auth application-default login\ngcloud config set project YOUR_PROJECT_ID\n\n# Test the server runs:\nnpx -y stitch-mcp\n```\n\nThen add the `mcpServers` block to `.claude/settings.json` and restart Claude Code. MCP tools will appear automatically.\n\n---\n\n## MCP Tools Exposed\n\nThe `stitch-mcp` package exposes these tools:\n\n| Tool | Description |\n|------|-------------|\n| `generate_screen_from_text` | Generates a new UI screen from a text prompt |\n| `extract_design_context` | Scans a screen to extract \"Design DNA\" (fonts, colors, layouts) |\n| `fetch_screen_code` | Retrieves raw HTML/CSS from a design screen |\n| `fetch_screen_image` | Downloads high-res screenshot of a screen |\n| `create_project` | Creates a new Stitch project/workspace |\n| `list_projects` | Lists all available Stitch projects |\n| `list_screens` | Lists all screens within a project |\n| `get_project` | Gets details of a specific project |\n| `get_screen` | Gets metadata for a specific screen |\n| `build_site` | Maps screens to routes and returns design HTML for each page |\n\n**Note:** `generate_ui`, `apply_vibe`, `export_code` (names Gemini suggested) do not exist as tool names — the functionality maps to `generate_screen_from_text` + `fetch_screen_code`.\n\n---\n\n## What's Needed from the Team\n\nBefore this can be configured:\n1. **Google Cloud project ID** with Stitch API enabled\n2. **Either** `gcloud` auth (already available if gcloud is installed) **or** a Stitch API key from stitch.withgoogle.com\n3. Decision on **which settings.json to add this to** — project-scoped (`.claude/settings.json`) or user-scoped (`~/.claude/settings.json`)\n\nThe `gcloud` CLI needs to be present in the environment. Check with: `which gcloud`",
+    "summary": "Stitch MCP setup guide with tools list and config",
+    "timestamp": "2026-03-26T14:21:31.186Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"finn\",\"timestamp\":\"2026-03-26T14:21:37.406Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:21:37.406Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "byrd",
+    "text": "[2026-03-26 16:28] Acknowledged. No WIP this session — no scratchpad write needed. Ready for shutdown.",
+    "summary": "Byrd ready for shutdown, nothing to save",
+    "timestamp": "2026-03-26T14:28:30.000Z",
+    "color": "purple",
+    "read": true
+  },
+  {
+    "from": "byrd",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"byrd\",\"timestamp\":\"2026-03-26T14:28:33.539Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:28:33.539Z",
+    "color": "purple",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"josquin\",\"timestamp\":\"2026-03-26T14:28:39.925Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:28:39.925Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-03-26 16:28] Bentham shutdown prep complete.\n\n- [LEARNED] The test architecture is YELLOW — security paths solid, but mock-only DB testing and missing integration/contract tests are structural risks that grow with each migration.\n- [DEFERRED] `/\\evil.com` backslash redirect bypass needs a follow-up issue. Event repertoire nested routes and sections/voices reorder+reassign still untested.\n- [WARNING] The \"allows request when role exceeds minimum\" test name in middleware.spec.ts is misleading (implies role hierarchy, but the system uses exact matching). Not a bug, but could confuse future contributors.\n\nScratchpad updated. Ready for shutdown request.",
+    "summary": "Bentham shutdown prep complete",
+    "timestamp": "2026-03-26T14:28:56.627Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "byrd",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1774535335257@byrd\",\"from\":\"byrd\",\"timestamp\":\"2026-03-26T14:28:58.412Z\",\"paneId\":\"%4\",\"backendType\":\"tmux\"}",
+    "timestamp": "2026-03-26T14:28:58.412Z",
+    "color": "purple",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "[2026-03-26 16:28] Scratchpad written. Ready for shutdown.\n\n- [LEARNED] Vault has 4 known test failures (paraglide build artifact issue, not code bug). ~1,391 total unit tests.\n- [LEARNED] Google Stitch ecosystem all confirmed real. Two \"stitch-mcp\" packages exist — different products, easy to confuse.\n- [DEFERRED] Stitch MCP setup blocked on: Google Cloud project ID + auth decision (gcloud ADC vs API key). No blockers on our side once PO provides credentials.",
+    "summary": "Scratchpad written, ready for shutdown",
+    "timestamp": "2026-03-26T14:28:59.853Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-03-26T14:29:00.561Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:29:00.561Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"tallis\",\"timestamp\":\"2026-03-26T14:29:01.273Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:29:01.273Z",
+    "color": "yellow",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"finn\",\"timestamp\":\"2026-03-26T14:29:02.604Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-03-26T14:29:02.604Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "[2026-03-26 14:29] Closing notes:\n- [LEARNED] `gh pr merge` succeeds on GitHub even when local git errors on missing `main` branch — always verify with `gh pr view`\n- [LEARNED] Vite resolve aliases need array format with specific paths before general `$lib` to override correctly\n- [DEFERRED] #289 dead file `db/permissions.ts` — needs migration story for takedowns routes before deletion",
+    "summary": "Josquin closing notes before shutdown",
+    "timestamp": "2026-03-26T14:29:03.710Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1774535333439@finn\",\"from\":\"finn\",\"timestamp\":\"2026-03-26T14:29:06.869Z\",\"paneId\":\"%1\",\"backendType\":\"tmux\"}",
+    "timestamp": "2026-03-26T14:29:06.869Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "josquin",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1774535335617@josquin\",\"from\":\"josquin\",\"timestamp\":\"2026-03-26T14:29:09.192Z\",\"paneId\":\"%5\",\"backendType\":\"tmux\"}",
+    "timestamp": "2026-03-26T14:29:09.192Z",
+    "color": "orange",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1774535334190@bentham\",\"from\":\"bentham\",\"timestamp\":\"2026-03-26T14:29:11.255Z\",\"paneId\":\"%2\",\"backendType\":\"tmux\"}",
+    "timestamp": "2026-03-26T14:29:11.255Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "tallis",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1774535334678@tallis\",\"from\":\"tallis\",\"timestamp\":\"2026-03-26T14:29:18.700Z\",\"paneId\":\"%3\",\"backendType\":\"tmux\"}",
+    "timestamp": "2026-03-26T14:29:18.700Z",
+    "color": "yellow",
+    "read": true
+  }
+]

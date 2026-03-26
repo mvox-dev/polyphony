@@ -1,0 +1,56 @@
+[
+  {
+    "from": "team-lead",
+    "text": "You are Tallis, the Test Engineer for the polyphony-dev team.\n\nRead these files for your full prompt and team standards:\n1. /home/ai-teams/workspace/.claude/teams/polyphony-dev/prompts/tallis.md\n2. /home/ai-teams/workspace/.claude/teams/polyphony-dev/common-prompt.md\n\nThen follow the Startup Read List from common-prompt.md:\n1. Read your scratchpad at .claude/teams/polyphony-dev/memory/tallis.md (if it exists)\n2. Read test-gaps.md\n\nWhen ready, send your intro message to team-lead.",
+    "timestamp": "2026-03-19T11:29:07.512Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:32] Task: Test Coverage Gap Assessment\n\n## Task\n- **From:** team-lead\n- **Story:** general (test coverage audit)\n- **Phase:** assessment (no code writing yet)\n\n**What:** Review all existing test files across the monorepo and assess test quality and gaps. I need your expert assessment on:\n\n1. **Test quality** — are existing tests testing the right things? Are they unit tests, integration tests, or just smoke tests?\n2. **Mock patterns** — are mocking patterns consistent across test files? Any anti-patterns?\n3. **AC coverage** — look at the GitHub issues that have been completed (check git log for merged PRs) and assess whether the acceptance criteria are reflected in tests\n4. **Critical gaps** — what are the highest-risk untested paths? Think: auth flows, permission checks, data mutations, file storage\n5. **Recommendations** — prioritized list of what tests should be written next\n\n**Context:** Branch is `master`, clean working tree. Tests run with `pnpm test`.\n\n**Report-back:** Structured markdown assessment to team-lead when complete.",
+    "summary": "Assess test quality and gaps",
+    "timestamp": "2026-03-19T12:32:45.969Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:38] Task: Fix JWT expiry test — #286\n\n## Task\n- **Story:** #286 — Fix JWT expiry test\n- **Branch:** `master` (test-only fix, work on a new branch `fix/286-jwt-expiry-test`)\n- **Phase:** RED → GREEN (you own this end-to-end since it's test-only)\n\n**What:** The JWT expiry test in `packages/shared/src/auth/verify.spec.ts:127-155` is a TODO. It creates a non-expired token and verifies it works, but never actually tests that expired tokens are rejected.\n\n**Do:**\n1. Read `packages/shared/src/auth/verify.spec.ts` to understand the current test\n2. Read `packages/shared/src/auth/verify.ts` to understand how expiry is handled in the implementation\n3. Create branch `fix/286-jwt-expiry-test`\n4. Write tests that:\n   - Create a token with expiry in the past\n   - Verify `verifyToken()` rejects it\n   - Verify the rejection reason/error is appropriate\n5. Run `cd packages/shared && pnpm test` to confirm tests pass (or fail if implementation doesn't handle expiry)\n6. Report back: tests passing or failing, and what you found\n\n**Constraint:** Only write in `packages/shared/src/**/*.spec.ts`. Do not modify implementation files.\n\n**Report-back:** Test results and findings to team-lead.",
+    "summary": "Assign #286 JWT expiry test to Tallis",
+    "timestamp": "2026-03-19T12:38:32.359Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:44] Task: Test return_to open-redirect guard — #287\n\n## Task\n- **Story:** #287 — Test return_to open-redirect guard on /api/auth/login\n- **Branch:** Create `fix/287-return-to-redirect-guard`\n- **Phase:** RED → GREEN (test-only if guard already exists)\n\n**What:** The `return_to` parameter on the vault auth login route has a redirect guard that rejects values not starting with `/` or starting with `//`. This guard is untested — a bug here is an open-redirect vulnerability.\n\n**Do:**\n1. First, find the vault auth login route — check `apps/vault/src/routes/api/auth/login/` or similar\n2. Read the implementation to understand how `return_to` is validated\n3. Create branch `fix/287-return-to-redirect-guard` from `main` (pull first: `git pull origin main`)\n4. Write tests covering:\n   - `return_to=/dashboard` → accepted (valid relative path)\n   - `return_to=https://evil.com` → rejected (absolute URL)\n   - `return_to=//evil.com` → rejected (protocol-relative URL)\n   - Missing `return_to` → uses safe default\n5. Run tests to confirm pass/fail\n6. Report back: test results and findings\n\n**Constraint:** Only write test files. Do not modify implementation.\n\n**Report-back:** Test results and findings to team-lead.",
+    "summary": "Assign #287 redirect guard test to Tallis",
+    "timestamp": "2026-03-19T12:43:55.450Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:48] Task: Fix middleware tests with missing assertions — #288\n\n## Task\n- **Story:** #288 — Fix middleware tests with missing assertions\n- **Branch:** Create `fix/288-middleware-assertions` from `main` (pull first)\n- **Phase:** GREEN (test fix only)\n\n**What:** Two `it()` blocks in `apps/vault/src/tests/lib/server/auth/middleware.spec.ts` (around L100-105 and L126-130) invoke the middleware but never assert the result. They look like coverage but verify nothing.\n\n**Do:**\n1. Pull latest main: `git pull origin main`\n2. Read `apps/vault/src/tests/lib/server/auth/middleware.spec.ts` — find the two assertion-less tests\n3. Create branch `fix/288-middleware-assertions`\n4. Add appropriate assertions (e.g., `expect(result.authorized).toBe(true/false)` or equivalent based on what the middleware returns)\n5. Run `cd apps/vault && pnpm test` to confirm all tests pass\n6. Report back with results\n\n**Constraint:** Only modify the test file. Do not touch implementation.\n\n**Report-back:** Test results to team-lead.",
+    "summary": "Assign #288 middleware assertions to Tallis",
+    "timestamp": "2026-03-19T12:48:14.829Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-19 13:54] Task: Add tests for Seasons API endpoints — #290\n\n## Task\n- **Story:** #290 — Add tests for Seasons API endpoints\n- **Branch:** Create `feat/290-seasons-api-tests` from `main` (pull first)\n- **Phase:** RED → GREEN (test-only — the API already exists)\n\n**What:** The entire Seasons API sub-tree has zero route-level tests. DB layer tests exist (`seasons.spec.ts`, `season-repertoire.spec.ts`) but no route handler tests.\n\n**Endpoints to test:**\n- `GET /api/seasons` — list seasons\n- `POST /api/seasons` — create season\n- `GET /api/seasons/[id]` — get single season\n- `PATCH /api/seasons/[id]` — update season\n- `DELETE /api/seasons/[id]` — delete season\n- Season-works sub-resources if time permits\n\n**Do:**\n1. Pull latest main: `git pull origin main`\n2. Read the route handlers: `apps/vault/src/routes/api/seasons/+server.ts` and `apps/vault/src/routes/api/seasons/[id]/+server.ts`\n3. Read existing DB tests for mock patterns: `apps/vault/src/lib/server/db/seasons.spec.ts`\n4. Create branch `feat/290-seasons-api-tests`\n5. Create test file(s) in `apps/vault/src/tests/routes/api/`\n6. Write tests covering: CRUD operations, permission checks, 404/409 error cases\n7. Run `cd apps/vault && pnpm test` to confirm all pass\n8. Report back with test count and results\n\n**Constraint:** Only write test files. Do not modify implementation.\n\n**Report-back:** Test results to team-lead.",
+    "summary": "Assign #290 seasons API tests to Tallis",
+    "timestamp": "2026-03-19T12:53:45.704Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "[2026-03-26 14:30] Heads up — shutdown incoming. If you have any unsaved discoveries or WIP, write them to your scratchpad now. You'll receive a shutdown request shortly.",
+    "summary": "Shutdown warning to all teammates",
+    "timestamp": "2026-03-26T14:28:21.294Z",
+    "read": true
+  },
+  {
+    "from": "team-lead",
+    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1774535334678@tallis\",\"from\":\"team-lead\",\"reason\":\"Session complete — test work done.\",\"timestamp\":\"2026-03-26T14:28:54.678Z\"}",
+    "timestamp": "2026-03-26T14:28:54.678Z",
+    "read": true
+  }
+]
