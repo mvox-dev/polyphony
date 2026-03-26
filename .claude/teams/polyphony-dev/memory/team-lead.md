@@ -15,11 +15,13 @@
 ### [DECISION] #289 is NOT a simple delete
 `lib/server/db/permissions.ts` has active imports from takedowns routes. Needs refactoring story to migrate to multi-role API.
 
-### [WIP] Stitch MCP integration
-- Google Stitch verified as real product (finn research)
-- `.mcp.json` configured with API key (gitignored)
-- `.mcp.json.example` committed for team
-- MCP server not yet tested — next session should verify connection
+### [DECISION] Stitch MCP integration — VERIFIED
+- Google Stitch MCP server tested and working (2026-03-26)
+- GCP project: `polyphony-stitch` (created under `mitselek@gmail.com`)
+- Auth: ADC via `gcloud auth application-default login`
+- `.mcp.json` has API key + `GOOGLE_CLOUD_PROJECT` (gitignored)
+- `.mcp.json.example` updated with both env vars
+- Requires restart of Claude Code to expose tools
 - Tools available: `generate_screen_from_text`, `fetch_screen_code`, `build_site`, etc.
 
 ### [DECISION] Branch convention

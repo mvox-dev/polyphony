@@ -4,7 +4,8 @@
       "command": "npx",
       "args": ["-y", "stitch-mcp"],
       "env": {
-        "STITCH_API_KEY": "your-stitch-api-key-here"
+        "STITCH_API_KEY": "your-stitch-api-key-here",
+        "GOOGLE_CLOUD_PROJECT": "your-gcp-project-id"
       }
     }
   }
