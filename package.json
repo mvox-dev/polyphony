@@ -21,7 +21,7 @@
     "eslint-plugin-complexity": "^1.0.2",
     "ts-complex": "^1.0.0",
     "typescript": "^5.9.3",
-    "wrangler": "^4.65.0"
+    "wrangler": "^4.77.0"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {
