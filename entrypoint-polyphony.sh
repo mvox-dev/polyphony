@@ -186,6 +186,7 @@ declare -A SHELL_VARS=(
     [CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS]="${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-1}"
     [GITHUB_TOKEN]="${GITHUB_TOKEN}"
     [TEAM_NAME]="${TEAM_NAME:-polyphony-dev}"
+    [CLAUDE_ENV_ID]="POLY"
     [PLAYWRIGHT_BROWSERS_PATH]="/opt/playwright/cache"
     [LANG]="en_US.UTF-8"
     [LC_ALL]="en_US.UTF-8"
@@ -239,6 +240,26 @@ fi
 # ── Step 6c: Git attribution ──────────────────────────────────────────────────
 gosu "${CONTAINER_USER}" git config --global user.name "polyphony-dev"
 gosu "${CONTAINER_USER}" git config --global user.email "${GIT_USER_EMAIL:-mihkel.putrinsh@evr.ee}"
+
+# ── Step 6d: Install team scripts + CLAUDE.md ────────────────────────────────
+# Copy layout/spawn scripts from repo to /home/ai-teams/ on every start.
+for SCRIPT in apply-layout.sh spawn_member.sh; do
+    SRC="${WORKSPACE}/.claude/${SCRIPT}"
+    DST="${HOME_DIR}/${SCRIPT}"
+    if [ -f "$SRC" ]; then
+        cp "$SRC" "$DST"
+        chmod +x "$DST"
+        chown "${CONTAINER_UID}:${CONTAINER_GID}" "$DST"
+    fi
+done
+
+# Install ~/.claude/CLAUDE.md (boot instructions). First run only.
+CLAUDE_MD_DST="${CLAUDE_DIR}/CLAUDE.md"
+if [ ! -f "$CLAUDE_MD_DST" ] && [ -f "${WORKSPACE}/.claude/CLAUDE.md" ]; then
+    cp "${WORKSPACE}/.claude/CLAUDE.md" "$CLAUDE_MD_DST"
+    chown "${CONTAINER_UID}:${CONTAINER_GID}" "$CLAUDE_MD_DST"
+    echo "[entrypoint] Installed ~/.claude/CLAUDE.md."
+fi
 
 # ── Step 7: Claude settings.json (first run only) ─────────────────────────────
 # Pre-configure permissions. Don't overwrite if file exists — PO may have customized.
