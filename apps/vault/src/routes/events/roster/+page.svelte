@@ -62,7 +62,7 @@
 	function handleWindowScroll() {
 		if (!scrollContainer) return;
 		const gridBottom = scrollContainer.getBoundingClientRect().bottom;
-		headerShouldStick = shouldHeaderStick(gridBottom, window.innerHeight, UNSTICK_THRESHOLD);
+		headerShouldStick = shouldHeaderStick(gridBottom, UNSTICK_THRESHOLD);
 	}
 	// --- End smart unstick ---
 
@@ -375,7 +375,6 @@
 		<!-- Header band: sticky when content extends below viewport, static otherwise (#247) -->
 		<div
 			class="{headerShouldStick ? 'sticky top-0 z-40 shadow-md' : 'z-40'} rounded-t-lg border-t border-x border-gray-200 bg-white"
-			style="overflow: hidden;"
 			bind:this={headerScrollEl}
 		>
 					<div
