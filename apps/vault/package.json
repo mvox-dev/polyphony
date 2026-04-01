@@ -20,7 +20,7 @@
 		"lint": "prettier --check . && eslint ."
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "^4.20260217.0",
+		"@cloudflare/workers-types": "^4.20260401.1",
 		"@playwright/test": "^1.48.2",
 		"@sveltejs/adapter-cloudflare": "^6.0.0",
 		"@sveltejs/kit": "^2.49.1",
@@ -42,7 +42,7 @@
 		"typescript": "^5.7.2",
 		"vite": "^7.2.6",
 		"vitest": "^3.2.4",
-		"wrangler": "^4.77.0"
+		"wrangler": "^4.79.0"
 	},
 	"dependencies": {
 		"@inlang/paraglide-js": "^2.10.0",
