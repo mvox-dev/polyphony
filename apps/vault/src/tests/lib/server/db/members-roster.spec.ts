@@ -98,8 +98,13 @@ const createMockDb = () => {
 						}
 						return null;
 					}
-					// SELECT by email_id
-					if (sql.includes('WHERE email_id =')) {
+					// SELECT by id (with JOIN member_organizations) — must come before email_id check
+					if (sql.includes('FROM members') && sql.includes('member_organizations') && sql.includes('WHERE m.id')) {
+						const id = params[0] as string;
+						return members.get(id) || null;
+					}
+					// SELECT by email_id (org-scoped via JOIN member_organizations)
+					if (sql.includes('m.email_id') && sql.includes('member_organizations')) {
 						const email_id = params[0] as string;
 						for (const member of members.values()) {
 							if (member.email_id === email_id) {
@@ -107,11 +112,6 @@ const createMockDb = () => {
 							}
 						}
 						return null;
-					}
-					// SELECT by id (with JOIN member_organizations)
-					if (sql.includes('FROM members') && sql.includes('member_organizations') && sql.includes('WHERE m.id')) {
-						const id = params[0] as string;
-						return members.get(id) || null;
 					}
 					return null;
 				},
