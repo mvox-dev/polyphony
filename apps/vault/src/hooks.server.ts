@@ -145,6 +145,22 @@ export const ssoHandle: Handle = async ({ event, resolve }) => {
 		maxAge: 60
 	});
 
+	// #301: Preserve invite token before SSO redirect loses it.
+	// When visiting /invite/accept?token=xxx, the token must survive the
+	// auth redirect loop. Store it in the same cookie the /login page uses.
+	if (path === '/invite/accept') {
+		const inviteToken = event.url.searchParams.get('token');
+		if (inviteToken) {
+			event.cookies.set('pending_invite', inviteToken, {
+				path: '/',
+				httpOnly: true,
+				secure: true,
+				sameSite: 'lax',
+				maxAge: 60 * 10 // 10 minutes
+			});
+		}
+	}
+
 	// Auto-redirect through auth flow with return_to so user lands on intended page
 	const returnTo = event.url.pathname + event.url.search;
 	const loginUrl = `/api/auth/login?return_to=${encodeURIComponent(returnTo)}`;
