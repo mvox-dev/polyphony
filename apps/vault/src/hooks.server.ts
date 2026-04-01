@@ -170,6 +170,21 @@ export const ssoHandle: Handle = async ({ event, resolve }) => {
 	});
 };
 
+// Request logging handle — lightweight console.log for wrangler tail observability
+const requestLogHandle: Handle = async ({ event, resolve }) => {
+	const path = event.url.pathname;
+
+	// Skip static assets
+	if (path.startsWith('/_app/') || path.startsWith('/favicon')) {
+		return resolve(event);
+	}
+
+	const memberId = event.cookies.get('member_id') ?? 'anon';
+	const org = event.locals.org;
+	console.log(`[REQ] ${event.request.method} ${path} — member:${memberId} org:${org?.subdomain ?? 'none'}`);
+	return resolve(event);
+};
+
 // Locale resolution handle - syncs DB language preference with Paraglide cookie
 // Runs after orgHandle (org is resolved) and before paraglideHandle
 const localeHandle: Handle = async ({ event, resolve }) => {
@@ -229,5 +244,5 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 		});
 	});
 
-// Chain handles: org routing → org context guard → SSO auto-auth → locale resolution → paraglide i18n
-export const handle: Handle = sequence(orgHandle, orgContextGuard, ssoHandle, localeHandle, paraglideHandle);
+// Chain handles: org routing → org context guard → SSO auto-auth → request log → locale resolution → paraglide i18n
+export const handle: Handle = sequence(orgHandle, orgContextGuard, ssoHandle, requestLogHandle, localeHandle, paraglideHandle);
