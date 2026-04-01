@@ -1,6 +1,42 @@
 // Unit tests for hooks.server.ts
 import { describe, it, expect } from 'vitest';
-import { extractSubdomain, isPublicOrAuthRoute } from './hooks.server';
+import { extractSubdomain, isPublicOrAuthRoute, ssoHandle } from './hooks.server';
+import type { Handle } from '@sveltejs/kit';
+
+/**
+ * Helper to create a mock SvelteKit event for testing ssoHandle.
+ * Returns the event and a resolve spy.
+ */
+function createSsoMockEvent(options: {
+	pathname: string;
+	search?: string;
+	cookies?: Record<string, string>;
+}) {
+	const { pathname, search = '', cookies = {} } = options;
+	const cookieJar = new Map(Object.entries(cookies));
+	const setCookieCalls: Array<{ name: string; value: string; opts: Record<string, unknown> }> = [];
+
+	const url = new URL(`https://crede.polyphony.uk${pathname}${search}`);
+
+	const event = {
+		url,
+		cookies: {
+			get: (name: string) => cookieJar.get(name),
+			set: (name: string, value: string, opts: Record<string, unknown> = {}) => {
+				setCookieCalls.push({ name, value, opts });
+				cookieJar.set(name, value);
+			},
+			delete: (name: string, opts: Record<string, unknown> = {}) => {
+				cookieJar.delete(name);
+			}
+		}
+	} as unknown as Parameters<Handle>[0]['event'];
+
+	const resolveResponse = new Response('resolved');
+	const resolve = async () => resolveResponse;
+
+	return { event, resolve, resolveResponse, setCookieCalls };
+}
 
 describe('extractSubdomain', () => {
 	describe('localhost handling', () => {
@@ -118,6 +154,66 @@ describe('isPublicOrAuthRoute', () => {
 			expect(isPublicOrAuthRoute('/events')).toBe(false);
 			expect(isPublicOrAuthRoute('/login')).toBe(false);
 			expect(isPublicOrAuthRoute('/')).toBe(false);
+		});
+	});
+});
+
+// #301 — ssoHandle tests for cross-org invite acceptance bug
+describe('ssoHandle', () => {
+	describe('invite token preservation (#301 Bug 1)', () => {
+		it('sets pending_invite cookie when intercepting /invite/accept?token=xxx', async () => {
+			// Scenario: user has SSO cookie but no member_id on this vault,
+			// and visits /invite/accept?token=abc123
+			// Expected: ssoHandle should set pending_invite cookie BEFORE redirecting to login
+			const { event, resolve, setCookieCalls } = createSsoMockEvent({
+				pathname: '/invite/accept',
+				search: '?token=abc123',
+				cookies: { polyphony_sso: 'valid-sso-token' }
+			});
+
+			const response = await ssoHandle({ event, resolve });
+
+			// Should redirect (302) to login
+			expect(response.status).toBe(302);
+
+			// CRITICAL: pending_invite cookie must be set with the invite token
+			const pendingInviteCookie = setCookieCalls.find((c) => c.name === 'pending_invite');
+			expect(pendingInviteCookie).toBeDefined();
+			expect(pendingInviteCookie!.value).toBe('abc123');
+		});
+
+		it('does NOT set pending_invite for non-invite URLs', async () => {
+			// Scenario: normal SSO auto-auth on /members — no invite token to preserve
+			const { event, resolve, setCookieCalls } = createSsoMockEvent({
+				pathname: '/members',
+				cookies: { polyphony_sso: 'valid-sso-token' }
+			});
+
+			const response = await ssoHandle({ event, resolve });
+
+			// Should still redirect for SSO
+			expect(response.status).toBe(302);
+
+			// No pending_invite cookie should be set
+			const pendingInviteCookie = setCookieCalls.find((c) => c.name === 'pending_invite');
+			expect(pendingInviteCookie).toBeUndefined();
+		});
+
+		it('preserves the full invite token value in the cookie', async () => {
+			// Token with special characters that must survive round-trip
+			const longToken = 'inv_2026_xK9mQ7pLrWz3YbNvCdEf_GhIjKlMnOp';
+			const { event, resolve, setCookieCalls } = createSsoMockEvent({
+				pathname: '/invite/accept',
+				search: `?token=${encodeURIComponent(longToken)}`,
+				cookies: { polyphony_sso: 'valid-sso-token' }
+			});
+
+			const response = await ssoHandle({ event, resolve });
+
+			expect(response.status).toBe(302);
+			const pendingInviteCookie = setCookieCalls.find((c) => c.name === 'pending_invite');
+			expect(pendingInviteCookie).toBeDefined();
+			expect(pendingInviteCookie!.value).toBe(longToken);
 		});
 	});
 });
