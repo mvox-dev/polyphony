@@ -1,5 +1,6 @@
 # Brainstorm: Durable Knowledge in Agent Teams
 
+> **Historical document** — agent names (sven, dag, tess, etc.) are from the original design brainstorm and do not match the current polyphony-dev roster. Content is still relevant for memory system design.
 ## Problem
 
 Teammates lose knowledge in three ways:
