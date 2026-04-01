@@ -172,16 +172,29 @@ export const ssoHandle: Handle = async ({ event, resolve }) => {
 
 // Request logging handle — lightweight console.log for wrangler tail observability
 const requestLogHandle: Handle = async ({ event, resolve }) => {
-	const path = event.url.pathname;
+	const pathname = event.url.pathname;
 
 	// Skip static assets
-	if (path.startsWith('/_app/') || path.startsWith('/favicon')) {
+	if (pathname.startsWith('/_app/') || pathname.startsWith('/favicon')) {
 		return resolve(event);
 	}
 
-	const memberId = event.cookies.get('member_id') ?? 'anon';
+	const memberId = event.cookies.get('member_id');
 	const org = event.locals.org;
-	console.log(`[REQ] ${event.request.method} ${path} — member:${memberId} org:${org?.subdomain ?? 'none'}`);
+	let who = 'anon';
+
+	if (memberId) {
+		const db = event.platform?.env?.DB;
+		if (db) {
+			const row = await db
+				.prepare('SELECT name FROM members WHERE id = ?')
+				.bind(memberId)
+				.first<{ name: string }>();
+			who = row?.name ?? `id:${memberId}`;
+		}
+	}
+
+	console.log(`[REQ] ${event.request.method} ${pathname} — ${who} — org:${org?.subdomain ?? 'none'}`);
 	return resolve(event);
 };
 
