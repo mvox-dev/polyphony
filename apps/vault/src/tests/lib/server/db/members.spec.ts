@@ -172,26 +172,26 @@ const createMockDb = () => {
 						return { success: true };
 					},
 					first: async () => {
-						// SELECT member by email_id
-						if (sql.includes('FROM members') && sql.includes('WHERE email_id =')) {
+						// SELECT member by id (with JOIN member_organizations) — must come before email_id check
+						if (sql.includes('FROM members') && sql.includes('member_organizations') && sql.includes('WHERE m.id')) {
+							const id = params[0] as string;
+							return members.get(id) || null;
+						}
+						// SELECT member by email_id (org-scoped via JOIN member_organizations)
+						if (sql.includes('FROM members') && sql.includes('m.email_id') && sql.includes('member_organizations')) {
 							const email_id = params[0] as string;
 							for (const member of members.values()) {
 								if (member.email_id === email_id) return member;
 							}
 							return null;
 						}
-						// SELECT member by name (case-insensitive)
-						if (sql.includes('FROM members') && sql.includes('LOWER(name)')) {
+						// SELECT member by name (case-insensitive, org-scoped via JOIN member_organizations)
+						if (sql.includes('FROM members') && sql.includes('LOWER(') && sql.includes('member_organizations')) {
 							const name = params[0] as string;
 							for (const member of members.values()) {
 								if (member.name.toLowerCase() === name.toLowerCase()) return member;
 							}
 							return null;
-						}
-						// SELECT member by id (with JOIN member_organizations)
-						if (sql.includes('FROM members') && sql.includes('member_organizations') && sql.includes('WHERE m.id')) {
-							const id = params[0] as string;
-							return members.get(id) || null;
 						}
 						// UPDATE members SET email_id (for upgradeToRegistered)
 						if (sql.includes('UPDATE members SET email_id')) {

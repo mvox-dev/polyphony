@@ -259,8 +259,13 @@ export async function upgradeToRegistered(
  */
 export async function getMemberByEmailId(db: D1Database, emailId: string, orgId: OrgId): Promise<Member | null> {
 	const memberRow = await db
-		.prepare('SELECT id, name, nickname, email_id, email_contact, invited_by, joined_at FROM members WHERE email_id = ?')
-		.bind(emailId)
+		.prepare(
+			`SELECT m.id, m.name, m.nickname, m.email_id, m.email_contact, m.invited_by, m.joined_at
+			 FROM members m
+			 JOIN member_organizations mo ON m.id = mo.member_id
+			 WHERE m.email_id = ? AND mo.org_id = ?`
+		)
+		.bind(emailId, orgId)
 		.first<Omit<Member, 'roles' | 'voices' | 'sections'>>();
 
 	if (!memberRow) {
@@ -276,8 +281,13 @@ export async function getMemberByEmailId(db: D1Database, emailId: string, orgId:
  */
 export async function getMemberByName(db: D1Database, name: string, orgId: OrgId): Promise<Member | null> {
 	const memberRow = await db
-		.prepare('SELECT id, name, nickname, email_id, email_contact, invited_by, joined_at FROM members WHERE LOWER(name) = LOWER(?)')
-		.bind(name)
+		.prepare(
+			`SELECT m.id, m.name, m.nickname, m.email_id, m.email_contact, m.invited_by, m.joined_at
+			 FROM members m
+			 JOIN member_organizations mo ON m.id = mo.member_id
+			 WHERE LOWER(m.name) = LOWER(?) AND mo.org_id = ?`
+		)
+		.bind(name, orgId)
 		.first<Omit<Member, 'roles' | 'voices' | 'sections'>>();
 
 	if (!memberRow) {
