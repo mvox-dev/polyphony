@@ -262,7 +262,7 @@ export async function acceptInvite(
 			.all<{ voice_id: string; is_primary: number }>();
 		for (const v of rosterVoices.results) {
 			await db
-				.prepare('INSERT INTO member_voices (member_id, voice_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)')
+				.prepare('INSERT OR IGNORE INTO member_voices (member_id, voice_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)')
 				.bind(existingMember.id, v.voice_id, v.is_primary, invite.invited_by)
 				.run();
 		}
@@ -278,7 +278,7 @@ export async function acceptInvite(
 			.all<{ section_id: string; is_primary: number }>();
 		for (const s of rosterSections.results) {
 			await db
-				.prepare('INSERT INTO member_sections (member_id, section_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)')
+				.prepare('INSERT OR IGNORE INTO member_sections (member_id, section_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)')
 				.bind(existingMember.id, s.section_id, s.is_primary, invite.invited_by)
 				.run();
 		}
