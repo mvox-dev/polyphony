@@ -198,8 +198,10 @@ export async function getInviteById(
 }
 
 /**
- * Accept an invite and upgrade roster member to registered
- * Transfers roles from invite to member
+ * Accept an invite and upgrade roster member to registered.
+ * Handles cross-org resolution (#307): if a member with this email already exists
+ * in another org, bind that existing member to the invite's org instead of
+ * setting email_id on the roster slot (which would create a duplicate).
  */
 export async function acceptInvite(
 	db: D1Database,
@@ -217,18 +219,42 @@ export async function acceptInvite(
 		return { success: false, error: 'Invite has expired' };
 	}
 
-	// Upgrade roster member to registered
-	const { upgradeToRegistered } = await import('./members');
-	const member = await upgradeToRegistered(
-		db,
-		invite.roster_member_id,
-		email,
-		invite.orgId
-	);
+	// Check if a member with this email already exists globally (#307)
+	const { getMemberByEmailGlobal, upgradeToRegistered } = await import('./members');
+	const existingMember = await getMemberByEmailGlobal(db, email);
+
+	let memberId: string;
+
+	if (existingMember) {
+		// Cross-org case: member exists in another org (or already in this org).
+		// Bind the existing member to the invite's org if not already there.
+		const { getMemberOrganization, addMemberToOrganization } = await import('./member-organizations');
+		const alreadyInOrg = await getMemberOrganization(db, existingMember.id, String(invite.orgId));
+
+		if (!alreadyInOrg) {
+			await addMemberToOrganization(db, {
+				memberId: existingMember.id,
+				orgId: invite.orgId,
+				invitedBy: invite.invited_by
+			});
+		}
+
+		// Do NOT set email_id on the roster slot — that would create a duplicate (AC3a).
+		memberId = existingMember.id;
+	} else {
+		// Normal case: no existing member with this email — upgrade roster slot.
+		const member = await upgradeToRegistered(
+			db,
+			invite.roster_member_id,
+			email,
+			invite.orgId
+		);
+		memberId = member.id;
+	}
 
 	// Transfer roles from invite to member
 	if (invite.roles.length > 0) {
-		await addMemberRoles(db, member.id, invite.roles, invite.invited_by, invite.orgId);
+		await addMemberRoles(db, memberId, invite.roles, invite.invited_by, invite.orgId);
 	}
 
 	// Delete invite after successful acceptance (cleanup)
@@ -237,7 +263,7 @@ export async function acceptInvite(
 		.bind(token)
 		.run();
 
-	return { success: true, memberId: member.id };
+	return { success: true, memberId };
 }
 
 /**
