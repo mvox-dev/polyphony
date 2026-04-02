@@ -239,6 +239,67 @@ export async function acceptInvite(
 			});
 		}
 
+		// Transfer roster slot's org-B data to the real member before cleanup.
+		const rosterSlotId = invite.roster_member_id;
+
+		// Transfer org-B roles from roster slot → existing member
+		const rosterRoles = await db
+			.prepare('SELECT role FROM member_roles WHERE member_id = ? AND org_id = ?')
+			.bind(rosterSlotId, invite.orgId)
+			.all<{ role: Role }>();
+		for (const { role } of rosterRoles.results) {
+			await addMemberRoles(db, existingMember.id, [role], invite.invited_by, invite.orgId);
+		}
+		await db
+			.prepare('DELETE FROM member_roles WHERE member_id = ? AND org_id = ?')
+			.bind(rosterSlotId, invite.orgId)
+			.run();
+
+		// Transfer voices from roster slot → existing member
+		const rosterVoices = await db
+			.prepare('SELECT voice_id, is_primary FROM member_voices WHERE member_id = ?')
+			.bind(rosterSlotId)
+			.all<{ voice_id: string; is_primary: number }>();
+		for (const v of rosterVoices.results) {
+			await db
+				.prepare('INSERT INTO member_voices (member_id, voice_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)')
+				.bind(existingMember.id, v.voice_id, v.is_primary, invite.invited_by)
+				.run();
+		}
+		await db
+			.prepare('DELETE FROM member_voices WHERE member_id = ?')
+			.bind(rosterSlotId)
+			.run();
+
+		// Transfer sections from roster slot → existing member
+		const rosterSections = await db
+			.prepare('SELECT section_id, is_primary FROM member_sections WHERE member_id = ?')
+			.bind(rosterSlotId)
+			.all<{ section_id: string; is_primary: number }>();
+		for (const s of rosterSections.results) {
+			await db
+				.prepare('INSERT INTO member_sections (member_id, section_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)')
+				.bind(existingMember.id, s.section_id, s.is_primary, invite.invited_by)
+				.run();
+		}
+		await db
+			.prepare('DELETE FROM member_sections WHERE member_id = ?')
+			.bind(rosterSlotId)
+			.run();
+
+		// Remove roster slot from org B
+		const { removeMemberFromOrganization } = await import('./member-organizations');
+		await removeMemberFromOrganization(db, rosterSlotId, String(invite.orgId));
+
+		// Hard-delete roster member row if it has no remaining org memberships
+		const orgCount = await db
+			.prepare('SELECT COUNT(*) as count FROM member_organizations WHERE member_id = ?')
+			.bind(rosterSlotId)
+			.first<{ count: number }>();
+		if (!orgCount || orgCount.count === 0) {
+			await db.prepare('DELETE FROM members WHERE id = ?').bind(rosterSlotId).run();
+		}
+
 		// Do NOT set email_id on the roster slot — that would create a duplicate (AC3a).
 		memberId = existingMember.id;
 	} else {

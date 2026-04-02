@@ -31,6 +31,9 @@ interface MockState {
 	}>;
 	memberOrgs: Map<string, boolean>;   // key: `${memberId}:${orgId}`
 	memberRoles: Map<string, string[]>; // key: `${memberId}:${orgId}`
+	memberVoices: Map<string, Array<{ voice_id: string; is_primary: number }>>; // key: memberId
+	memberSections: Map<string, Array<{ section_id: string; is_primary: number }>>; // key: memberId
+	deletedMemberIds: Set<string>; // tracks DELETE FROM members WHERE id = ?
 }
 
 interface SetupOptions {
@@ -38,6 +41,12 @@ interface SetupOptions {
 	aliceOrgARoles?: string[];
 	/** Simulate alice already being registered in org B (AC3b scenario) */
 	aliceAlreadyInOrgB?: boolean;
+	/** Give the org-B roster slot pre-assigned roles in org B */
+	rosterOrgBRoles?: string[];
+	/** Give the org-B roster slot pre-assigned voices */
+	rosterVoices?: Array<{ voice_id: string; is_primary: number }>;
+	/** Give the org-B roster slot pre-assigned sections */
+	rosterSections?: Array<{ section_id: string; is_primary: number }>;
 }
 
 function createCrossOrgDb(opts: SetupOptions = {}): { db: D1Database; state: MockState } {
@@ -68,12 +77,27 @@ function createCrossOrgDb(opts: SetupOptions = {}): { db: D1Database; state: Moc
 			// Optionally alice is already in org B
 			...(opts.aliceAlreadyInOrgB ? [[`${ALICE_ID}:${ORG_B}`, true] as [string, boolean]] : [])
 		]),
-		memberRoles: new Map()
+		memberRoles: new Map(),
+		memberVoices: new Map(),
+		memberSections: new Map(),
+		deletedMemberIds: new Set()
 	};
 
 	// Seed org A roles for alice
 	if (opts.aliceOrgARoles?.length) {
 		state.memberRoles.set(`${ALICE_ID}:${ORG_A}`, [...opts.aliceOrgARoles]);
+	}
+	// Seed roster slot's org B roles
+	if (opts.rosterOrgBRoles?.length) {
+		state.memberRoles.set(`${ORG_B_ROSTER_ID}:${ORG_B}`, [...opts.rosterOrgBRoles]);
+	}
+	// Seed roster slot's voices
+	if (opts.rosterVoices?.length) {
+		state.memberVoices.set(ORG_B_ROSTER_ID, [...opts.rosterVoices]);
+	}
+	// Seed roster slot's sections
+	if (opts.rosterSections?.length) {
+		state.memberSections.set(ORG_B_ROSTER_ID, [...opts.rosterSections]);
 	}
 	// If alice is already in org B, seed her there too (AC3b)
 	if (opts.aliceAlreadyInOrgB) {
@@ -146,6 +170,13 @@ function createCrossOrgDb(opts: SetupOptions = {}): { db: D1Database; state: Moc
 						}
 						return null;
 					}
+					// SELECT COUNT(*) as count FROM member_organizations WHERE member_id = ?
+					if (sql.includes('COUNT') && sql.includes('member_organizations') && sql.includes('member_id = ?')) {
+						const [memberId] = params as [string];
+						const count = Array.from(state.memberOrgs.keys())
+							.filter(k => k.startsWith(`${memberId}:`)).length;
+						return { count };
+					}
 					return null;
 				},
 				run: async () => {
@@ -175,6 +206,58 @@ function createCrossOrgDb(opts: SetupOptions = {}): { db: D1Database; state: Moc
 						invites.delete(params[0] as string);
 						return { meta: { changes: 1 } };
 					}
+					// DELETE FROM member_organizations WHERE member_id = ? AND org_id = ?
+					if (sql.includes('DELETE FROM member_organizations')) {
+						const [memberId, orgId] = params as [string, string];
+						const deleted = state.memberOrgs.delete(`${memberId}:${orgId}`);
+						return { meta: { changes: deleted ? 1 : 0 } };
+					}
+					// DELETE FROM member_roles WHERE member_id = ? AND org_id = ? (bulk roster cleanup)
+					if (sql.includes('DELETE FROM member_roles') && sql.includes('org_id = ?')) {
+						const [memberId, orgId] = params as [string, string];
+						const had = state.memberRoles.has(`${memberId}:${orgId}`);
+						state.memberRoles.delete(`${memberId}:${orgId}`);
+						return { meta: { changes: had ? 1 : 0 } };
+					}
+					// INSERT INTO member_voices
+					if (sql.includes('INSERT') && sql.includes('member_voices')) {
+						const [memberId, voiceId, isPrimary] = params as [string, string, number];
+						const existing = state.memberVoices.get(memberId) ?? [];
+						// Skip if already assigned (INSERT OR IGNORE semantics)
+						if (!existing.some(v => v.voice_id === voiceId)) {
+							state.memberVoices.set(memberId, [...existing, { voice_id: voiceId, is_primary: isPrimary ?? 0 }]);
+						}
+						return { meta: { changes: 1 } };
+					}
+					// DELETE FROM member_voices WHERE member_id = ?
+					if (sql.includes('DELETE FROM member_voices') && sql.includes('member_id = ?')) {
+						const [memberId] = params as [string];
+						state.memberVoices.delete(memberId);
+						return { meta: { changes: 1 } };
+					}
+					// INSERT INTO member_sections
+					if (sql.includes('INSERT') && sql.includes('member_sections')) {
+						const [memberId, sectionId, isPrimary] = params as [string, string, number];
+						const existing = state.memberSections.get(memberId) ?? [];
+						if (!existing.some(s => s.section_id === sectionId)) {
+							state.memberSections.set(memberId, [...existing, { section_id: sectionId, is_primary: isPrimary ?? 0 }]);
+						}
+						return { meta: { changes: 1 } };
+					}
+					// DELETE FROM member_sections WHERE member_id = ?
+					if (sql.includes('DELETE FROM member_sections') && sql.includes('member_id = ?')) {
+						const [memberId] = params as [string];
+						state.memberSections.delete(memberId);
+						return { meta: { changes: 1 } };
+					}
+					// DELETE FROM members WHERE id = ? (hard delete roster row with no orgs)
+					if (sql.includes('DELETE FROM members') && sql.includes('WHERE id = ?')) {
+						const [memberId] = params as [string];
+						state.deletedMemberIds.add(memberId);
+						// Keep in state.members so AC3a can still verify email_id was never set.
+						// GAP9 tests use deletedMemberIds to check hard-deletion.
+						return { meta: { changes: 1 } };
+					}
 					return { meta: { changes: 0 } };
 				},
 				all: async () => {
@@ -184,7 +267,19 @@ function createCrossOrgDb(opts: SetupOptions = {}): { db: D1Database; state: Moc
 						const roles = state.memberRoles.get(`${memberId}:${orgId}`) ?? [];
 						return { results: roles.map((role) => ({ role })) };
 					}
-					// voices/sections — empty for these tests
+					// SELECT voice_id, is_primary FROM member_voices WHERE member_id = ?
+					if (sql.includes('member_voices') && sql.includes('member_id = ?')) {
+						const [memberId] = params as [string];
+						const voices = state.memberVoices.get(memberId) ?? [];
+						return { results: voices };
+					}
+					// SELECT section_id, is_primary FROM member_sections WHERE member_id = ?
+					if (sql.includes('member_sections') && sql.includes('member_id = ?')) {
+						const [memberId] = params as [string];
+						const sections = state.memberSections.get(memberId) ?? [];
+						return { results: sections };
+					}
+					// Voices/sections JOIN queries (used by loadMemberRelations) — return empty
 					return { results: [] };
 				}
 			})
@@ -288,5 +383,148 @@ describe('#307 — cross-org invite resolve: AC4 — existing roles preserved', 
 		// Roster slot should never receive roles — roles belong to alice in org B.
 		const rosterRoles = state.memberRoles.get(`${ORG_B_ROSTER_ID}:${ORG_B}`);
 		expect(rosterRoles ?? []).toHaveLength(0);
+	});
+});
+
+// ─── GAP 5: Roster slot removed from org B ───────────────────────────────────
+
+describe('#307 — cross-org invite resolve: GAP5 — roster slot removed from org B', () => {
+	it('removes the roster slot from org B member_organizations after cross-org resolve', async () => {
+		const { db, state } = createCrossOrgDb();
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: current implementation adds alice to org B but never removes the
+		// orphaned roster slot from member_organizations. This leaves a phantom
+		// member that has no email and can never log in, cluttering the roster.
+		expect(state.memberOrgs.has(`${ORG_B_ROSTER_ID}:${ORG_B}`)).toBe(false);
+	});
+});
+
+// ─── GAP 6: Roster slot org-B roles transferred to existing member ────────────
+
+describe('#307 — cross-org invite resolve: GAP6 — roster org-B roles transferred', () => {
+	it('transfers org-B roles from roster slot to existing member', async () => {
+		const { db, state } = createCrossOrgDb({
+			rosterOrgBRoles: ['conductor', 'librarian']
+		});
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: current implementation does not read the roster slot's existing org-B
+		// roles and copy them to alice. The admin may have pre-assigned roles to the
+		// roster member before the invite was accepted.
+		const aliceOrgBRoles = state.memberRoles.get(`${ALICE_ID}:${ORG_B}`) ?? [];
+		expect(aliceOrgBRoles).toEqual(expect.arrayContaining(['conductor', 'librarian']));
+	});
+
+	it('removes org-B roles from roster slot after transfer', async () => {
+		const { db, state } = createCrossOrgDb({
+			rosterOrgBRoles: ['conductor']
+		});
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: roles must be removed from the roster slot (it's being decommissioned).
+		const rosterOrgBRoles = state.memberRoles.get(`${ORG_B_ROSTER_ID}:${ORG_B}`) ?? [];
+		expect(rosterOrgBRoles).toHaveLength(0);
+	});
+});
+
+// ─── GAP 7: Roster slot voices transferred to existing member ─────────────────
+
+describe('#307 — cross-org invite resolve: GAP7 — roster voices transferred', () => {
+	it('transfers voices from roster slot to existing member', async () => {
+		const { db, state } = createCrossOrgDb({
+			rosterVoices: [
+				{ voice_id: 'voice_soprano', is_primary: 1 },
+				{ voice_id: 'voice_mezzo', is_primary: 0 }
+			]
+		});
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: current implementation does not transfer member_voices from the
+		// roster slot to the existing member. The admin's voice assignments are lost.
+		const aliceVoices = state.memberVoices.get(ALICE_ID) ?? [];
+		const aliceVoiceIds = aliceVoices.map(v => v.voice_id);
+		expect(aliceVoiceIds).toEqual(expect.arrayContaining(['voice_soprano', 'voice_mezzo']));
+	});
+
+	it('removes voices from roster slot after transfer', async () => {
+		const { db, state } = createCrossOrgDb({
+			rosterVoices: [{ voice_id: 'voice_soprano', is_primary: 1 }]
+		});
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: roster slot's voice assignments must be cleaned up.
+		const rosterVoices = state.memberVoices.get(ORG_B_ROSTER_ID) ?? [];
+		expect(rosterVoices).toHaveLength(0);
+	});
+});
+
+// ─── GAP 8: Roster slot sections transferred to existing member ───────────────
+
+describe('#307 — cross-org invite resolve: GAP8 — roster sections transferred', () => {
+	it('transfers sections from roster slot to existing member', async () => {
+		const { db, state } = createCrossOrgDb({
+			rosterSections: [
+				{ section_id: 'section_s1', is_primary: 1 },
+				{ section_id: 'section_full', is_primary: 0 }
+			]
+		});
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: current implementation does not transfer member_sections from the
+		// roster slot to the existing member. Section assignments set by the admin
+		// are silently dropped on cross-org accept.
+		const aliceSections = state.memberSections.get(ALICE_ID) ?? [];
+		const aliceSectionIds = aliceSections.map(s => s.section_id);
+		expect(aliceSectionIds).toEqual(expect.arrayContaining(['section_s1', 'section_full']));
+	});
+
+	it('removes sections from roster slot after transfer', async () => {
+		const { db, state } = createCrossOrgDb({
+			rosterSections: [{ section_id: 'section_s1', is_primary: 1 }]
+		});
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: roster slot's section assignments must be cleaned up.
+		const rosterSections = state.memberSections.get(ORG_B_ROSTER_ID) ?? [];
+		expect(rosterSections).toHaveLength(0);
+	});
+});
+
+// ─── GAP 9: Roster member row hard-deleted when it has no remaining orgs ─────
+
+describe('#307 — cross-org invite resolve: GAP9 — roster member row deleted when org-less', () => {
+	it('deletes the roster member row from members when it belongs to no other org', async () => {
+		// The org-B roster slot was created solely for org B (a pure roster entry).
+		// After cross-org resolve removes it from org B, it has zero org memberships,
+		// so the member row itself is a dangling orphan and should be hard-deleted.
+		const { db, state } = createCrossOrgDb();
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// RED: current implementation does not check remaining org memberships
+		// and does not delete the orphaned member row.
+		expect(state.deletedMemberIds.has(ORG_B_ROSTER_ID)).toBe(true);
+	});
+
+	it('does NOT delete a roster member row that still belongs to another org', async () => {
+		// Edge case: if the roster slot exists in multiple orgs (unusual but possible),
+		// it should only be removed from org B, not hard-deleted from members.
+		const { db, state } = createCrossOrgDb();
+		// Manually add roster slot to a third org before running
+		state.memberOrgs.set(`${ORG_B_ROSTER_ID}:${createOrgId('org_gamma')}`, true);
+
+		await acceptInvite(db, INVITE_TOKEN, ALICE_EMAIL);
+
+		// Roster slot remains in org_gamma, so its member row must be preserved.
+		expect(state.deletedMemberIds.has(ORG_B_ROSTER_ID)).toBe(false);
+		expect(state.members.has(ORG_B_ROSTER_ID)).toBe(true);
 	});
 });
