@@ -254,6 +254,21 @@ export async function upgradeToRegistered(
 }
 
 /**
+ * Find a member by email_id across ALL organizations (no org scoping).
+ * Returns basic member data without org-specific relations (roles, sections).
+ * Used for cross-org invite resolution (#307).
+ */
+export async function getMemberByEmailGlobal(
+	db: D1Database,
+	emailId: string
+): Promise<Pick<Member, 'id' | 'name' | 'email_id'> | null> {
+	return await db
+		.prepare('SELECT id, name, email_id FROM members WHERE email_id = ?')
+		.bind(emailId)
+		.first<Pick<Member, 'id' | 'name' | 'email_id'>>();
+}
+
+/**
  * Find a member by email_id (OAuth identity) with their roles, voices, and sections
  * When orgId is provided, only returns roles and sections for that organization
  */
