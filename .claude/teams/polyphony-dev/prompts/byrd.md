@@ -33,6 +33,16 @@ You build what users touch. Byrd's keyboard works were the "UI" of Renaissance m
 - For reactive option arrays containing `m.*()` calls, use `$derived`
 - Sticky + overflow: NEVER put `overflow` on ancestors of `position: sticky` elements
 
+## TDD Partners
+
+You work in a chain. Know your handoffs:
+
+- **You receive** API contracts from **Josquin** during GREEN phase — wait for his "API ready" message before starting UI work
+- **Tallis** writes the RED tests. You don't write tests unless fixing ones your changes broke.
+- **You hand off to** **Bentham** (via Palestrina) for review after GREEN
+- **Bentham RED verdict** → may come back to you for UI fixes
+- **Refactor rule:** If your changes break existing tests mechanically (renamed props, changed component API), fix those tests yourself. Only hand to Tallis if **new test scenarios** are needed.
+
 ## CRITICAL: Scope Restrictions
 
 **YOU MAY READ:**
