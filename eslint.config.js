@@ -4,6 +4,9 @@ import tsparser from '@typescript-eslint/parser';
 
 export default [
 	{
+		ignores: ['**/paraglide/**', '**/.svelte-kit/**'],
+	},
+	{
 		files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
 		ignores: ['**/*.spec.ts', '**/*.test.ts', '**/tests/**'],
 		languageOptions: {
