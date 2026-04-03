@@ -1,7 +1,7 @@
 // POST /api/members/invite - Create a new member invitation
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getAuthenticatedMember, assertAdmin, isOwner } from '$lib/server/auth/middleware';
+import { getAuthenticatedMember, assertAdmin } from '$lib/server/auth/middleware';
 import { parseBody, createInviteSchema } from '$lib/server/validation/schemas';
 
 export const POST: RequestHandler = async ({ request, platform, cookies, locals }) => {
@@ -19,11 +19,6 @@ export const POST: RequestHandler = async ({ request, platform, cookies, locals 
 	// Validate request body with Zod
 	const body = await parseBody(request, createInviteSchema);
 
-	// Only owners can invite owners
-	if (body.roles.includes('owner') && !isOwner(member)) {
-		throw error(403, 'Only owners can invite other owners');
-	}
-
 	try {
 		// Import createInvite from DB operations
 		const { createInvite } = await import('$lib/server/db/invites');
@@ -32,7 +27,6 @@ export const POST: RequestHandler = async ({ request, platform, cookies, locals 
 		const invite = await createInvite(db, {
 			orgId,
 			rosterMemberId: body.rosterMemberId,
-			roles: body.roles,
 			emailHint: body.emailHint,
 			invited_by: member.id
 		});
@@ -45,7 +39,6 @@ export const POST: RequestHandler = async ({ request, platform, cookies, locals 
 				id: invite.id,
 				roster_member_id: invite.roster_member_id,
 				roster_member_name: invite.roster_member_name,
-				roles: invite.roles,
 				voices: invite.voices,
 				sections: invite.sections,
 				inviteLink,

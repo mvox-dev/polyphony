@@ -22,8 +22,7 @@ vi.mock('@sveltejs/kit', async () => {
 // Mock middleware
 vi.mock('$lib/server/auth/middleware', () => ({
 	getAuthenticatedMember: vi.fn(),
-	assertAdmin: vi.fn(),
-	isOwner: vi.fn()
+	assertAdmin: vi.fn()
 }));
 
 // Mock validation schemas
@@ -32,7 +31,7 @@ vi.mock('$lib/server/validation/schemas', () => ({
 	createInviteSchema: {}
 }));
 
-import { getAuthenticatedMember, assertAdmin, isOwner } from '$lib/server/auth/middleware';
+import { getAuthenticatedMember, assertAdmin } from '$lib/server/auth/middleware';
 import { parseBody } from '$lib/server/validation/schemas';
 
 function createMockRequest(body: any) {
@@ -72,7 +71,6 @@ describe('POST /api/members/invite', () => {
 			id: 'invite-789',
 			name: 'Multi Voice Singer',
 			token: 'token-multi',
-			roles: [],
 			voices: [
 				{ id: 'voice-tenor', name: 'Tenor', abbreviation: 'T' },
 				{ id: 'voice-baritone', name: 'Baritone', abbreviation: 'Bar' }
@@ -85,12 +83,9 @@ describe('POST /api/members/invite', () => {
 
 		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
 		vi.mocked(assertAdmin).mockImplementation(() => {});
-		vi.mocked(isOwner).mockReturnValue(false);
 		vi.mocked(parseBody).mockResolvedValue({
-			name: 'Multi Voice Singer',
-			roles: [],
-			voiceIds: ['voice-tenor', 'voice-baritone'],
-			sectionIds: ['section-tenor-1', 'section-tenor-2']
+			rosterMemberId: 'roster-1',
+			emailHint: undefined
 		});
 
 		// Mock createInvite dynamically
@@ -101,10 +96,7 @@ describe('POST /api/members/invite', () => {
 
 		const response = await POST({
 			request: createMockRequest({
-				name: 'Multi Voice Singer',
-				roles: [],
-				voiceIds: ['voice-tenor', 'voice-baritone'],
-				sectionIds: ['section-tenor-1', 'section-tenor-2']
+				rosterMemberId: 'roster-1'
 			}),
 			platform: { env: { DB: {} } },
 			cookies: createMockCookies(),
@@ -112,7 +104,7 @@ describe('POST /api/members/invite', () => {
 		} as any);
 
 		const json = (await response.json()) as any;
-		
+
 		expect(json.voices).toHaveLength(2);
 		expect(json.sections).toHaveLength(2);
 		expect(json.voices[0].name).toBe('Tenor');
@@ -141,29 +133,4 @@ describe('POST /api/members/invite', () => {
 		).rejects.toThrow('Insufficient permissions');
 	});
 
-	it('blocks non-owners from inviting owners', async () => {
-		const mockAdmin = { id: 'admin-1', email: 'admin@test.com', roles: ['admin'] };
-		
-		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
-		vi.mocked(assertAdmin).mockImplementation(() => {});
-		vi.mocked(isOwner).mockReturnValue(false);
-		vi.mocked(parseBody).mockResolvedValue({
-			name: 'Would-be Owner',
-			roles: ['owner'],
-			voiceIds: [],
-			sectionIds: []
-		});
-
-		await expect(
-			POST({
-				request: createMockRequest({
-					name: 'Would-be Owner',
-					roles: ['owner']
-				}),
-				platform: { env: { DB: {} } },
-				cookies: createMockCookies(),
-				locals: { org: mockOrg }
-			} as any)
-		).rejects.toThrow('Only owners can invite other owners');
-	});
 });

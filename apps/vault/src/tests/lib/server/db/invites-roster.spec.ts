@@ -367,14 +367,11 @@ describe('createInvite (roster-linked)', () => {
 		const invite = await createInvite(mockDb, {
 			orgId: TEST_ORG_ID,
 			rosterMemberId: rosterId,
-			roles: ['librarian'],
 			invited_by: adminId
 		});
 
 		expect(invite.roster_member_id).toBe(rosterId);
 		expect(invite.roster_member_name).toBe('John Doe');
-		// Note: Production DB doesn't have roles column - roles would be stored in invite_roles junction table
-		expect(invite.roles).toEqual([]);
 		// Note: voices/sections come from roster member (tested in members.spec.ts)
 	});
 
@@ -389,7 +386,6 @@ describe('createInvite (roster-linked)', () => {
 			createInvite(mockDb, {
 				orgId: TEST_ORG_ID,
 				rosterMemberId: rosterId,
-				roles: [],
 				invited_by: adminId
 			})
 		).rejects.toThrow('already registered');
@@ -400,7 +396,6 @@ describe('createInvite (roster-linked)', () => {
 		await createInvite(mockDb, {
 			orgId: TEST_ORG_ID,
 			rosterMemberId: rosterId,
-			roles: [],
 			invited_by: adminId
 		});
 
@@ -409,7 +404,6 @@ describe('createInvite (roster-linked)', () => {
 			createInvite(mockDb, {
 				orgId: TEST_ORG_ID,
 				rosterMemberId: rosterId,
-				roles: [],
 				invited_by: adminId
 			})
 		).rejects.toThrow('already has a pending invitation');
@@ -446,7 +440,6 @@ describe('acceptInvite (roster upgrade)', () => {
 		const invite = await createInvite(mockDb, {
 			orgId: TEST_ORG_ID,
 			rosterMemberId: rosterId,
-			roles: ['librarian', 'conductor'],
 			invited_by: adminId
 		});
 		inviteToken = invite.token;

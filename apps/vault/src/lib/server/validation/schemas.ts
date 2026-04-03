@@ -15,7 +15,6 @@ const eventTypeSchema = z.enum(EVENT_TYPES);
  */
 export const createInviteSchema = z.object({
 	rosterMemberId: z.string().min(1, 'Roster member ID is required'),
-	roles: z.array(roleSchema).optional().default([]),
 	emailHint: z.string().email().optional()
 });
 

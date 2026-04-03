@@ -14,39 +14,21 @@ import {
 describe('createInviteSchema', () => {
 	it('validates a valid invite with roster member ID', () => {
 		const result = createInviteSchema.safeParse({
-			rosterMemberId: 'member123',
-			roles: ['admin', 'librarian']
+			rosterMemberId: 'member123'
 		});
 		expect(result.success).toBe(true);
 		if (result.success) {
 			expect(result.data.rosterMemberId).toBe('member123');
-			expect(result.data.roles).toEqual(['admin', 'librarian']);
 		}
 	});
 
 	it('requires rosterMemberId', () => {
-		const result = createInviteSchema.safeParse({ roles: [] });
+		const result = createInviteSchema.safeParse({});
 		expect(result.success).toBe(false);
 	});
 
 	it('rejects empty rosterMemberId', () => {
-		const result = createInviteSchema.safeParse({ rosterMemberId: '', roles: [] });
-		expect(result.success).toBe(false);
-	});
-
-	it('defaults roles to empty array', () => {
-		const result = createInviteSchema.safeParse({ rosterMemberId: 'member123' });
-		expect(result.success).toBe(true);
-		if (result.success) {
-			expect(result.data.roles).toEqual([]);
-		}
-	});
-
-	it('rejects invalid role', () => {
-		const result = createInviteSchema.safeParse({
-			rosterMemberId: 'member123',
-			roles: ['invalid_role']
-		});
+		const result = createInviteSchema.safeParse({ rosterMemberId: '' });
 		expect(result.success).toBe(false);
 	});
 });
@@ -82,13 +64,12 @@ describe('parseBody', () => {
 	it('parses valid JSON and validates', async () => {
 		const request = new Request('http://test', {
 			method: 'POST',
-			body: JSON.stringify({ rosterMemberId: 'member123', roles: ['admin'] }),
+			body: JSON.stringify({ rosterMemberId: 'member123' }),
 			headers: { 'Content-Type': 'application/json' }
 		});
 
 		const result = await parseBody(request, createInviteSchema);
 		expect(result.rosterMemberId).toBe('member123');
-		expect(result.roles).toEqual(['admin']);
 	});
 
 	it('throws on invalid JSON', async () => {

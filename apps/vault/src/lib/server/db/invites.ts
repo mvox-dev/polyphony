@@ -13,7 +13,6 @@ export interface Invite {
 	token: string;
 	invited_by: string;
 	expires_at: string;
-	roles: Role[]; // Roles to assign upon acceptance (from junction table)
 	voices: Voice[]; // Inherited from roster member (display only)
 	sections: Section[]; // Inherited from roster member (display only)
 	created_at: string;
@@ -22,7 +21,6 @@ export interface Invite {
 export interface CreateInviteInput {
 	orgId: OrgId; // Required: which organization
 	rosterMemberId: string; // Required: which roster member to invite
-	roles: Role[]; // Roles to grant upon acceptance
 	invited_by: string;
 	emailHint?: string; // Optional: suggested email for Registry
 }
@@ -123,20 +121,15 @@ export async function createInvite(
 
 /**
  * Helper to load roster member, voices, and sections for an invite
- * Note: Remote DB doesn't have roles column or invite_roles table
  */
 async function loadInviteRelations(
 	db: D1Database,
-	inviteRow: Omit<Invite, 'roles' | 'voices' | 'sections' | 'roster_member_name'>
+	inviteRow: Omit<Invite, 'voices' | 'sections' | 'roster_member_name'>
 ): Promise<Invite> {
-	// Note: Remote DB doesn't have invite_roles junction table yet
-	// For now, default to empty roles array
-	const roles: Role[] = [];
-
 	// Get roster member to load name, voices, and sections
 	const { getMemberById } = await import('./members');
 	const rosterMember = await getMemberById(db, inviteRow.roster_member_id, inviteRow.orgId);
-	
+
 	// Handle missing roster member
 	const memberName = rosterMember?.name ?? 'Unknown Member';
 	const memberVoices = rosterMember?.voices ?? [];
@@ -145,7 +138,6 @@ async function loadInviteRelations(
 	return {
 		...inviteRow,
 		roster_member_name: memberName,
-		roles,
 		voices: memberVoices,
 		sections: memberSections
 	};
@@ -319,11 +311,6 @@ export async function acceptInvite(
 			invite.orgId
 		);
 		memberId = member.id;
-	}
-
-	// Transfer roles from invite to member
-	if (invite.roles.length > 0) {
-		await addMemberRoles(db, memberId, invite.roles, invite.invited_by, invite.orgId);
 	}
 
 	// Delete invite after successful acceptance (cleanup) — skip if already
