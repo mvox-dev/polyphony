@@ -1,4 +1,5 @@
 import { redirect, error, type RequestEvent } from '@sveltejs/kit';
+import { acceptInvite } from '$lib/server/db/invites';
 
 export async function load({ url, platform, cookies }: RequestEvent) {
 	const db = platform?.env?.DB;
@@ -46,7 +47,26 @@ export async function load({ url, platform, cookies }: RequestEvent) {
 		throw redirect(302, cookies.get('member_id') ? '/' : '/login');
 	}
 
+	// If user is already authenticated, accept the invite directly (#310).
+	// This handles the cross-org case where SSO auto-auth resolves the member
+	// but the page would otherwise bounce through /login unnecessarily.
+	const memberId = cookies.get('member_id');
+	if (memberId) {
+		const member = await db
+			.prepare('SELECT email_id FROM members WHERE id = ?')
+			.bind(memberId)
+			.first<{ email_id: string | null }>();
+
+		if (member?.email_id) {
+			const result = await acceptInvite(db, token, member.email_id);
+			if (result.success) {
+				throw redirect(302, '/');
+			}
+			// If acceptance failed, fall through to login flow
+		}
+	}
+
 	// Redirect to login page with invite token
 	// Login page will set cookie and pass through whichever auth method user chooses
 	throw redirect(302, `/login?invite=${encodeURIComponent(token)}`);
-};
+}
