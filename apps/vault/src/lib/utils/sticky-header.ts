@@ -11,8 +11,8 @@
  *                    Should approximate the header's own height (default 100).
  */
 export function shouldHeaderStick(
-	gridBottom: number,
-	threshold: number
+  gridBottom: number,
+  threshold: number,
 ): boolean {
-	return gridBottom > threshold;
+  return gridBottom > threshold;
 }

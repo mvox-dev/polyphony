@@ -125,19 +125,19 @@ Public access without authentication. Limited to openly licensed content.
 | events:delete     |  ❌   |  ❌   |    ❌     |    ✅     |       ❌       |   ❌   |  ❌   |
 | attendance:record |  ❌   |  ❌   |    ❌     |    ✅     |       ✅       |   ❌   |  ❌   |
 
-_PD = Public Domain scores only_  
+_PD = Public Domain scores only_
 
 ## Member Schema
 
 Members have the following properties:
 
-| Property     | Type     | Description                                   |
-| ------------ | -------- | --------------------------------------------- |
-| `id`         | TEXT     | Unique identifier                             |
-| `email`      | TEXT     | Email address (unique, from Registry)         |
-| `name`       | TEXT     | Display name                                  |
-| `invited_by` | TEXT     | Reference to inviting member                  |
-| `joined_at`  | DATETIME | When member joined                            |
+| Property     | Type     | Description                           |
+| ------------ | -------- | ------------------------------------- |
+| `id`         | TEXT     | Unique identifier                     |
+| `email`      | TEXT     | Email address (unique, from Registry) |
+| `name`       | TEXT     | Display name                          |
+| `invited_by` | TEXT     | Reference to inviting member          |
+| `joined_at`  | DATETIME | When member joined                    |
 
 Roles are stored in a separate `member_roles` junction table, allowing multiple roles per member.
 
@@ -162,14 +162,14 @@ When a vault is created, the first member automatically becomes **owner**.
 
 ### Common Role Combinations
 
-| Combination            | Use Case                                                     |
-| ---------------------- | ------------------------------------------------------------ |
-| owner                  | Board member focused on governance only                      |
-| owner + admin          | Board chair who also manages daily operations                |
-| owner + librarian      | Owner who also curates the score library                     |
-| admin + librarian      | Choir manager handling both members and scores               |
-| conductor + librarian  | Conductor who also maintains the music library               |
-| admin + conductor      | Choir director handling both membership and rehearsal events |
+| Combination           | Use Case                                                     |
+| --------------------- | ------------------------------------------------------------ |
+| owner                 | Board member focused on governance only                      |
+| owner + admin         | Board chair who also manages daily operations                |
+| owner + librarian     | Owner who also curates the score library                     |
+| admin + librarian     | Choir manager handling both members and scores               |
+| conductor + librarian | Conductor who also maintains the music library               |
+| admin + conductor     | Choir director handling both membership and rehearsal events |
 
 ## Future Considerations
 

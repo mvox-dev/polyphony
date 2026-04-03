@@ -70,7 +70,7 @@ Sündmuse lehel näed kogu osavõtu ülevaadet:
 1. **"My Participation"** - sinu enda staatus
 2. **"Participation Overview"** - kõigi liikmete RSVP vastused
    - **Going** (tuleb) - kinnitanud osalemise
-   - **Not Going** (ei tule) - teatanud puudumisest  
+   - **Not Going** (ei tule) - teatanud puudumisest
    - **Maybe** (võib-olla) - pole veel kindel
    - **Late** (jääb hiljaks) - tuleb, aga hilinemisega
    - **No Response** - pole veel vastanud
@@ -101,16 +101,19 @@ Sündmuse lehel (kui sul on õigused):
 ## Kasulikud näpunäited
 
 ### Planeerimise jaoks
+
 - **RSVP tähtaeg:** Julgusta lauljaid märkima oma tulekut enne sündmust. See annab parema ülevaate koosseisust.
 - **Kava varakult:** Lisa sündmuse kava võimalikult vara, et lauljad saaksid nootidega tutvuda.
 - **Korduvad proovid:** Kasuta korduvate sündmuste funktsiooni regulaarsete proovidele.
 
 ### Kohaloleku jaoks
+
 - **Reaalajas:** Saad kohalolekut märkida ka proovi ajal (mitte ainult pärast).
 - **Sektsiooni kaupa:** Liikmete nimekiri on grupeeritud häälrühmade kaupa.
 - **Kiirmärkimine:** Kasuta hulgimuudatusi, kui enamik oli kohal.
 
 ### Repertuaari jaoks
+
 - **Mitme väljaande töö:** Sündmusele võid lisada mitu väljaannet samast teosest (nt kooripartituur ja klaviersaade).
 - **Sektsioonipõhine:** Saad valida, millised väljaanded on milliste häälrühmade jaoks.
 
@@ -123,6 +126,7 @@ Ei, aga saad märkida tegeliku kohaloleku. RSVP on liikmete endi vastutus.
 
 **Miks ma ei näe "Create Event" nuppu?**
 Võimalik põhjused:
+
 - Sul pole dirigendi rolli
 - Oled valinud vale organisatsiooni (vaata ülemist paremat nuppu)
 

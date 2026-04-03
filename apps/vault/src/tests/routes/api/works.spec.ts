@@ -1,31 +1,47 @@
 // Works API route tests
 // Tests GET/POST /api/works and GET/PATCH/DELETE /api/works/[id]
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { RequestEvent } from '@sveltejs/kit';
-import type { Work } from '$lib/types';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { RequestEvent } from "@sveltejs/kit";
+import type { Work } from "$lib/types";
 
 // Mock the middleware
-vi.mock('$lib/server/auth/middleware', () => ({
-	getAuthenticatedMember: vi.fn(),
-	assertLibrarian: vi.fn()
+vi.mock("$lib/server/auth/middleware", () => ({
+  getAuthenticatedMember: vi.fn(),
+  assertLibrarian: vi.fn(),
 }));
 
 // Mock the DB functions
-vi.mock('$lib/server/db/works', () => ({
-	getAllWorks: vi.fn(),
-	searchWorks: vi.fn(),
-	createWork: vi.fn(),
-	getWorkById: vi.fn(),
-	updateWork: vi.fn(),
-	deleteWork: vi.fn()
+vi.mock("$lib/server/db/works", () => ({
+  getAllWorks: vi.fn(),
+  searchWorks: vi.fn(),
+  createWork: vi.fn(),
+  getWorkById: vi.fn(),
+  updateWork: vi.fn(),
+  deleteWork: vi.fn(),
 }));
 
-import { getAuthenticatedMember, assertLibrarian } from '$lib/server/auth/middleware';
-import { getAllWorks, searchWorks, createWork, getWorkById, updateWork, deleteWork } from '$lib/server/db/works';
-import { GET, POST } from '../../../routes/api/works/+server';
-import { GET as GET_ID, PATCH, DELETE } from '../../../routes/api/works/[id]/+server';
+import {
+  getAuthenticatedMember,
+  assertLibrarian,
+} from "$lib/server/auth/middleware";
+import {
+  getAllWorks,
+  searchWorks,
+  createWork,
+  getWorkById,
+  updateWork,
+  deleteWork,
+} from "$lib/server/db/works";
+import { GET, POST } from "../../../routes/api/works/+server";
+import {
+  GET as GET_ID,
+  PATCH,
+  DELETE,
+} from "../../../routes/api/works/[id]/+server";
 
-const mockGetAuthenticatedMember = getAuthenticatedMember as ReturnType<typeof vi.fn>;
+const mockGetAuthenticatedMember = getAuthenticatedMember as ReturnType<
+  typeof vi.fn
+>;
 const mockAssertLibrarian = assertLibrarian as ReturnType<typeof vi.fn>;
 const mockGetAllWorks = getAllWorks as ReturnType<typeof vi.fn>;
 const mockSearchWorks = searchWorks as ReturnType<typeof vi.fn>;
@@ -35,373 +51,391 @@ const mockUpdateWork = updateWork as ReturnType<typeof vi.fn>;
 const mockDeleteWork = deleteWork as ReturnType<typeof vi.fn>;
 
 const mockMember = {
-	id: 'member-1',
-	name: 'Test User',
-	email_id: 'test@example.com',
-	roles: ['librarian'],
-	voices: [],
-	sections: []
+  id: "member-1",
+  name: "Test User",
+  email_id: "test@example.com",
+  roles: ["librarian"],
+  voices: [],
+  sections: [],
 };
 
 // Test org ID (matches DEFAULT_ORG_ID used in routes)
-const TEST_ORG_ID = 'org_crede_001';
+const TEST_ORG_ID = "org_crede_001";
 
 // Mock org for locals
 const mockOrg = {
-	id: TEST_ORG_ID,
-	name: 'Crede',
-	subdomain: 'crede',
-	type: 'collective' as const,
-	contactEmail: 'test@example.com',
-	createdAt: new Date().toISOString()
+  id: TEST_ORG_ID,
+  name: "Crede",
+  subdomain: "crede",
+  type: "collective" as const,
+  contactEmail: "test@example.com",
+  createdAt: new Date().toISOString(),
 };
 
 const mockWork: Work = {
-	id: 'work-1',
-	orgId: TEST_ORG_ID,
-	title: 'Test Work',
-	composer: 'Test Composer',
-	lyricist: null,
-	createdAt: new Date().toISOString()
+  id: "work-1",
+  orgId: TEST_ORG_ID,
+  title: "Test Work",
+  composer: "Test Composer",
+  lyricist: null,
+  createdAt: new Date().toISOString(),
 };
 
 function createMockEvent(overrides: Partial<RequestEvent> = {}): RequestEvent {
-	return {
-		url: new URL('http://localhost/api/works'),
-		params: {},
-		platform: { env: { DB: {} } },
-		locals: { org: mockOrg },
-		cookies: {
-			get: vi.fn(),
-			set: vi.fn(),
-			delete: vi.fn(),
-			getAll: vi.fn(),
-			serialize: vi.fn()
-		},
-		request: new Request('http://localhost/api/works'),
-		...overrides
-	} as unknown as RequestEvent;
+  return {
+    url: new URL("http://localhost/api/works"),
+    params: {},
+    platform: { env: { DB: {} } },
+    locals: { org: mockOrg },
+    cookies: {
+      get: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
+      getAll: vi.fn(),
+      serialize: vi.fn(),
+    },
+    request: new Request("http://localhost/api/works"),
+    ...overrides,
+  } as unknown as RequestEvent;
 }
 
-describe('Works API Routes', () => {
-	beforeEach(() => {
-		vi.resetAllMocks();
-		mockGetAuthenticatedMember.mockResolvedValue(mockMember);
-	});
+describe("Works API Routes", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mockGetAuthenticatedMember.mockResolvedValue(mockMember);
+  });
 
-	describe('GET /api/works', () => {
-		it('returns list of works for authenticated member', async () => {
-			const works = [mockWork, { ...mockWork, id: 'work-2', title: 'Another Work' }];
-			mockGetAllWorks.mockResolvedValue(works);
+  describe("GET /api/works", () => {
+    it("returns list of works for authenticated member", async () => {
+      const works = [
+        mockWork,
+        { ...mockWork, id: "work-2", title: "Another Work" },
+      ];
+      mockGetAllWorks.mockResolvedValue(works);
 
-			const event = createMockEvent();
-			const response = await GET(event);
+      const event = createMockEvent();
+      const response = await GET(event);
 
-			expect(mockGetAuthenticatedMember).toHaveBeenCalled();
-			expect(mockGetAllWorks).toHaveBeenCalled();
-			
-			const data = (await response.json()) as Work[];
-			expect(data).toHaveLength(2);
-			expect(data[0].title).toBe('Test Work');
-		});
+      expect(mockGetAuthenticatedMember).toHaveBeenCalled();
+      expect(mockGetAllWorks).toHaveBeenCalled();
 
-		it('searches works when query parameter provided', async () => {
-			const works = [mockWork];
-			mockSearchWorks.mockResolvedValue(works);
+      const data = (await response.json()) as Work[];
+      expect(data).toHaveLength(2);
+      expect(data[0].title).toBe("Test Work");
+    });
 
-			const event = createMockEvent({
-				url: new URL('http://localhost/api/works?q=Test')
-			});
-			const response = await GET(event);
+    it("searches works when query parameter provided", async () => {
+      const works = [mockWork];
+      mockSearchWorks.mockResolvedValue(works);
 
-			// searchWorks now takes (db, orgId, query)
-			expect(mockSearchWorks).toHaveBeenCalledWith(expect.anything(), TEST_ORG_ID, 'Test');
-			expect(mockGetAllWorks).not.toHaveBeenCalled();
-			
-			const data = await response.json();
-			expect(data).toHaveLength(1);
-		});
+      const event = createMockEvent({
+        url: new URL("http://localhost/api/works?q=Test"),
+      });
+      const response = await GET(event);
 
-		it('ignores empty search query', async () => {
-			mockGetAllWorks.mockResolvedValue([]);
+      // searchWorks now takes (db, orgId, query)
+      expect(mockSearchWorks).toHaveBeenCalledWith(
+        expect.anything(),
+        TEST_ORG_ID,
+        "Test",
+      );
+      expect(mockGetAllWorks).not.toHaveBeenCalled();
 
-			const event = createMockEvent({
-				url: new URL('http://localhost/api/works?q=')
-			});
-			await GET(event);
+      const data = await response.json();
+      expect(data).toHaveLength(1);
+    });
 
-			expect(mockGetAllWorks).toHaveBeenCalled();
-			expect(mockSearchWorks).not.toHaveBeenCalled();
-		});
+    it("ignores empty search query", async () => {
+      mockGetAllWorks.mockResolvedValue([]);
 
-		it('throws 500 if database not available', async () => {
-			const event = createMockEvent({
-				platform: undefined
-			});
+      const event = createMockEvent({
+        url: new URL("http://localhost/api/works?q="),
+      });
+      await GET(event);
 
-			await expect(GET(event)).rejects.toThrow();
-		});
-	});
+      expect(mockGetAllWorks).toHaveBeenCalled();
+      expect(mockSearchWorks).not.toHaveBeenCalled();
+    });
 
-	describe('POST /api/works', () => {
-		it('creates work with valid data', async () => {
-			mockCreateWork.mockResolvedValue(mockWork);
+    it("throws 500 if database not available", async () => {
+      const event = createMockEvent({
+        platform: undefined,
+      });
 
-			const event = createMockEvent({
-				request: new Request('http://localhost/api/works', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ title: 'Test Work', composer: 'Test Composer' })
-				})
-			});
+      await expect(GET(event)).rejects.toThrow();
+    });
+  });
 
-			const response = await POST(event);
+  describe("POST /api/works", () => {
+    it("creates work with valid data", async () => {
+      mockCreateWork.mockResolvedValue(mockWork);
 
-			expect(mockAssertLibrarian).toHaveBeenCalledWith(mockMember);
-			expect(mockCreateWork).toHaveBeenCalledWith(
-				expect.anything(),
-				expect.objectContaining({
-					title: 'Test Work',
-					composer: 'Test Composer'
-				})
-			);
-			expect(response.status).toBe(201);
-		});
+      const event = createMockEvent({
+        request: new Request("http://localhost/api/works", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "Test Work",
+            composer: "Test Composer",
+          }),
+        }),
+      });
 
-		it('requires title', async () => {
-			const event = createMockEvent({
-				request: new Request('http://localhost/api/works', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ composer: 'No Title' })
-				})
-			});
+      const response = await POST(event);
 
-			const response = await POST(event);
+      expect(mockAssertLibrarian).toHaveBeenCalledWith(mockMember);
+      expect(mockCreateWork).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          title: "Test Work",
+          composer: "Test Composer",
+        }),
+      );
+      expect(response.status).toBe(201);
+    });
 
-			expect(response.status).toBe(400);
-			const data = (await response.json()) as { error: string };
-			expect(data.error).toContain('Title is required');
-		});
+    it("requires title", async () => {
+      const event = createMockEvent({
+        request: new Request("http://localhost/api/works", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ composer: "No Title" }),
+        }),
+      });
 
-		it('rejects empty title', async () => {
-			const event = createMockEvent({
-				request: new Request('http://localhost/api/works', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ title: '   ' })
-				})
-			});
+      const response = await POST(event);
 
-			const response = await POST(event);
+      expect(response.status).toBe(400);
+      const data = (await response.json()) as { error: string };
+      expect(data.error).toContain("Title is required");
+    });
 
-			expect(response.status).toBe(400);
-		});
+    it("rejects empty title", async () => {
+      const event = createMockEvent({
+        request: new Request("http://localhost/api/works", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "   " }),
+        }),
+      });
 
-		it('trims title and optional fields', async () => {
-			mockCreateWork.mockResolvedValue(mockWork);
+      const response = await POST(event);
 
-			const event = createMockEvent({
-				request: new Request('http://localhost/api/works', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						title: '  Padded Title  ',
-						composer: '  Padded Composer  ',
-						lyricist: '  Padded Lyricist  '
-					})
-				})
-			});
+      expect(response.status).toBe(400);
+    });
 
-			await POST(event);
+    it("trims title and optional fields", async () => {
+      mockCreateWork.mockResolvedValue(mockWork);
 
-			expect(mockCreateWork).toHaveBeenCalledWith(
-				expect.anything(),
-				expect.objectContaining({
-					title: 'Padded Title',
-					composer: 'Padded Composer',
-					lyricist: 'Padded Lyricist'
-				})
-			);
-		});
+      const event = createMockEvent({
+        request: new Request("http://localhost/api/works", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "  Padded Title  ",
+            composer: "  Padded Composer  ",
+            lyricist: "  Padded Lyricist  ",
+          }),
+        }),
+      });
 
-		it('requires librarian role', async () => {
-			mockAssertLibrarian.mockImplementation(() => {
-				throw new Error('Insufficient permissions');
-			});
+      await POST(event);
 
-			const event = createMockEvent({
-				request: new Request('http://localhost/api/works', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ title: 'Test Work' })
-				})
-			});
+      expect(mockCreateWork).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          title: "Padded Title",
+          composer: "Padded Composer",
+          lyricist: "Padded Lyricist",
+        }),
+      );
+    });
 
-			await expect(POST(event)).rejects.toThrow('Insufficient permissions');
-		});
-	});
+    it("requires librarian role", async () => {
+      mockAssertLibrarian.mockImplementation(() => {
+        throw new Error("Insufficient permissions");
+      });
 
-	describe('GET /api/works/[id]', () => {
-		it('returns work by ID', async () => {
-			mockGetWorkById.mockResolvedValue(mockWork);
+      const event = createMockEvent({
+        request: new Request("http://localhost/api/works", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "Test Work" }),
+        }),
+      });
 
-			const event = createMockEvent({
-				params: { id: 'work-1' }
-			});
+      await expect(POST(event)).rejects.toThrow("Insufficient permissions");
+    });
+  });
 
-			const response = await GET_ID(event);
+  describe("GET /api/works/[id]", () => {
+    it("returns work by ID", async () => {
+      mockGetWorkById.mockResolvedValue(mockWork);
 
-			expect(mockGetWorkById).toHaveBeenCalledWith(expect.anything(), 'work-1', TEST_ORG_ID);
-			
-			const data = (await response.json()) as Work;
-			expect(data.id).toBe('work-1');
-			expect(data.title).toBe('Test Work');
-		});
+      const event = createMockEvent({
+        params: { id: "work-1" },
+      });
 
-		it('throws 404 for non-existent work', async () => {
-			mockGetWorkById.mockResolvedValue(null);
+      const response = await GET_ID(event);
 
-			const event = createMockEvent({
-				params: { id: 'non-existent' }
-			});
+      expect(mockGetWorkById).toHaveBeenCalledWith(
+        expect.anything(),
+        "work-1",
+        TEST_ORG_ID,
+      );
 
-			await expect(GET_ID(event)).rejects.toThrow();
-		});
+      const data = (await response.json()) as Work;
+      expect(data.id).toBe("work-1");
+      expect(data.title).toBe("Test Work");
+    });
 
-		it('throws 400 if ID missing', async () => {
-			const event = createMockEvent({
-				params: {}
-			});
+    it("throws 404 for non-existent work", async () => {
+      mockGetWorkById.mockResolvedValue(null);
 
-			await expect(GET_ID(event)).rejects.toThrow();
-		});
-	});
+      const event = createMockEvent({
+        params: { id: "non-existent" },
+      });
 
-	describe('PATCH /api/works/[id]', () => {
-		it('updates work with valid data', async () => {
-			const updatedWork = { ...mockWork, title: 'Updated Title' };
-			mockUpdateWork.mockResolvedValue(updatedWork);
+      await expect(GET_ID(event)).rejects.toThrow();
+    });
 
-			const event = createMockEvent({
-				params: { id: 'work-1' },
-				request: new Request('http://localhost/api/works/work-1', {
-					method: 'PATCH',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ title: 'Updated Title' })
-				})
-			});
+    it("throws 400 if ID missing", async () => {
+      const event = createMockEvent({
+        params: {},
+      });
 
-			const response = await PATCH(event);
+      await expect(GET_ID(event)).rejects.toThrow();
+    });
+  });
 
-			expect(mockAssertLibrarian).toHaveBeenCalled();
-			expect(mockUpdateWork).toHaveBeenCalledWith(
-				expect.anything(),
-				'work-1',
-				expect.objectContaining({ title: 'Updated Title' }),
-				TEST_ORG_ID
-			);
-			
-			const data = (await response.json()) as Work;
-			expect(data.title).toBe('Updated Title');
-		});
+  describe("PATCH /api/works/[id]", () => {
+    it("updates work with valid data", async () => {
+      const updatedWork = { ...mockWork, title: "Updated Title" };
+      mockUpdateWork.mockResolvedValue(updatedWork);
 
-		it('allows clearing composer with null', async () => {
-			const updatedWork = { ...mockWork, composer: null };
-			mockUpdateWork.mockResolvedValue(updatedWork);
+      const event = createMockEvent({
+        params: { id: "work-1" },
+        request: new Request("http://localhost/api/works/work-1", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "Updated Title" }),
+        }),
+      });
 
-			const event = createMockEvent({
-				params: { id: 'work-1' },
-				request: new Request('http://localhost/api/works/work-1', {
-					method: 'PATCH',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ composer: null })
-				})
-			});
+      const response = await PATCH(event);
 
-			const response = await PATCH(event);
+      expect(mockAssertLibrarian).toHaveBeenCalled();
+      expect(mockUpdateWork).toHaveBeenCalledWith(
+        expect.anything(),
+        "work-1",
+        expect.objectContaining({ title: "Updated Title" }),
+        TEST_ORG_ID,
+      );
 
-			expect(mockUpdateWork).toHaveBeenCalledWith(
-				expect.anything(),
-				'work-1',
-				expect.objectContaining({ composer: null }),
-				TEST_ORG_ID
-			);
-			
-			const data = (await response.json()) as Work;
-			expect(data.composer).toBeNull();
-		});
+      const data = (await response.json()) as Work;
+      expect(data.title).toBe("Updated Title");
+    });
 
-		it('rejects empty title', async () => {
-			const event = createMockEvent({
-				params: { id: 'work-1' },
-				request: new Request('http://localhost/api/works/work-1', {
-					method: 'PATCH',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ title: '' })
-				})
-			});
+    it("allows clearing composer with null", async () => {
+      const updatedWork = { ...mockWork, composer: null };
+      mockUpdateWork.mockResolvedValue(updatedWork);
 
-			const response = await PATCH(event);
+      const event = createMockEvent({
+        params: { id: "work-1" },
+        request: new Request("http://localhost/api/works/work-1", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ composer: null }),
+        }),
+      });
 
-			expect(response.status).toBe(400);
-			expect(mockUpdateWork).not.toHaveBeenCalled();
-		});
+      const response = await PATCH(event);
 
-		it('throws 404 for non-existent work', async () => {
-			mockUpdateWork.mockResolvedValue(null);
+      expect(mockUpdateWork).toHaveBeenCalledWith(
+        expect.anything(),
+        "work-1",
+        expect.objectContaining({ composer: null }),
+        TEST_ORG_ID,
+      );
 
-			const event = createMockEvent({
-				params: { id: 'non-existent' },
-				request: new Request('http://localhost/api/works/non-existent', {
-					method: 'PATCH',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ title: 'New Title' })
-				})
-			});
+      const data = (await response.json()) as Work;
+      expect(data.composer).toBeNull();
+    });
 
-			await expect(PATCH(event)).rejects.toThrow();
-		});
-	});
+    it("rejects empty title", async () => {
+      const event = createMockEvent({
+        params: { id: "work-1" },
+        request: new Request("http://localhost/api/works/work-1", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "" }),
+        }),
+      });
 
-	describe('DELETE /api/works/[id]', () => {
-		it('deletes work', async () => {
-			mockDeleteWork.mockResolvedValue(true);
+      const response = await PATCH(event);
 
-			const event = createMockEvent({
-				params: { id: 'work-1' }
-			});
+      expect(response.status).toBe(400);
+      expect(mockUpdateWork).not.toHaveBeenCalled();
+    });
 
-			const response = await DELETE(event);
+    it("throws 404 for non-existent work", async () => {
+      mockUpdateWork.mockResolvedValue(null);
 
-			expect(mockAssertLibrarian).toHaveBeenCalled();
-			expect(mockDeleteWork).toHaveBeenCalledWith(expect.anything(), 'work-1', TEST_ORG_ID);
-			expect(response.status).toBe(200);
-			
-			const data = (await response.json()) as { success: boolean };
-			expect(data.success).toBe(true);
-		});
+      const event = createMockEvent({
+        params: { id: "non-existent" },
+        request: new Request("http://localhost/api/works/non-existent", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "New Title" }),
+        }),
+      });
 
-		it('throws 404 for non-existent work', async () => {
-			mockDeleteWork.mockResolvedValue(false);
+      await expect(PATCH(event)).rejects.toThrow();
+    });
+  });
 
-			const event = createMockEvent({
-				params: { id: 'non-existent' }
-			});
+  describe("DELETE /api/works/[id]", () => {
+    it("deletes work", async () => {
+      mockDeleteWork.mockResolvedValue(true);
 
-			await expect(DELETE(event)).rejects.toThrow();
-		});
+      const event = createMockEvent({
+        params: { id: "work-1" },
+      });
 
-		it('requires librarian role', async () => {
-			mockAssertLibrarian.mockImplementation(() => {
-				throw new Error('Insufficient permissions');
-			});
+      const response = await DELETE(event);
 
-			const event = createMockEvent({
-				params: { id: 'work-1' }
-			});
+      expect(mockAssertLibrarian).toHaveBeenCalled();
+      expect(mockDeleteWork).toHaveBeenCalledWith(
+        expect.anything(),
+        "work-1",
+        TEST_ORG_ID,
+      );
+      expect(response.status).toBe(200);
 
-			await expect(DELETE(event)).rejects.toThrow('Insufficient permissions');
-		});
-	});
+      const data = (await response.json()) as { success: boolean };
+      expect(data.success).toBe(true);
+    });
+
+    it("throws 404 for non-existent work", async () => {
+      mockDeleteWork.mockResolvedValue(false);
+
+      const event = createMockEvent({
+        params: { id: "non-existent" },
+      });
+
+      await expect(DELETE(event)).rejects.toThrow();
+    });
+
+    it("requires librarian role", async () => {
+      mockAssertLibrarian.mockImplementation(() => {
+        throw new Error("Insufficient permissions");
+      });
+
+      const event = createMockEvent({
+        params: { id: "work-1" },
+      });
+
+      await expect(DELETE(event)).rejects.toThrow("Insufficient permissions");
+    });
+  });
 });

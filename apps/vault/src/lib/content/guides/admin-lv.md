@@ -91,16 +91,16 @@ Palīdz uzskaitīt apmeklējumu.
 
 Ātrais pārskats, kādas darbības ir atļautas dažādām lomām:
 
-| Darbība                              | Īpašnieks | Admins | Bibliotekārs | Diriģents | Balsu gr. vad. | Parasts dziedātājs |
-| :----------------------------------- | :-------: | :----: | :----------: | :-------: | :------------: | :----------------: |
-| Nošu skatīšana un lejupielāde       |     ✅    |   ✅   |      ✅      |     ✅    |       ✅       |         ✅         |
-| **Nošu pievienošana un mainīšana**   |     ❌    |   ❌   |      ✅      |     ❌    |       ❌       |         ❌         |
-| **Dalībnieku uzaicināšana un pārvaldīšana** | ✅ |   ✅   |      ❌      |     ❌    |       ❌       |         ❌         |
-| **Lomu mainīšana**                   |     ✅    |  ✅¹   |      ❌      |     ❌    |       ❌       |         ❌         |
-| **Mēģinājumu pievienošana kalendāram** |   ❌    |   ❌   |      ❌      |     ✅    |       ❌       |         ❌         |
-| **Apmeklējuma atzīmēšana**           |     ❌    |   ❌   |      ❌      |     ✅    |       ✅       |         ❌         |
-| **Iestatījumu pārvaldīšana**         |     ✅    |   ✅   |      ❌      |     ❌    |       ❌       |         ❌         |
-| Vides dzēšana                        |     ✅    |   ❌   |      ❌      |     ❌    |       ❌       |         ❌         |
+| Darbība                                     | Īpašnieks | Admins | Bibliotekārs | Diriģents | Balsu gr. vad. | Parasts dziedātājs |
+| :------------------------------------------ | :-------: | :----: | :----------: | :-------: | :------------: | :----------------: |
+| Nošu skatīšana un lejupielāde               |    ✅     |   ✅   |      ✅      |    ✅     |       ✅       |         ✅         |
+| **Nošu pievienošana un mainīšana**          |    ❌     |   ❌   |      ✅      |    ❌     |       ❌       |         ❌         |
+| **Dalībnieku uzaicināšana un pārvaldīšana** |    ✅     |   ✅   |      ❌      |    ❌     |       ❌       |         ❌         |
+| **Lomu mainīšana**                          |    ✅     |  ✅¹   |      ❌      |    ❌     |       ❌       |         ❌         |
+| **Mēģinājumu pievienošana kalendāram**      |    ❌     |   ❌   |      ❌      |    ✅     |       ❌       |         ❌         |
+| **Apmeklējuma atzīmēšana**                  |    ❌     |   ❌   |      ❌      |    ✅     |       ✅       |         ❌         |
+| **Iestatījumu pārvaldīšana**                |    ✅     |   ✅   |      ❌      |    ❌     |       ❌       |         ❌         |
+| Vides dzēšana                               |    ✅     |   ❌   |      ❌      |    ❌     |       ❌       |         ❌         |
 
 **Paskaidrojumi:**
 
