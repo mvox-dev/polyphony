@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Voice, Section, Role } from '$lib/types';
+	import type { Voice, Section } from '$lib/types';
 	import { VoiceBadge, SectionBadge } from '$lib/components/badges';
 	import { isExpired } from '$lib/utils/formatters';
 	import * as m from '$lib/paraglide/messages.js';
@@ -12,7 +12,6 @@
 		expiresAt: string;
 		invitedBy: string;
 		inviteLink: string;
-		roles: Role[];
 		voices?: Voice[];
 		sections?: Section[];
 	}
@@ -53,13 +52,6 @@
 									{m.invites_expired_badge()}
 								</span>
 							{/if}
-
-							<!-- Role badges -->
-							{#each invite.roles as role}
-								<span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-									{role}
-								</span>
-							{/each}
 
 							<!-- Voice badges -->
 							{#if invite.voices && invite.voices.length > 0}

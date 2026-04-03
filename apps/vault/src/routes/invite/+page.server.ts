@@ -55,6 +55,7 @@ export const load: PageServerLoad = async ({ platform, cookies, url, locals }) =
 		rosterMember: rosterMember ? {
 			id: rosterMember.id,
 			name: rosterMember.name,
+			roles: rosterMember.roles,
 			voices: rosterMember.voices,
 			sections: rosterMember.sections
 		} : null

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { ASSIGNABLE_ROLES, type Role } from '$lib/types';
 	import { toast } from '$lib/stores/toast';
 	import { VoiceBadge, SectionBadge } from '$lib/components/badges';
 	import InviteLinkCard from '$lib/components/InviteLinkCard.svelte';
@@ -13,20 +12,9 @@
 	let rosterMember = $derived(data.rosterMember);
 
 	// Form state
-	let roles = $state<Set<Role>>(new Set());
 	let isSubmitting = $state(false);
 	let success = $state('');
 	let inviteLink = $state('');
-
-	function toggleRole(role: Role) {
-		const newRoles = new Set(roles);
-		if (newRoles.has(role)) {
-			newRoles.delete(role);
-		} else {
-			newRoles.add(role);
-		}
-		roles = newRoles;
-	}
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
@@ -47,8 +35,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					rosterMemberId: rosterMember.id,
-					roles: Array.from(roles)
+					rosterMemberId: rosterMember.id
 				})
 			});
 
@@ -60,7 +47,6 @@
 			const result = (await response.json()) as { inviteLink: string };
 			inviteLink = result.inviteLink;
 			success = m.invite_success_message({ name: rosterMember.name });
-			roles = new Set();
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : m.invite_error_send_failed());
 		} finally {
@@ -155,43 +141,22 @@
 				</div>
 
 				<form onsubmit={handleSubmit} class="space-y-4">
-					<fieldset>
-						<legend class="mb-2 block text-sm font-medium text-gray-700">
+					<div>
+						<p class="mb-2 block text-sm font-medium text-gray-700">
 							{m.invite_roles_legend()}
-						</legend>
-						<div class="space-y-2">
-							{#each ASSIGNABLE_ROLES as role}
-								{#if role !== 'owner' || data.isOwner}
-									<label class="flex items-center gap-2">
-										<input
-											type="checkbox"
-											checked={roles.has(role)}
-											onchange={() => toggleRole(role)}
-											disabled={isSubmitting}
-											class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-200"
-										/>
-										<span class="text-sm">
-											<span class="font-medium">{m[`roles_${role}`]()}</span>
-											{#if role === 'owner'}
-												- {m.invite_role_owner_desc()}
-											{:else if role === 'admin'}
-												- {m.invite_role_admin_desc()}
-											{:else if role === 'librarian'}
-												- {m.invite_role_librarian_desc()}
-											{:else if role === 'conductor'}
-												- {m.invite_role_conductor_desc()}
-											{:else if role === 'section_leader'}
-												- {m.invite_role_section_leader_desc()}
-											{/if}
-										</span>
-									</label>
-								{/if}
-							{/each}
-						</div>
-						<p class="mt-2 text-sm text-gray-500">
-							{m.invite_roles_help()}
 						</p>
-					</fieldset>
+						<div class="flex flex-wrap gap-2">
+							{#if rosterMember.roles.length > 0}
+								{#each rosterMember.roles as role}
+									<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
+										{m[`roles_${role}`]()}
+									</span>
+								{/each}
+							{:else}
+								<span class="text-sm text-gray-500">{m.member_no_roles()}</span>
+							{/if}
+						</div>
+					</div>
 
 					<button
 						type="submit"
