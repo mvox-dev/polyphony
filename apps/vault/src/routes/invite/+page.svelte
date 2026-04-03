@@ -143,7 +143,7 @@
 				<form onsubmit={handleSubmit} class="space-y-4">
 					<div>
 						<p class="mb-2 block text-sm font-medium text-gray-700">
-							{m.invite_roles_legend()}
+							{m.invite_assigned_roles()}
 						</p>
 						<div class="flex flex-wrap gap-2">
 							{#if rosterMember.roles.length > 0}
