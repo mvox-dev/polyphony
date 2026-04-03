@@ -47,15 +47,17 @@ function createMockDB() {
 
 							// Member voices query
 							if (sql.includes('member_voices mv') && sql.includes('mv.member_id = ?')) {
-								const [memberId] = params;
+								const [memberId, orgId] = params;
 								const memberVcs = mockState.memberVoices.get(memberId) || [];
-								const results = memberVcs.map((mv) => {
-									const voice = mockState.voices.get(mv.voice_id);
-									return {
-										...voice,
-										is_primary: mv.is_primary
-									};
-								});
+								const results = memberVcs
+									.map((mv) => {
+										const voice = mockState.voices.get(mv.voice_id);
+										return {
+											...voice,
+											is_primary: mv.is_primary
+										};
+									})
+									.filter((v) => !orgId || v.org_id === orgId);
 								return { results };
 							}
 
@@ -208,7 +210,7 @@ describe('Member Query Utilities', () => {
 
 	describe('queryMemberVoices', () => {
 		it('should return empty array when member has no voices', async () => {
-			const result = await queryMemberVoices(mockDb, 'mem_1');
+			const result = await queryMemberVoices(mockDb, 'mem_1', TEST_ORG_ID);
 
 			expect(result).toEqual([]);
 		});
@@ -221,14 +223,15 @@ describe('Member Query Utilities', () => {
 				category: 'vocal',
 				range_group: 'high',
 				display_order: 1,
-				is_active: 1
+				is_active: 1,
+				org_id: 'org_test_001'
 			});
 
 			mockDb.__mockState.memberVoices.set('mem_1', [
 				{ voice_id: 'voice_1', is_primary: 1 }
 			]);
 
-			const result = await queryMemberVoices(mockDb, 'mem_1');
+			const result = await queryMemberVoices(mockDb, 'mem_1', TEST_ORG_ID);
 
 			expect(result).toHaveLength(1);
 			expect(result[0]).toEqual({
@@ -250,7 +253,8 @@ describe('Member Query Utilities', () => {
 				category: 'vocal',
 				range_group: 'high',
 				display_order: 1,
-				is_active: 1
+				is_active: 1,
+				org_id: 'org_test_001'
 			});
 			mockDb.__mockState.voices.set('voice_2', {
 				id: 'voice_2',
@@ -259,7 +263,8 @@ describe('Member Query Utilities', () => {
 				category: 'vocal',
 				range_group: 'mid',
 				display_order: 2,
-				is_active: 1
+				is_active: 1,
+				org_id: 'org_test_001'
 			});
 
 			mockDb.__mockState.memberVoices.set('mem_1', [
@@ -267,7 +272,7 @@ describe('Member Query Utilities', () => {
 				{ voice_id: 'voice_1', is_primary: 0 }  // Soprano
 			]);
 
-			const result = await queryMemberVoices(mockDb, 'mem_1');
+			const result = await queryMemberVoices(mockDb, 'mem_1', TEST_ORG_ID);
 
 			expect(result).toHaveLength(2);
 			expect(result[0].id).toBe('voice_2');
@@ -282,16 +287,53 @@ describe('Member Query Utilities', () => {
 				category: 'instrumental',
 				range_group: null,
 				display_order: 10,
-				is_active: 1
+				is_active: 1,
+				org_id: 'org_test_001'
 			});
 
 			mockDb.__mockState.memberVoices.set('mem_1', [
 				{ voice_id: 'voice_1', is_primary: 1 }
 			]);
 
-			const result = await queryMemberVoices(mockDb, 'mem_1');
+			const result = await queryMemberVoices(mockDb, 'mem_1', TEST_ORG_ID);
 
 			expect(result[0].rangeGroup).toBeNull();
+		});
+
+		it('should exclude voices that belong to a different org', async () => {
+			const OTHER_ORG_ID = createOrgId('org_other_001');
+
+			mockDb.__mockState.voices.set('voice_own', {
+				id: 'voice_own',
+				name: 'Soprano',
+				abbreviation: 'S',
+				category: 'vocal',
+				range_group: 'high',
+				display_order: 1,
+				is_active: 1,
+				org_id: 'org_test_001'  // belongs to TEST_ORG_ID
+			});
+			mockDb.__mockState.voices.set('voice_foreign', {
+				id: 'voice_foreign',
+				name: 'Tenor',
+				abbreviation: 'T',
+				category: 'vocal',
+				range_group: 'low',
+				display_order: 2,
+				is_active: 1,
+				org_id: 'org_other_001' // belongs to OTHER_ORG_ID
+			});
+
+			mockDb.__mockState.memberVoices.set('mem_1', [
+				{ voice_id: 'voice_own', is_primary: 1 },
+				{ voice_id: 'voice_foreign', is_primary: 0 }
+			]);
+
+			const result = await queryMemberVoices(mockDb, 'mem_1', TEST_ORG_ID);
+
+			// Only the voice belonging to TEST_ORG_ID should be returned
+			expect(result).toHaveLength(1);
+			expect(result[0].id).toBe('voice_own');
 		});
 	});
 

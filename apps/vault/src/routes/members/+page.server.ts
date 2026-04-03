@@ -33,7 +33,6 @@ function formatInvites(pendingInvites: Awaited<ReturnType<typeof getPendingInvit
 		id: inv.id,
 		rosterId: inv.roster_member_id,
 		name: inv.roster_member_name,
-		roles: inv.roles,
 		voices: inv.voices,
 		sections: inv.sections,
 		createdAt: inv.created_at,

@@ -86,14 +86,13 @@
 				roster_member_name: string;
 				expires_at: string;
 				created_at: string;
-				roles: typeof invites[0]['roles'];
 				voices: typeof invites[0]['voices'];
 				sections: typeof invites[0]['sections'];
 			};
-			
+
 			// Find original to preserve inviteLink and invitedBy
 			const original = invites.find((inv) => inv.id === inviteId);
-			
+
 			const renewedInvite: Invite = {
 				id: rawInvite.id,
 				rosterId: rawInvite.roster_member_id,
@@ -101,7 +100,6 @@
 				expiresAt: rawInvite.expires_at,
 				invitedBy: original?.invitedBy ?? m.members_invited_by_unknown(),
 				inviteLink: original?.inviteLink ?? '',
-				roles: rawInvite.roles,
 				voices: rawInvite.voices,
 				sections: rawInvite.sections
 			};
