@@ -1,3 +1,3 @@
 // Auth module exports
-export * from './permissions';
-export * from './middleware';
+export * from "./permissions";
+export * from "./middleware";

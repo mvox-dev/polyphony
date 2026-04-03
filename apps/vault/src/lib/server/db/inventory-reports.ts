@@ -3,33 +3,33 @@
 // Part of Epic #106 - Phase D: Reports & Insights
 
 export interface MissingCopyEntry {
-	memberId: string;
-	memberName: string;
-	sectionId: string;
-	sectionName: string;
-	editionId: string;
-	editionName: string;
-	workId: string;
-	workTitle: string;
-	composer: string | null;
+  memberId: string;
+  memberName: string;
+  sectionId: string;
+  sectionName: string;
+  editionId: string;
+  editionName: string;
+  workId: string;
+  workTitle: string;
+  composer: string | null;
 }
 
 export interface MissingCopiesReport {
-	entries: MissingCopyEntry[];
-	totalMissing: number;
-	editionCount: number;
+  entries: MissingCopyEntry[];
+  totalMissing: number;
+  editionCount: number;
 }
 
 interface MissingCopyRow {
-	member_id: string;
-	member_name: string;
-	section_id: string;
-	section_name: string;
-	edition_id: string;
-	edition_name: string;
-	work_id: string;
-	work_title: string;
-	composer: string | null;
+  member_id: string;
+  member_name: string;
+  section_id: string;
+  section_name: string;
+  edition_id: string;
+  edition_name: string;
+  work_id: string;
+  work_title: string;
+  composer: string | null;
 }
 
 /**
@@ -45,10 +45,10 @@ interface MissingCopyRow {
  * to avoid row multiplication and allow SQLite short-circuit optimization.
  */
 export async function getMissingCopiesForEvent(
-	db: D1Database,
-	eventId: string
+  db: D1Database,
+  eventId: string,
 ): Promise<MissingCopiesReport> {
-	const query = `
+  const query = `
 		SELECT 
 			m.id as member_id,
 			m.name as member_name,
@@ -80,27 +80,30 @@ export async function getMissingCopiesForEvent(
 		ORDER BY w.title, e.name, s.name, m.name
 	`;
 
-	const { results } = await db.prepare(query).bind(eventId).all<MissingCopyRow>();
+  const { results } = await db
+    .prepare(query)
+    .bind(eventId)
+    .all<MissingCopyRow>();
 
-	const entries: MissingCopyEntry[] = results.map((row) => ({
-		memberId: row.member_id,
-		memberName: row.member_name,
-		sectionId: row.section_id,
-		sectionName: row.section_name,
-		editionId: row.edition_id,
-		editionName: row.edition_name,
-		workId: row.work_id,
-		workTitle: row.work_title,
-		composer: row.composer
-	}));
+  const entries: MissingCopyEntry[] = results.map((row) => ({
+    memberId: row.member_id,
+    memberName: row.member_name,
+    sectionId: row.section_id,
+    sectionName: row.section_name,
+    editionId: row.edition_id,
+    editionName: row.edition_name,
+    workId: row.work_id,
+    workTitle: row.work_title,
+    composer: row.composer,
+  }));
 
-	const uniqueEditions = new Set(entries.map((e) => e.editionId));
+  const uniqueEditions = new Set(entries.map((e) => e.editionId));
 
-	return {
-		entries,
-		totalMissing: entries.length,
-		editionCount: uniqueEditions.size
-	};
+  return {
+    entries,
+    totalMissing: entries.length,
+    editionCount: uniqueEditions.size,
+  };
 }
 
 // ============================================================================
@@ -111,36 +114,36 @@ export async function getMissingCopiesForEvent(
  * Outstanding copy that needs to be collected
  */
 export interface OutstandingCopy {
-	assignmentId: string;
-	memberId: string;
-	memberName: string;
-	editionId: string;
-	editionName: string;
-	workTitle: string;
-	copyId: string;
-	copyNumber: string;
-	assignedAt: string;
+  assignmentId: string;
+  memberId: string;
+  memberName: string;
+  editionId: string;
+  editionName: string;
+  workTitle: string;
+  copyId: string;
+  copyNumber: string;
+  assignedAt: string;
 }
 
 /**
  * Outstanding copies grouped by member
  */
 export interface OutstandingCopiesByMember {
-	memberId: string;
-	memberName: string;
-	copies: OutstandingCopy[];
+  memberId: string;
+  memberName: string;
+  copies: OutstandingCopy[];
 }
 
 interface OutstandingCopyRow {
-	assignment_id: string;
-	member_id: string;
-	member_name: string;
-	edition_id: string;
-	edition_name: string;
-	work_title: string;
-	copy_id: string;
-	copy_number: string;
-	assigned_at: string;
+  assignment_id: string;
+  member_id: string;
+  member_name: string;
+  edition_id: string;
+  edition_name: string;
+  work_title: string;
+  copy_id: string;
+  copy_number: string;
+  assigned_at: string;
 }
 
 /**
@@ -152,10 +155,10 @@ interface OutstandingCopyRow {
  * 3. Return assignments that are still active (returned_at IS NULL)
  */
 export async function getOutstandingCopiesForSeason(
-	db: D1Database,
-	seasonId: string
+  db: D1Database,
+  seasonId: string,
 ): Promise<OutstandingCopiesByMember[]> {
-	const query = `
+  const query = `
 		SELECT 
 			ca.id as assignment_id,
 			m.id as member_id,
@@ -178,35 +181,38 @@ export async function getOutstandingCopiesForSeason(
 		ORDER BY m.name, w.title, e.name, pc.copy_number COLLATE NOCASE
 	`;
 
-	const { results } = await db.prepare(query).bind(seasonId).all<OutstandingCopyRow>();
+  const { results } = await db
+    .prepare(query)
+    .bind(seasonId)
+    .all<OutstandingCopyRow>();
 
-	// Group by member
-	const byMember = new Map<string, OutstandingCopiesByMember>();
+  // Group by member
+  const byMember = new Map<string, OutstandingCopiesByMember>();
 
-	for (const row of results) {
-		const copy: OutstandingCopy = {
-			assignmentId: row.assignment_id,
-			memberId: row.member_id,
-			memberName: row.member_name,
-			editionId: row.edition_id,
-			editionName: row.edition_name,
-			workTitle: row.work_title,
-			copyId: row.copy_id,
-			copyNumber: row.copy_number,
-			assignedAt: row.assigned_at
-		};
+  for (const row of results) {
+    const copy: OutstandingCopy = {
+      assignmentId: row.assignment_id,
+      memberId: row.member_id,
+      memberName: row.member_name,
+      editionId: row.edition_id,
+      editionName: row.edition_name,
+      workTitle: row.work_title,
+      copyId: row.copy_id,
+      copyNumber: row.copy_number,
+      assignedAt: row.assigned_at,
+    };
 
-		if (!byMember.has(row.member_id)) {
-			byMember.set(row.member_id, {
-				memberId: row.member_id,
-				memberName: row.member_name,
-				copies: []
-			});
-		}
-		byMember.get(row.member_id)!.copies.push(copy);
-	}
+    if (!byMember.has(row.member_id)) {
+      byMember.set(row.member_id, {
+        memberId: row.member_id,
+        memberName: row.member_name,
+        copies: [],
+      });
+    }
+    byMember.get(row.member_id)!.copies.push(copy);
+  }
 
-	return Array.from(byMember.values());
+  return Array.from(byMember.values());
 }
 
 /**
@@ -214,20 +220,20 @@ export async function getOutstandingCopiesForSeason(
  * Returns count of assignments actually marked as returned
  */
 export async function bulkReturnCopies(
-	db: D1Database,
-	assignmentIds: string[]
+  db: D1Database,
+  assignmentIds: string[],
 ): Promise<number> {
-	if (assignmentIds.length === 0) return 0;
+  if (assignmentIds.length === 0) return 0;
 
-	const placeholders = assignmentIds.map(() => '?').join(',');
-	const result = await db
-		.prepare(
-			`UPDATE copy_assignments SET returned_at = datetime('now') WHERE id IN (${placeholders}) AND returned_at IS NULL`
-		)
-		.bind(...assignmentIds)
-		.run();
+  const placeholders = assignmentIds.map(() => "?").join(",");
+  const result = await db
+    .prepare(
+      `UPDATE copy_assignments SET returned_at = datetime('now') WHERE id IN (${placeholders}) AND returned_at IS NULL`,
+    )
+    .bind(...assignmentIds)
+    .run();
 
-	return result.meta.changes ?? 0;
+  return result.meta.changes ?? 0;
 }
 
 /**
@@ -235,10 +241,10 @@ export async function bulkReturnCopies(
  * Uses season_works → season_work_editions instead of event_works
  */
 export async function getMissingCopiesForSeason(
-	db: D1Database,
-	seasonId: string
+  db: D1Database,
+  seasonId: string,
 ): Promise<MissingCopiesReport> {
-	const query = `
+  const query = `
 		SELECT 
 			m.id as member_id,
 			m.name as member_name,
@@ -270,25 +276,28 @@ export async function getMissingCopiesForSeason(
 		ORDER BY w.title, e.name, s.name, m.name
 	`;
 
-	const { results } = await db.prepare(query).bind(seasonId).all<MissingCopyRow>();
+  const { results } = await db
+    .prepare(query)
+    .bind(seasonId)
+    .all<MissingCopyRow>();
 
-	const entries: MissingCopyEntry[] = results.map((row) => ({
-		memberId: row.member_id,
-		memberName: row.member_name,
-		sectionId: row.section_id,
-		sectionName: row.section_name,
-		editionId: row.edition_id,
-		editionName: row.edition_name,
-		workId: row.work_id,
-		workTitle: row.work_title,
-		composer: row.composer
-	}));
+  const entries: MissingCopyEntry[] = results.map((row) => ({
+    memberId: row.member_id,
+    memberName: row.member_name,
+    sectionId: row.section_id,
+    sectionName: row.section_name,
+    editionId: row.edition_id,
+    editionName: row.edition_name,
+    workId: row.work_id,
+    workTitle: row.work_title,
+    composer: row.composer,
+  }));
 
-	const uniqueEditions = new Set(entries.map((e) => e.editionId));
+  const uniqueEditions = new Set(entries.map((e) => e.editionId));
 
-	return {
-		entries,
-		totalMissing: entries.length,
-		editionCount: uniqueEditions.size
-	};
+  return {
+    entries,
+    totalMissing: entries.length,
+    editionCount: uniqueEditions.size,
+  };
 }

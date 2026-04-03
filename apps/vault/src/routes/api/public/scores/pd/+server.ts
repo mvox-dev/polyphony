@@ -3,74 +3,74 @@
 // No authentication required - used by Registry PD Catalog
 // Returns all public_domain editions with work metadata
 
-import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import { json, error } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
 interface PDScoreRow {
-	edition_id: string;
-	edition_name: string;
-	edition_arranger: string | null;
-	edition_publisher: string | null;
-	edition_voicing: string | null;
-	edition_type: string;
-	edition_notes: string | null;
-	edition_external_url: string | null;
-	work_id: string;
-	work_title: string;
-	work_composer: string | null;
-	work_lyricist: string | null;
-	org_id: string;
-	org_name: string;
-	org_subdomain: string;
+  edition_id: string;
+  edition_name: string;
+  edition_arranger: string | null;
+  edition_publisher: string | null;
+  edition_voicing: string | null;
+  edition_type: string;
+  edition_notes: string | null;
+  edition_external_url: string | null;
+  work_id: string;
+  work_title: string;
+  work_composer: string | null;
+  work_lyricist: string | null;
+  org_id: string;
+  org_name: string;
+  org_subdomain: string;
 }
 
 export interface PDScore {
-	editionId: string;
-	editionName: string;
-	arranger: string | null;
-	publisher: string | null;
-	voicing: string | null;
-	editionType: string;
-	notes: string | null;
-	externalUrl: string | null;
-	work: {
-		id: string;
-		title: string;
-		composer: string | null;
-		lyricist: string | null;
-	};
-	organization: {
-		id: string;
-		name: string;
-		subdomain: string;
-	};
+  editionId: string;
+  editionName: string;
+  arranger: string | null;
+  publisher: string | null;
+  voicing: string | null;
+  editionType: string;
+  notes: string | null;
+  externalUrl: string | null;
+  work: {
+    id: string;
+    title: string;
+    composer: string | null;
+    lyricist: string | null;
+  };
+  organization: {
+    id: string;
+    name: string;
+    subdomain: string;
+  };
 }
 
 /**
  * Transform database row to PDScore format
  */
 function transformPDScoreRow(row: PDScoreRow): PDScore {
-	return {
-		editionId: row.edition_id,
-		editionName: row.edition_name,
-		arranger: row.edition_arranger,
-		publisher: row.edition_publisher,
-		voicing: row.edition_voicing,
-		editionType: row.edition_type,
-		notes: row.edition_notes,
-		externalUrl: row.edition_external_url,
-		work: {
-			id: row.work_id,
-			title: row.work_title,
-			composer: row.work_composer,
-			lyricist: row.work_lyricist
-		},
-		organization: {
-			id: row.org_id,
-			name: row.org_name,
-			subdomain: row.org_subdomain
-		}
-	};
+  return {
+    editionId: row.edition_id,
+    editionName: row.edition_name,
+    arranger: row.edition_arranger,
+    publisher: row.edition_publisher,
+    voicing: row.edition_voicing,
+    editionType: row.edition_type,
+    notes: row.edition_notes,
+    externalUrl: row.edition_external_url,
+    work: {
+      id: row.work_id,
+      title: row.work_title,
+      composer: row.work_composer,
+      lyricist: row.work_lyricist,
+    },
+    organization: {
+      id: row.org_id,
+      name: row.org_name,
+      subdomain: row.org_subdomain,
+    },
+  };
 }
 
 /**
@@ -78,12 +78,12 @@ function transformPDScoreRow(row: PDScoreRow): PDScore {
  * Returns all public domain scores across all organizations
  */
 export const GET: RequestHandler = async ({ platform }) => {
-	if (!platform?.env?.DB) {
-		throw error(500, 'Database not available');
-	}
+  if (!platform?.env?.DB) {
+    throw error(500, "Database not available");
+  }
 
-	const { results } = await platform.env.DB
-		.prepare(`
+  const { results } = await platform.env.DB.prepare(
+    `
 			SELECT 
 				e.id as edition_id,
 				e.name as edition_name,
@@ -105,10 +105,10 @@ export const GET: RequestHandler = async ({ platform }) => {
 			JOIN organizations o ON w.org_id = o.id
 			WHERE e.license_type = 'public_domain'
 			ORDER BY w.title ASC, e.name ASC
-		`)
-		.all<PDScoreRow>();
+		`,
+  ).all<PDScoreRow>();
 
-	const scores = results.map(transformPDScoreRow);
+  const scores = results.map(transformPDScoreRow);
 
-	return json({ scores });
+  return json({ scores });
 };

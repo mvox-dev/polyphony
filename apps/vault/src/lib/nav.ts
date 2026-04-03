@@ -2,12 +2,12 @@
 // Extracted for testability and DRY between desktop/mobile layouts
 
 export interface NavItem {
-	href: string;
-	labelKey: string;
-	/** If set, only visible to users with at least one of these roles */
-	roles?: string[];
-	/** Visual group — items in different groups get a separator between them */
-	group: 'main' | 'manage';
+  href: string;
+  labelKey: string;
+  /** If set, only visible to users with at least one of these roles */
+  roles?: string[];
+  /** Visual group — items in different groups get a separator between them */
+  group: "main" | "manage";
 }
 
 /**
@@ -19,13 +19,28 @@ export interface NavItem {
  * (see +page.server.ts redirect), accessible via the org name link.
  */
 export const NAV_ITEMS: NavItem[] = [
-	{ href: '/events', labelKey: 'nav_events', group: 'main' },
-	{ href: '/seasons', labelKey: 'nav_seasons', group: 'main' },
-	{ href: '/works', labelKey: 'nav_library', group: 'main' },
-	{ href: '/guides', labelKey: 'nav_guides', group: 'main' },
-	{ href: '/editions', labelKey: 'nav_editions', group: 'manage', roles: ['librarian', 'admin', 'owner'] },
-	{ href: '/members', labelKey: 'nav_members', group: 'manage', roles: ['admin', 'owner'] },
-	{ href: '/settings', labelKey: 'nav_settings', group: 'manage', roles: ['admin', 'owner'] }
+  { href: "/events", labelKey: "nav_events", group: "main" },
+  { href: "/seasons", labelKey: "nav_seasons", group: "main" },
+  { href: "/works", labelKey: "nav_library", group: "main" },
+  { href: "/guides", labelKey: "nav_guides", group: "main" },
+  {
+    href: "/editions",
+    labelKey: "nav_editions",
+    group: "manage",
+    roles: ["librarian", "admin", "owner"],
+  },
+  {
+    href: "/members",
+    labelKey: "nav_members",
+    group: "manage",
+    roles: ["admin", "owner"],
+  },
+  {
+    href: "/settings",
+    labelKey: "nav_settings",
+    group: "manage",
+    roles: ["admin", "owner"],
+  },
 ];
 
 /**
@@ -34,10 +49,10 @@ export const NAV_ITEMS: NavItem[] = [
  * Items with `roles` are visible if the user has at least one matching role.
  */
 export function getVisibleNavItems(userRoles: string[]): NavItem[] {
-	return NAV_ITEMS.filter((item) => {
-		if (!item.roles) return true;
-		return item.roles.some((r) => userRoles.includes(r));
-	});
+  return NAV_ITEMS.filter((item) => {
+    if (!item.roles) return true;
+    return item.roles.some((r) => userRoles.includes(r));
+  });
 }
 
 /**
@@ -46,8 +61,8 @@ export function getVisibleNavItems(userRoles: string[]): NavItem[] {
  * Special case: '/' only matches exactly.
  */
 export function isNavItemActive(href: string, currentPath: string): boolean {
-	if (href === '/') return currentPath === '/';
-	return currentPath === href || currentPath.startsWith(href + '/');
+  if (href === "/") return currentPath === "/";
+  return currentPath === href || currentPath.startsWith(href + "/");
 }
 
 /**
@@ -55,9 +70,12 @@ export function isNavItemActive(href: string, currentPath: string): boolean {
  * In that case, the nav shows a direct Roster link instead of the OrgSwitcher.
  */
 export function shouldShowRosterLink(
-	memberOrgs: Array<{ id: string; name: string; subdomain: string }> | null | undefined
+  memberOrgs:
+    | Array<{ id: string; name: string; subdomain: string }>
+    | null
+    | undefined,
 ): boolean {
-	return Array.isArray(memberOrgs) && memberOrgs.length === 1;
+  return Array.isArray(memberOrgs) && memberOrgs.length === 1;
 }
 
 /**
@@ -66,14 +84,14 @@ export function shouldShowRosterLink(
  * Accepts optional protocol/host for testability; falls back to polyphony.uk.
  */
 export function buildOrgUrl(
-	targetSubdomain: string,
-	currentSubdomain: string,
-	protocol?: string,
-	host?: string
+  targetSubdomain: string,
+  currentSubdomain: string,
+  protocol?: string,
+  host?: string,
 ): string {
-	if (protocol && host) {
-		const newHost = host.replace(currentSubdomain, targetSubdomain);
-		return `${protocol}//${newHost}/events/roster`;
-	}
-	return `https://${targetSubdomain}.polyphony.uk/events/roster`;
+  if (protocol && host) {
+    const newHost = host.replace(currentSubdomain, targetSubdomain);
+    return `${protocol}//${newHost}/events/roster`;
+  }
+  return `https://${targetSubdomain}.polyphony.uk/events/roster`;
 }

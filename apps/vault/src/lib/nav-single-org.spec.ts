@@ -12,71 +12,79 @@
 //   - shouldShowRosterLink is exported from $lib/nav
 //
 // Red phase: import will succeed but function does not exist yet.
-import { describe, it, expect } from 'vitest';
-import { shouldShowRosterLink } from '$lib/nav';
+import { describe, it, expect } from "vitest";
+import { shouldShowRosterLink } from "$lib/nav";
 
 interface OrgSummary {
-	id: string;
-	name: string;
-	subdomain: string;
+  id: string;
+  name: string;
+  subdomain: string;
 }
 
 function makeOrg(subdomain: string): OrgSummary {
-	return { id: `org_${subdomain}`, name: subdomain, subdomain };
+  return { id: `org_${subdomain}`, name: subdomain, subdomain };
 }
 
-describe('shouldShowRosterLink — single-org user', () => {
-	it('returns true when memberOrgs has exactly one entry', () => {
-		expect(shouldShowRosterLink([makeOrg('crede')])).toBe(true);
-	});
+describe("shouldShowRosterLink — single-org user", () => {
+  it("returns true when memberOrgs has exactly one entry", () => {
+    expect(shouldShowRosterLink([makeOrg("crede")])).toBe(true);
+  });
 
-	it('returns true regardless of which org is in the list', () => {
-		expect(shouldShowRosterLink([makeOrg('hannijoggi')])).toBe(true);
-	});
+  it("returns true regardless of which org is in the list", () => {
+    expect(shouldShowRosterLink([makeOrg("hannijoggi")])).toBe(true);
+  });
 });
 
-describe('shouldShowRosterLink — multi-org user', () => {
-	it('returns false when memberOrgs has two entries', () => {
-		expect(shouldShowRosterLink([makeOrg('crede'), makeOrg('hannijoggi')])).toBe(false);
-	});
+describe("shouldShowRosterLink — multi-org user", () => {
+  it("returns false when memberOrgs has two entries", () => {
+    expect(
+      shouldShowRosterLink([makeOrg("crede"), makeOrg("hannijoggi")]),
+    ).toBe(false);
+  });
 
-	it('returns false when memberOrgs has three or more entries', () => {
-		expect(
-			shouldShowRosterLink([makeOrg('crede'), makeOrg('hannijoggi'), makeOrg('tallinn')])
-		).toBe(false);
-	});
+  it("returns false when memberOrgs has three or more entries", () => {
+    expect(
+      shouldShowRosterLink([
+        makeOrg("crede"),
+        makeOrg("hannijoggi"),
+        makeOrg("tallinn"),
+      ]),
+    ).toBe(false);
+  });
 });
 
-describe('shouldShowRosterLink — unauthenticated / empty state', () => {
-	it('returns false when memberOrgs is empty (not logged in)', () => {
-		expect(shouldShowRosterLink([])).toBe(false);
-	});
+describe("shouldShowRosterLink — unauthenticated / empty state", () => {
+  it("returns false when memberOrgs is empty (not logged in)", () => {
+    expect(shouldShowRosterLink([])).toBe(false);
+  });
 
-	it('returns false when memberOrgs is null/undefined (unauthenticated)', () => {
-		expect(shouldShowRosterLink(null as unknown as OrgSummary[])).toBe(false);
-		expect(shouldShowRosterLink(undefined as unknown as OrgSummary[])).toBe(false);
-	});
+  it("returns false when memberOrgs is null/undefined (unauthenticated)", () => {
+    expect(shouldShowRosterLink(null as unknown as OrgSummary[])).toBe(false);
+    expect(shouldShowRosterLink(undefined as unknown as OrgSummary[])).toBe(
+      false,
+    );
+  });
 });
 
-describe('shouldShowRosterLink — does not affect OrgSwitcher visibility (regression guard)', () => {
-	it('single org: OrgSwitcher should NOT be shown (no other orgs to switch to)', () => {
-		// When shouldShowRosterLink is true, OrgSwitcher must not render.
-		// This test documents the expected layout condition:
-		// OrgSwitcher is only shown when memberOrgs.length > 1.
-		const memberOrgs = [makeOrg('crede')];
-		const showRosterLink = shouldShowRosterLink(memberOrgs);
-		const showOrgSwitcher = memberOrgs.length > 1;
+describe("shouldShowRosterLink — does not affect OrgSwitcher visibility (regression guard)", () => {
+  it("single org: OrgSwitcher should NOT be shown (no other orgs to switch to)", () => {
+    // When shouldShowRosterLink is true, OrgSwitcher must not render.
+    // This test documents the expected layout condition:
+    // OrgSwitcher is only shown when memberOrgs.length > 1.
+    const memberOrgs = [makeOrg("crede")];
+    const showRosterLink = shouldShowRosterLink(memberOrgs);
+    const showOrgSwitcher = memberOrgs.length > 1;
 
-		expect(showRosterLink).toBe(true);
-		expect(showOrgSwitcher).toBe(false);
-	});
+    expect(showRosterLink).toBe(true);
+    expect(showOrgSwitcher).toBe(false);
+  });
 
-	it('multi-org: OrgSwitcher should be shown, roster link should NOT', () => {
-		const memberOrgs = [makeOrg('crede'), makeOrg('hannijoggi')];
-		const showRosterLink = shouldShowRosterLink(memberOrgs);
-		const showOrgSwitcher = memberOrgs.length > 1;
+  it("multi-org: OrgSwitcher should be shown, roster link should NOT", () => {
+    const memberOrgs = [makeOrg("crede"), makeOrg("hannijoggi")];
+    const showRosterLink = shouldShowRosterLink(memberOrgs);
+    const showOrgSwitcher = memberOrgs.length > 1;
 
-		expect(showRosterLink).toBe(false);
-		expect(showOrgSwitcher).toBe(true);
-	});
+    expect(showRosterLink).toBe(false);
+    expect(showOrgSwitcher).toBe(true);
+  });
 });

@@ -6,12 +6,12 @@
 // This stub exists so tests can be collected — they will all fail until implemented.
 
 export interface InviteForLinkMap {
-	/** The invite row id */
-	id: string;
-	/** The roster member this invite is addressed to */
-	rosterId: string;
-	/** Full invite URL including token */
-	inviteLink: string;
+  /** The invite row id */
+  id: string;
+  /** The roster member this invite is addressed to */
+  rosterId: string;
+  /** Full invite URL including token */
+  inviteLink: string;
 }
 
 /**
@@ -20,11 +20,11 @@ export interface InviteForLinkMap {
  * whether to show the blue "Pending invite" box or the amber "No invite sent" box.
  */
 export function buildPendingInviteLinks(
-	invites: ReadonlyArray<InviteForLinkMap>
+  invites: ReadonlyArray<InviteForLinkMap>,
 ): Record<string, string> {
-	const result: Record<string, string> = {};
-	for (const invite of invites) {
-		result[invite.rosterId] = invite.inviteLink;
-	}
-	return result;
+  const result: Record<string, string> = {};
+  for (const invite of invites) {
+    result[invite.rosterId] = invite.inviteLink;
+  }
+  return result;
 }
