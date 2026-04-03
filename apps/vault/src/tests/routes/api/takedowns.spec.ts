@@ -10,19 +10,14 @@ vi.mock('$lib/server/db/takedowns', () => ({
 	getTakedownById: vi.fn()
 }));
 
-// Mock the middleware
-vi.mock('$lib/server/middleware', () => ({
-	requireRole: vi.fn(() => () => Promise.resolve())
-}));
-
-// Mock the permissions
-vi.mock('$lib/server/db/permissions', () => ({
-	getMemberRole: vi.fn(),
-	isAdminRole: vi.fn((role: string) => role === 'admin')
+// Mock the auth middleware
+vi.mock('$lib/server/auth/middleware', () => ({
+	getAuthenticatedMember: vi.fn(),
+	assertAdmin: vi.fn()
 }));
 
 import { listTakedownRequests, processTakedown, getTakedownById } from '$lib/server/db/takedowns';
-import { getMemberRole } from '$lib/server/db/permissions';
+import { getAuthenticatedMember, assertAdmin } from '$lib/server/auth/middleware';
 
 function createMockRequest(url: string = 'http://localhost/api/takedowns'): Request {
 	return new Request(url, { method: 'GET' });
@@ -48,39 +43,45 @@ function createMockCookies(memberId: string | null = 'admin-123') {
 	};
 }
 
+const mockAdmin = { id: 'admin-123', email_id: 'admin@test.com', name: 'Admin', roles: ['admin'], voices: [], sections: [] };
+
 describe('GET /api/takedowns', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
 	it('should return 401 when not authenticated', async () => {
-		const response = await GET({
+		vi.mocked(getAuthenticatedMember).mockRejectedValue(
+			Object.assign(new Error('Authentication required'), { status: 401 })
+		);
+
+		await expect(GET({
 			request: createMockRequest(),
 			url: new URL('http://localhost/api/takedowns'),
 			platform: { env: { DB: createMockDb() } },
 			cookies: createMockCookies(null),
 			locals: { org: TEST_ORG }
-		} as unknown as Parameters<typeof GET>[0]);
-
-		expect(response.status).toBe(401);
+		} as unknown as Parameters<typeof GET>[0])).rejects.toMatchObject({ status: 401 });
 	});
 
 	it('should return 403 when user is not admin', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('singer');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue({ ...mockAdmin, roles: ['librarian'] } as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {
+			throw Object.assign(new Error('Admin or owner role required'), { status: 403 });
+		});
 
-		const response = await GET({
+		await expect(GET({
 			request: createMockRequest(),
 			url: new URL('http://localhost/api/takedowns'),
 			platform: { env: { DB: createMockDb() } },
 			cookies: createMockCookies('user-123'),
 			locals: { org: TEST_ORG }
-		} as unknown as Parameters<typeof GET>[0]);
-
-		expect(response.status).toBe(403);
+		} as unknown as Parameters<typeof GET>[0])).rejects.toMatchObject({ status: 403 });
 	});
 
 	it('should return all takedowns for admin', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(listTakedownRequests).mockResolvedValue([
 			{
 				id: 'takedown-1',
@@ -113,7 +114,8 @@ describe('GET /api/takedowns', () => {
 	});
 
 	it('should filter by status when provided', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(listTakedownRequests).mockResolvedValue([]);
 
 		const response = await GET({
@@ -135,33 +137,37 @@ describe('POST /api/takedowns/[id]/process', () => {
 	});
 
 	it('should return 401 when not authenticated', async () => {
-		const response = await PROCESS({
+		vi.mocked(getAuthenticatedMember).mockRejectedValue(
+			Object.assign(new Error('Authentication required'), { status: 401 })
+		);
+
+		await expect(PROCESS({
 			request: createMockProcessRequest({ action: 'approve' }),
 			params: { id: 'takedown-123' },
 			platform: { env: { DB: createMockDb() } },
 			cookies: createMockCookies(null),
 			locals: { org: TEST_ORG }
-		} as unknown as Parameters<typeof PROCESS>[0]);
-
-		expect(response.status).toBe(401);
+		} as unknown as Parameters<typeof PROCESS>[0])).rejects.toMatchObject({ status: 401 });
 	});
 
 	it('should return 403 when user is not admin', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('librarian');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue({ ...mockAdmin, roles: ['librarian'] } as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {
+			throw Object.assign(new Error('Admin or owner role required'), { status: 403 });
+		});
 
-		const response = await PROCESS({
+		await expect(PROCESS({
 			request: createMockProcessRequest({ action: 'approve' }),
 			params: { id: 'takedown-123' },
 			platform: { env: { DB: createMockDb() } },
 			cookies: createMockCookies('user-123'),
 			locals: { org: TEST_ORG }
-		} as unknown as Parameters<typeof PROCESS>[0]);
-
-		expect(response.status).toBe(403);
+		} as unknown as Parameters<typeof PROCESS>[0])).rejects.toMatchObject({ status: 403 });
 	});
 
 	it('should approve takedown request', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue({ id: 'takedown-123', org_id: 'org_crede_001', edition_id: 'ed-1', claimant_name: 'A', claimant_email: 'a@b.c', reason: 'R', attestation: true, status: 'pending', created_at: '', processed_at: null, processed_by: null, resolution_notes: null });
 		vi.mocked(processTakedown).mockResolvedValue({ success: true });
 
@@ -187,7 +193,8 @@ describe('POST /api/takedowns/[id]/process', () => {
 	});
 
 	it('should reject takedown request', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue({ id: 'takedown-456', org_id: 'org_crede_001', edition_id: 'ed-1', claimant_name: 'A', claimant_email: 'a@b.c', reason: 'R', attestation: true, status: 'pending', created_at: '', processed_at: null, processed_by: null, resolution_notes: null });
 		vi.mocked(processTakedown).mockResolvedValue({ success: true });
 
@@ -213,32 +220,30 @@ describe('POST /api/takedowns/[id]/process', () => {
 	});
 
 	it('should return 404 when takedown not found', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue(null);
 
-		const response = await PROCESS({
+		await expect(PROCESS({
 			request: createMockProcessRequest({ action: 'approve' }),
 			params: { id: 'nonexistent' },
 			platform: { env: { DB: createMockDb() } },
 			cookies: createMockCookies('admin-123'),
 			locals: { org: TEST_ORG }
-		} as unknown as Parameters<typeof PROCESS>[0]);
-
-		expect(response.status).toBe(404);
+		} as unknown as Parameters<typeof PROCESS>[0])).rejects.toMatchObject({ status: 404 });
 	});
 
 	it('should return 400 for invalid action', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue({ id: 'takedown-123', org_id: 'org_crede_001', edition_id: 'ed-1', claimant_name: 'A', claimant_email: 'a@b.c', reason: 'R', attestation: true, status: 'pending', created_at: '', processed_at: null, processed_by: null, resolution_notes: null });
 
-		const response = await PROCESS({
+		await expect(PROCESS({
 			request: createMockProcessRequest({ action: 'invalid' }),
 			params: { id: 'takedown-123' },
 			platform: { env: { DB: createMockDb() } },
 			cookies: createMockCookies('admin-123'),
 			locals: { org: TEST_ORG }
-		} as unknown as Parameters<typeof PROCESS>[0]);
-
-		expect(response.status).toBe(400);
+		} as unknown as Parameters<typeof PROCESS>[0])).rejects.toMatchObject({ status: 400 });
 	});
 });
