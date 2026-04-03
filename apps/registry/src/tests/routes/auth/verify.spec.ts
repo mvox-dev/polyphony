@@ -31,16 +31,10 @@ function createMockDb(signingKey?: string) {
 	return {
 		prepare: () => ({
 			bind: () => ({
-				first: async () =>
-					signingKey
-						? { private_key: signingKey }
-						: null
+				first: async () => (signingKey ? { private_key: signingKey } : null)
 			}),
 			// Some queries use .first() directly without .bind()
-			first: async () =>
-				signingKey
-					? { private_key: signingKey }
-					: null
+			first: async () => (signingKey ? { private_key: signingKey } : null)
 		})
 	} as unknown as D1Database;
 }

@@ -8,7 +8,9 @@
 	let email = $state('');
 	let subdomain = $state('');
 	let subdomainTouched = $state(false); // Has user manually edited subdomain?
-	let subdomainStatus = $state<'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'reserved'>('idle');
+	let subdomainStatus = $state<
+		'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'reserved'
+	>('idle');
 	let subdomainError = $state('');
 	let isSubmitting = $state(false);
 
@@ -19,19 +21,20 @@
 	function slugify(value: string): string {
 		return value
 			.toLowerCase()
-			.normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Strip diacritics
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '') // Strip diacritics
 			.replace(/[^a-z0-9]+/g, '-') // Non-alphanumeric → hyphen
-			.replace(/^-+|-+$/g, '')     // Trim leading/trailing hyphens
-			.replace(/--+/g, '-')        // No double hyphens
-			.slice(0, 30);               // Max length
+			.replace(/^-+|-+$/g, '') // Trim leading/trailing hyphens
+			.replace(/--+/g, '-') // No double hyphens
+			.slice(0, 30); // Max length
 	}
 
 	// Format subdomain as user types
 	function formatSubdomain(value: string): string {
 		return value
 			.toLowerCase()
-			.replace(/[^a-z0-9-]/g, '')  // Remove invalid chars
-			.replace(/--+/g, '-');        // No double hyphens
+			.replace(/[^a-z0-9-]/g, '') // Remove invalid chars
+			.replace(/--+/g, '-'); // No double hyphens
 	}
 
 	// Check subdomain availability via client-side fetch
@@ -78,31 +81,37 @@
 
 	// Form validation
 	let isFormValid = $derived(
-		name.trim().length > 0 &&
-		email.trim().length > 0 &&
-		subdomain.length >= 3
+		name.trim().length > 0 && email.trim().length > 0 && subdomain.length >= 3
 	);
 
 	// Status indicator classes
 	function getStatusClass(status: typeof subdomainStatus): string {
 		switch (status) {
-			case 'checking': return 'text-gray-500';
-			case 'available': return 'text-green-600';
+			case 'checking':
+				return 'text-gray-500';
+			case 'available':
+				return 'text-green-600';
 			case 'taken':
 			case 'reserved':
-			case 'invalid': return 'text-red-600';
-			default: return 'text-gray-400';
+			case 'invalid':
+				return 'text-red-600';
+			default:
+				return 'text-gray-400';
 		}
 	}
 
 	function getStatusIcon(status: typeof subdomainStatus): string {
 		switch (status) {
-			case 'checking': return '⏳';
-			case 'available': return '✓';
+			case 'checking':
+				return '⏳';
+			case 'available':
+				return '✓';
 			case 'taken':
 			case 'reserved':
-			case 'invalid': return '✗';
-			default: return '';
+			case 'invalid':
+				return '✗';
+			default:
+				return '';
 		}
 	}
 </script>
@@ -186,7 +195,9 @@
 							class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 							placeholder="kammerkoor-credo"
 						/>
-						<span class="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600">
+						<span
+							class="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600"
+						>
 							.polyphony.uk
 						</span>
 					</div>

@@ -21,10 +21,7 @@ export const load: PageServerLoad = async ({ platform }) => {
 	}
 
 	// Load today's data in parallel
-	const [snapshot, activity] = await Promise.all([
-		getSnapshot(db, today),
-		getTodayActivity(db)
-	]);
+	const [snapshot, activity] = await Promise.all([getSnapshot(db, today), getTodayActivity(db)]);
 
 	// Load 30 days of history for charts
 	const thirtyDaysAgo = new Date();

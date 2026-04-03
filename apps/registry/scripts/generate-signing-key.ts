@@ -11,11 +11,11 @@ async function main() {
 	console.log('Generating Ed25519 key pair for JWT signing...\n');
 
 	// Generate key pair using Web Crypto API
-	const keyPair = await webcrypto.subtle.generateKey(
+	const keyPair = (await webcrypto.subtle.generateKey(
 		{ name: 'Ed25519' },
 		true, // extractable
 		['sign', 'verify']
-	) as unknown as CryptoKeyPair;
+	)) as unknown as CryptoKeyPair;
 
 	// Export to JWK format
 	const publicJwk = await webcrypto.subtle.exportKey('jwk', keyPair.publicKey as CryptoKey);

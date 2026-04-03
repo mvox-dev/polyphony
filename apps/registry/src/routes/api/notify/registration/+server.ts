@@ -37,7 +37,14 @@ export const OPTIONS: RequestHandler = async () => {
 	return new Response(null, { status: 204, headers: CORS_HEADERS });
 };
 
-const REQUIRED_FIELDS = ['orgName', 'subdomain', 'contactEmail', 'memberName', 'memberEmail', 'orgId'] as const;
+const REQUIRED_FIELDS = [
+	'orgName',
+	'subdomain',
+	'contactEmail',
+	'memberName',
+	'memberEmail',
+	'orgId'
+] as const;
 
 function validateRequest(body: unknown): { data?: NotificationRequest; error?: string } {
 	const req = body as Partial<NotificationRequest>;
@@ -66,7 +73,10 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		return corsJson({ success: false, error: 'Admin email not configured' }, { status: 500 });
 	}
 	if (!env.NOTIFY_API_KEY) {
-		return corsJson({ success: false, error: 'Notification service not configured' }, { status: 500 });
+		return corsJson(
+			{ success: false, error: 'Notification service not configured' },
+			{ status: 500 }
+		);
 	}
 
 	// Parse request body
@@ -87,7 +97,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		return corsJson({ success: false, error: validation.error }, { status: 400 });
 	}
 
-	const { apiKey, orgName, subdomain, contactEmail, memberName, memberEmail, orgId } = validation.data!;
+	const { apiKey, orgName, subdomain, contactEmail, memberName, memberEmail, orgId } =
+		validation.data!;
 
 	// Verify API key
 	if (apiKey !== env.NOTIFY_API_KEY) {
@@ -105,7 +116,10 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	});
 
 	if (!result.success) {
-		return corsJson({ success: false, error: 'Failed to send notification email' }, { status: 500 });
+		return corsJson(
+			{ success: false, error: 'Failed to send notification email' },
+			{ status: 500 }
+		);
 	}
 
 	return corsJson({ success: true, emailId: result.emailId });

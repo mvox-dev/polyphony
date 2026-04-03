@@ -1,6 +1,6 @@
 /**
  * Phase 0 Acceptance Tests
- * 
+ *
  * Validates all Epic #11 acceptance criteria for Phase 0.
  * These tests verify the complete authentication flow end-to-end.
  */

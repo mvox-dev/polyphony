@@ -24,9 +24,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Allowed callback URL domains (zero-storage: no vault table lookup)
 const ALLOWED_CALLBACK_DOMAINS = [
-	'polyphony.uk',      // Production vaults
-	'localhost:5174',    // Development
-	'localhost:5173'     // Alternative dev port
+	'polyphony.uk', // Production vaults
+	'localhost:5174', // Development
+	'localhost:5173' // Alternative dev port
 ];
 
 // CORS headers for cross-origin requests from vaults
@@ -54,9 +54,9 @@ function isCallbackAllowed(callbackUrl: string): boolean {
 	try {
 		const url = new URL(callbackUrl);
 		const host = url.host; // includes port if present
-		
+
 		// Check exact match or subdomain match
-		return ALLOWED_CALLBACK_DOMAINS.some(domain => {
+		return ALLOWED_CALLBACK_DOMAINS.some((domain) => {
 			if (host === domain) return true;
 			// Check if it's a subdomain (e.g., "testorg.polyphony.uk" matches "polyphony.uk")
 			if (host.endsWith(`.${domain}`)) return true;
@@ -98,12 +98,22 @@ interface SendMagicLinkContext {
 /** Create auth code and send magic link email, return response */
 async function createAndSendMagicLink(ctx: SendMagicLinkContext): Promise<Response> {
 	const codeResult = await createAuthCode(ctx.db, ctx.email, ctx.vaultId, ctx.callback);
-	if (!codeResult.success) return corsJson({ success: false, error: codeResult.error }, { status: 429 });
+	if (!codeResult.success)
+		return corsJson({ success: false, error: codeResult.error }, { status: 429 });
 
 	const verifyUrl = `${ctx.origin}/auth/verify?code=${codeResult.code}&email=${encodeURIComponent(ctx.email.toLowerCase())}`;
-	const emailResult = await sendMagicLink(ctx.resendKey, { to: ctx.email, code: codeResult.code!, verifyUrl, vaultName: ctx.vaultName });
+	const emailResult = await sendMagicLink(ctx.resendKey, {
+		to: ctx.email,
+		code: codeResult.code!,
+		verifyUrl,
+		vaultName: ctx.vaultName
+	});
 
-	if (!emailResult.success) return corsJson({ success: false, error: 'Failed to send email. Please try again.' }, { status: 500 });
+	if (!emailResult.success)
+		return corsJson(
+			{ success: false, error: 'Failed to send email. Please try again.' },
+			{ status: 500 }
+		);
 	return corsJson({ success: true, message: 'Check your email for a magic link' });
 }
 
@@ -121,10 +131,15 @@ function extractVaultName(callback: string, vaultId: string): string {
 export const POST: RequestHandler = async ({ request, platform, url }) => {
 	const env = (platform as CloudflarePlatform | undefined)?.env;
 	if (!env?.DB) return corsJson({ success: false, error: 'Database unavailable' }, { status: 500 });
-	if (!env.RESEND_API_KEY) return corsJson({ success: false, error: 'Email service unavailable' }, { status: 500 });
+	if (!env.RESEND_API_KEY)
+		return corsJson({ success: false, error: 'Email service unavailable' }, { status: 500 });
 
 	let body: unknown;
-	try { body = await request.json(); } catch { return corsJson({ success: false, error: 'Invalid JSON' }, { status: 400 }); }
+	try {
+		body = await request.json();
+	} catch {
+		return corsJson({ success: false, error: 'Invalid JSON' }, { status: 400 });
+	}
 
 	const validation = validateRequest(body);
 	if (validation.error) return validation.error;
@@ -133,7 +148,12 @@ export const POST: RequestHandler = async ({ request, platform, url }) => {
 	const vaultName = extractVaultName(callback, vault_id);
 
 	return createAndSendMagicLink({
-		db: env.DB, resendKey: env.RESEND_API_KEY, origin: url.origin,
-		email, vaultId: vault_id, callback, vaultName
+		db: env.DB,
+		resendKey: env.RESEND_API_KEY,
+		origin: url.origin,
+		email,
+		vaultId: vault_id,
+		callback,
+		vaultName
 	});
 };

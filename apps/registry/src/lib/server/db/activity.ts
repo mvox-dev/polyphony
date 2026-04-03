@@ -31,7 +31,9 @@ export async function trackActivity(db: D1Database, metric: ActivityMetric): Pro
 			.bind(metric, date)
 			.run();
 	} catch (err) {
-		console.error(`[Activity] Failed to track ${metric}: ${err instanceof Error ? err.message : err}`);
+		console.error(
+			`[Activity] Failed to track ${metric}: ${err instanceof Error ? err.message : err}`
+		);
 	}
 }
 

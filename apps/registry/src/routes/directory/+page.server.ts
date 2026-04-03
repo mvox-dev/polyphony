@@ -15,7 +15,7 @@ interface VaultOrganization {
 export const load: PageServerLoad = async ({ platform }) => {
 	// Query Vault public API for organizations (zero-storage principle)
 	const vaultApiUrl = platform?.env?.VAULT_API_URL || 'https://vault.polyphony.uk';
-	
+
 	try {
 		const response = await fetch(`${vaultApiUrl}/api/public/organizations`);
 		if (!response.ok) {
@@ -23,8 +23,8 @@ export const load: PageServerLoad = async ({ platform }) => {
 			return { organizations: [] };
 		}
 
-		const data = await response.json() as { organizations: VaultOrganization[] };
-		
+		const data = (await response.json()) as { organizations: VaultOrganization[] };
+
 		// Transform to match directory display format
 		const organizations = data.organizations.map((org) => ({
 			id: org.id,

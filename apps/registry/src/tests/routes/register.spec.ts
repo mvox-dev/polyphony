@@ -31,7 +31,7 @@ describe('Registration Flow', () => {
 		it('should check subdomain availability via Vault API', async () => {
 			// This test will fail until we implement the server action
 			const { actions } = await import('../../routes/register/+page.server');
-			
+
 			// Mock Vault API subdomain check
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
@@ -96,9 +96,9 @@ describe('Registration Flow', () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				status: 200,
-				json: async () => ({ 
-					available: false, 
-					reason: 'Subdomain already taken' 
+				json: async () => ({
+					available: false,
+					reason: 'Subdomain already taken'
 				})
 			});
 

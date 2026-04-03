@@ -52,9 +52,7 @@
 					Try Again
 				</a>
 			{:else}
-				<p class="text-sm text-gray-500">
-					Please return to the vault login page and try again.
-				</p>
+				<p class="text-sm text-gray-500">Please return to the vault login page and try again.</p>
 			{/if}
 		</div>
 

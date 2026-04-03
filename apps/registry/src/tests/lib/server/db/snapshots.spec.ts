@@ -72,8 +72,15 @@ function createMockDb(initialRows: SnapshotRow[] = []) {
 				}),
 				run: vi.fn(async () => {
 					if (sql.includes('INSERT') && sql.includes('vault_snapshots')) {
-						const [date, member_count, org_count, works_count, editions_count, total_file_size, events_today] =
-							statement._params as [string, number, number, number, number, number, string];
+						const [
+							date,
+							member_count,
+							org_count,
+							works_count,
+							editions_count,
+							total_file_size,
+							events_today
+						] = statement._params as [string, number, number, number, number, number, string];
 						store.set(date, {
 							date,
 							member_count,
@@ -88,7 +95,11 @@ function createMockDb(initialRows: SnapshotRow[] = []) {
 					return { success: true };
 				}),
 				first: vi.fn(async () => {
-					if (sql.includes('SELECT') && sql.includes('vault_snapshots') && sql.includes('WHERE date = ?')) {
+					if (
+						sql.includes('SELECT') &&
+						sql.includes('vault_snapshots') &&
+						sql.includes('WHERE date = ?')
+					) {
 						const date = statement._params[0] as string;
 						return store.get(date) ?? null;
 					}
@@ -98,7 +109,7 @@ function createMockDb(initialRows: SnapshotRow[] = []) {
 					if (sql.includes('SELECT') && sql.includes('vault_snapshots') && sql.includes('WHERE')) {
 						const [from, to] = statement._params as [string, string];
 						const results = Array.from(store.values())
-							.filter(r => r.date >= from && r.date <= to)
+							.filter((r) => r.date >= from && r.date <= to)
 							.sort((a, b) => a.date.localeCompare(b.date));
 						return { results };
 					}
@@ -147,16 +158,18 @@ describe('storeSnapshot', () => {
 
 	it('overwrites existing snapshot for the same date (upsert)', async () => {
 		const today = new Date().toISOString().slice(0, 10);
-		const db = createMockDb([{
-			date: today,
-			member_count: 10,
-			org_count: 1,
-			works_count: 50,
-			editions_count: 60,
-			total_file_size: 500,
-			events_today: '{}',
-			fetched_at: '2026-02-20 00:00:00'
-		}]);
+		const db = createMockDb([
+			{
+				date: today,
+				member_count: 10,
+				org_count: 1,
+				works_count: 50,
+				editions_count: 60,
+				total_file_size: 500,
+				events_today: '{}',
+				fetched_at: '2026-02-20 00:00:00'
+			}
+		]);
 
 		await storeSnapshot(db, SAMPLE_VAULT_RESPONSE);
 
@@ -257,8 +270,8 @@ describe('fetchAndStoreSnapshot', () => {
 	});
 
 	it('fetches from Vault and stores the snapshot', async () => {
-		globalThis.fetch = vi.fn(async () =>
-			new Response(JSON.stringify(SAMPLE_VAULT_RESPONSE), { status: 200 })
+		globalThis.fetch = vi.fn(
+			async () => new Response(JSON.stringify(SAMPLE_VAULT_RESPONSE), { status: 200 })
 		);
 		const db = createMockDb();
 
@@ -302,9 +315,7 @@ describe('fetchAndStoreSnapshot', () => {
 	});
 
 	it('returns null on non-200 response', async () => {
-		globalThis.fetch = vi.fn(async () =>
-			new Response('Unauthorized', { status: 401 })
-		);
+		globalThis.fetch = vi.fn(async () => new Response('Unauthorized', { status: 401 }));
 		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const db = createMockDb();
 
@@ -328,8 +339,8 @@ describe('fetchAndStoreSnapshot', () => {
 	});
 
 	it('sends correct Authorization header', async () => {
-		globalThis.fetch = vi.fn(async () =>
-			new Response(JSON.stringify(SAMPLE_VAULT_RESPONSE), { status: 200 })
+		globalThis.fetch = vi.fn(
+			async () => new Response(JSON.stringify(SAMPLE_VAULT_RESPONSE), { status: 200 })
 		);
 		const db = createMockDb();
 

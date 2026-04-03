@@ -39,22 +39,38 @@ export async function storeSnapshot(db: D1Database, data: VaultStatsResponse): P
 				events_today = excluded.events_today,
 				fetched_at = datetime('now')`
 		)
-		.bind(date, data.member_count, data.org_count, data.works_count, data.editions_count, data.total_file_size, eventsJson)
+		.bind(
+			date,
+			data.member_count,
+			data.org_count,
+			data.works_count,
+			data.editions_count,
+			data.total_file_size,
+			eventsJson
+		)
 		.run();
 }
 
 /** Get snapshot for a specific date */
 export async function getSnapshot(db: D1Database, date: string): Promise<VaultSnapshot | null> {
 	return await db
-		.prepare('SELECT date, member_count, org_count, works_count, editions_count, total_file_size, events_today, fetched_at FROM vault_snapshots WHERE date = ?')
+		.prepare(
+			'SELECT date, member_count, org_count, works_count, editions_count, total_file_size, events_today, fetched_at FROM vault_snapshots WHERE date = ?'
+		)
 		.bind(date)
 		.first<VaultSnapshot>();
 }
 
 /** Get snapshots for a date range (inclusive) */
-export async function getSnapshotRange(db: D1Database, from: string, to: string): Promise<VaultSnapshot[]> {
+export async function getSnapshotRange(
+	db: D1Database,
+	from: string,
+	to: string
+): Promise<VaultSnapshot[]> {
 	const { results } = await db
-		.prepare('SELECT date, member_count, org_count, works_count, editions_count, total_file_size, events_today, fetched_at FROM vault_snapshots WHERE date >= ? AND date <= ? ORDER BY date')
+		.prepare(
+			'SELECT date, member_count, org_count, works_count, editions_count, total_file_size, events_today, fetched_at FROM vault_snapshots WHERE date >= ? AND date <= ? ORDER BY date'
+		)
 		.bind(from, to)
 		.all<VaultSnapshot>();
 

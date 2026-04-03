@@ -6,15 +6,18 @@ import { generateCode, createAuthCode, verifyCode } from '../../lib/server/auth-
 
 // Mock D1 database for testing
 function createMockDb() {
-	const emailAuthCodes = new Map<string, {
-		id: string;
-		email: string;
-		code: string;
-		vault_id: string;
-		callback_url: string;
-		expires_at: string;
-		used_at: string | null;
-	}>();
+	const emailAuthCodes = new Map<
+		string,
+		{
+			id: string;
+			email: string;
+			code: string;
+			vault_id: string;
+			callback_url: string;
+			expires_at: string;
+			used_at: string | null;
+		}
+	>();
 
 	const rateLimits = new Map<string, { attempts: number; window_start: string }>();
 
@@ -37,8 +40,8 @@ function createMockDb() {
 					if (sql.includes('INSERT INTO email_rate_limits')) {
 						const email = (args[0] as string).toLowerCase();
 						// Store without trailing Z (like SQLite datetime('now'))
-						rateLimits.set(email, { 
-							attempts: 1, 
+						rateLimits.set(email, {
+							attempts: 1,
 							window_start: new Date().toISOString().replace('Z', '')
 						});
 						return { run: async () => ({}) };
@@ -47,8 +50,8 @@ function createMockDb() {
 					// Rate limit update
 					if (sql.includes('UPDATE email_rate_limits') && sql.includes('attempts = 1')) {
 						const email = (args[0] as string).toLowerCase();
-						rateLimits.set(email, { 
-							attempts: 1, 
+						rateLimits.set(email, {
+							attempts: 1,
 							window_start: new Date().toISOString().replace('Z', '')
 						});
 						return { run: async () => ({}) };

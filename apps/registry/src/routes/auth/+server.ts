@@ -117,5 +117,3 @@ export const GET = async ({
 
 	return redirect(302, googleAuthUrl.toString());
 };
-
-

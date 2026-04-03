@@ -70,22 +70,26 @@ function createMockDb(initialRows: StoredRow[] = []) {
 				}),
 				all: vi.fn(async () => {
 					// Today's activity: SELECT metric, count FROM registry_activity WHERE date = ?
-					if (sql.includes('SELECT') && sql.includes('registry_activity') && sql.includes('WHERE')) {
+					if (
+						sql.includes('SELECT') &&
+						sql.includes('registry_activity') &&
+						sql.includes('WHERE')
+					) {
 						const params = statement._params;
 						if (params.length === 1) {
 							// Single date query (getTodayActivity)
 							const date = params[0] as string;
 							const results = Array.from(store.values())
-								.filter(r => r.date === date)
-								.map(r => ({ metric: r.metric, count: r.count }));
+								.filter((r) => r.date === date)
+								.map((r) => ({ metric: r.metric, count: r.count }));
 							return { results };
 						}
 						if (params.length === 2) {
 							// Date range query (getActivityRange)
 							const [from, to] = params as [string, string];
 							const results = Array.from(store.values())
-								.filter(r => r.date >= from && r.date <= to)
-								.map(r => ({ metric: r.metric, date: r.date, count: r.count }));
+								.filter((r) => r.date >= from && r.date <= to)
+								.map((r) => ({ metric: r.metric, date: r.date, count: r.count }));
 							return { results };
 						}
 					}
@@ -131,9 +135,7 @@ describe('trackActivity', () => {
 
 	it('increments existing row count on repeated calls', async () => {
 		const today = new Date().toISOString().slice(0, 10);
-		const db = createMockDb([
-			{ metric: 'oauth_initiated', date: today, count: 5 }
-		]);
+		const db = createMockDb([{ metric: 'oauth_initiated', date: today, count: 5 }]);
 
 		await trackActivity(db, 'oauth_initiated');
 
@@ -168,7 +170,7 @@ describe('trackActivity', () => {
 		expect((db as any).store.get(`oauth_completed:${today}`).count).toBe(1);
 	});
 
-	it('uses today\'s date in YYYY-MM-DD format', async () => {
+	it("uses today's date in YYYY-MM-DD format", async () => {
 		const db = createMockDb();
 		await trackActivity(db, 'sso_fast_path');
 
@@ -228,9 +230,7 @@ describe('trackActivity — daily aggregation', () => {
 		const today = new Date().toISOString().slice(0, 10);
 		// Use a date guaranteed to be different from today
 		const otherDate = today === '2026-02-19' ? '2026-02-18' : '2026-02-19';
-		const db = createMockDb([
-			{ metric: 'oauth_initiated', date: otherDate, count: 10 }
-		]);
+		const db = createMockDb([{ metric: 'oauth_initiated', date: otherDate, count: 10 }]);
 
 		// Track for today
 		await trackActivity(db, 'oauth_initiated');
@@ -270,9 +270,7 @@ describe('getTodayActivity', () => {
 
 	it('returns 0 for metrics with no entries today', async () => {
 		const today = new Date().toISOString().slice(0, 10);
-		const db = createMockDb([
-			{ metric: 'oauth_initiated', date: today, count: 5 }
-		]);
+		const db = createMockDb([{ metric: 'oauth_initiated', date: today, count: 5 }]);
 
 		const result = await getTodayActivity(db);
 
@@ -339,9 +337,7 @@ describe('getActivityRange', () => {
 	});
 
 	it('returns empty array when no entries in range', async () => {
-		const db = createMockDb([
-			{ metric: 'oauth_initiated', date: '2026-01-01', count: 50 }
-		]);
+		const db = createMockDb([{ metric: 'oauth_initiated', date: '2026-01-01', count: 50 }]);
 
 		const result = await getActivityRange(db, '2026-02-01', '2026-02-28');
 

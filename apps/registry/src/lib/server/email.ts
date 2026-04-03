@@ -137,7 +137,7 @@ ACTION REQUIRED:
 			return { success: false, error: `Email service error: ${response.status}` };
 		}
 
-		const result = await response.json() as { id: string };
+		const result = (await response.json()) as { id: string };
 		return { success: true, emailId: result.id };
 	} catch (err) {
 		console.error('Resend API exception (admin notification):', err);

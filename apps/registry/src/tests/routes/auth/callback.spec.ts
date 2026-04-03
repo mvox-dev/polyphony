@@ -35,26 +35,34 @@ const createMockFetch = (success: boolean = true) => {
 };
 
 // Mock D1 database with signing key
-const createMockDb = () => ({
-	prepare: (sql: string) => ({
-		first: async () => ({
-			id: 'key-1',
-			private_key: `-----BEGIN PRIVATE KEY-----
+const createMockDb = () =>
+	({
+		prepare: (sql: string) => ({
+			first: async () => ({
+				id: 'key-1',
+				private_key: `-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIHcHbQpzGKV9PBbBclGyZkXfTC+H68CZKrF3+6UduSwq
 -----END PRIVATE KEY-----`,
-			public_key: `-----BEGIN PUBLIC KEY-----
+				public_key: `-----BEGIN PUBLIC KEY-----
 MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
 -----END PUBLIC KEY-----`
+			})
 		})
-	})
-} as unknown as D1Database);
+	}) as unknown as D1Database;
 
 describe('GET /auth/callback', () => {
 	it('should reject missing code parameter', async () => {
 		const url = new URL('http://localhost/auth/callback?state={}');
 		const response = await GET({
 			url,
-			platform: { env: { DB: createMockDb(), API_KEY: 'test', GOOGLE_CLIENT_ID: 'test-client-id', GOOGLE_CLIENT_SECRET: 'test-secret' } },
+			platform: {
+				env: {
+					DB: createMockDb(),
+					API_KEY: 'test',
+					GOOGLE_CLIENT_ID: 'test-client-id',
+					GOOGLE_CLIENT_SECRET: 'test-secret'
+				}
+			},
 			fetch: createMockFetch()
 		} satisfies TestRequestEvent);
 
@@ -67,7 +75,14 @@ describe('GET /auth/callback', () => {
 		const url = new URL('http://localhost/auth/callback?code=test-code');
 		const response = await GET({
 			url,
-			platform: { env: { DB: createMockDb(), API_KEY: 'test', GOOGLE_CLIENT_ID: 'test-client-id', GOOGLE_CLIENT_SECRET: 'test-secret' } },
+			platform: {
+				env: {
+					DB: createMockDb(),
+					API_KEY: 'test',
+					GOOGLE_CLIENT_ID: 'test-client-id',
+					GOOGLE_CLIENT_SECRET: 'test-secret'
+				}
+			},
 			fetch: createMockFetch()
 		} satisfies TestRequestEvent);
 
@@ -82,7 +97,7 @@ describe('GET /auth/callback', () => {
 			callbackUrl: 'https://vault.example.com/callback'
 		});
 		const url = new URL(`http://localhost/auth/callback?code=test-code&state=${state}`);
-		
+
 		const response = await GET({
 			url,
 			platform: {
@@ -95,7 +110,7 @@ describe('GET /auth/callback', () => {
 			},
 			fetch: createMockFetch(true)
 		} satisfies TestRequestEvent);
-		
+
 		// Now returns Response with Location header (not throw)
 		expect(response.status).toBe(302);
 		const location = response.headers.get('Location');
@@ -109,7 +124,7 @@ describe('GET /auth/callback', () => {
 			callbackUrl: 'https://vault.example.com/callback'
 		});
 		const url = new URL(`http://localhost/auth/callback?code=bad-code&state=${state}`);
-		
+
 		const response = await GET({
 			url,
 			platform: {
@@ -136,7 +151,7 @@ describe('GET /auth/callback', () => {
 				callbackUrl: 'https://vault.example.com/callback'
 			});
 			const url = new URL(`http://localhost/auth/callback?code=test-code&state=${state}`);
-			
+
 			const response = await GET({
 				url,
 				platform: {
@@ -152,7 +167,7 @@ describe('GET /auth/callback', () => {
 
 			// Should be a redirect response (not throw)
 			expect(response.status).toBe(302);
-			
+
 			// Check Set-Cookie header
 			const setCookie = response.headers.get('Set-Cookie');
 			expect(setCookie).toBeTruthy();
@@ -165,7 +180,7 @@ describe('GET /auth/callback', () => {
 				callbackUrl: 'https://vault.example.com/callback'
 			});
 			const url = new URL(`http://localhost/auth/callback?code=test-code&state=${state}`);
-			
+
 			const response = await GET({
 				url,
 				platform: {
@@ -194,7 +209,7 @@ describe('GET /auth/callback', () => {
 				callbackUrl: 'https://vault.example.com/callback'
 			});
 			const url = new URL(`http://localhost/auth/callback?code=test-code&state=${state}`);
-			
+
 			const response = await GET({
 				url,
 				platform: {
@@ -220,7 +235,7 @@ describe('GET /auth/callback', () => {
 				callbackUrl: 'https://vault.example.com/callback'
 			});
 			const url = new URL(`http://localhost/auth/callback?code=test-code&state=${state}`);
-			
+
 			const response = await GET({
 				url,
 				platform: {
@@ -239,11 +254,11 @@ describe('GET /auth/callback', () => {
 			const match = setCookie?.match(/polyphony_sso=([^;]+)/);
 			expect(match).toBeTruthy();
 			const ssoToken = match![1];
-			
+
 			// JWT has 3 parts separated by dots
 			const parts = ssoToken.split('.');
 			expect(parts).toHaveLength(3);
-			
+
 			// Decode payload (base64url)
 			const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
 			expect(payload.email).toBe('user@example.com');
