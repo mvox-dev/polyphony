@@ -429,6 +429,35 @@ export async function removeMemberVoice(
 }
 
 /**
+ * Replace all voices for a member with a new set.
+ * First voice in the array becomes primary.
+ */
+export async function setMemberVoices(
+	db: D1Database,
+	memberId: string,
+	voiceIds: string[],
+	assignedBy: string
+): Promise<void> {
+	// Clear existing voices
+	await db
+		.prepare('DELETE FROM member_voices WHERE member_id = ?')
+		.bind(memberId)
+		.run();
+
+	// Insert new voices (first is primary)
+	if (voiceIds.length > 0) {
+		const statements = voiceIds.map((voiceId, index) =>
+			db
+				.prepare(
+					'INSERT INTO member_voices (member_id, voice_id, is_primary, assigned_by) VALUES (?, ?, ?, ?)'
+				)
+				.bind(memberId, voiceId, index === 0 ? 1 : 0, assignedBy)
+		);
+		await db.batch(statements);
+	}
+}
+
+/**
  * Set primary voice for a member (others become non-primary)
  */
 export async function setPrimaryVoice(
