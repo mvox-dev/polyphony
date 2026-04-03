@@ -43,9 +43,12 @@ vi.mock('$lib/server/db/takedowns', () => ({
 	processTakedown: vi.fn()
 }));
 
-vi.mock('$lib/server/db/permissions', () => ({
-	getMemberRole: vi.fn().mockResolvedValue('admin'),
-	isAdminRole: vi.fn((role: string) => role === 'admin')
+vi.mock('$lib/server/auth/middleware', () => ({
+	getAuthenticatedMember: vi.fn().mockResolvedValue({
+		id: 'admin-001', email_id: 'admin@test.com', name: 'Admin',
+		roles: ['admin'], voices: [], sections: []
+	}),
+	assertAdmin: vi.fn()
 }));
 
 import { GET } from '../../../routes/api/takedowns/+server';
@@ -72,11 +75,10 @@ describe('GET /api/takedowns — must scope to org (#250)', () => {
 		vi.mocked(listTakedownRequests).mockResolvedValue([]);
 	});
 
-	it('returns 500 when locals.org is missing (no org context)', async () => {
+	it('throws when locals.org is missing (no org context)', async () => {
 		// After fix: org context is required — missing org → error
 		const event = makeGetEvent({ org: null });
-		const response = await GET(event);
-		expect(response.status).toBe(500);
+		await expect(GET(event)).rejects.toBeDefined();
 	});
 
 	it('passes orgId from locals.org to listTakedownRequests', async () => {

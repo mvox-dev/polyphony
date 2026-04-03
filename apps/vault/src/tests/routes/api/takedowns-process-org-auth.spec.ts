@@ -18,14 +18,14 @@ vi.mock('$lib/server/db/takedowns', () => ({
 	getTakedownById: vi.fn()
 }));
 
-vi.mock('$lib/server/db/permissions', () => ({
-	getMemberRole: vi.fn(),
-	isAdminRole: vi.fn((role: string) => ['admin', 'owner'].includes(role))
+vi.mock('$lib/server/auth/middleware', () => ({
+	getAuthenticatedMember: vi.fn(),
+	assertAdmin: vi.fn()
 }));
 
 import { POST } from '../../../routes/api/takedowns/[id]/process/+server';
 import { processTakedown, getTakedownById } from '$lib/server/db/takedowns';
-import { getMemberRole } from '$lib/server/db/permissions';
+import { getAuthenticatedMember, assertAdmin } from '$lib/server/auth/middleware';
 
 // ============================================================================
 // Helpers
@@ -38,6 +38,8 @@ function makeProcessRequest(body: unknown): Request {
 		body: JSON.stringify(body)
 	});
 }
+
+const mockAdmin = { id: 'admin_001', email_id: 'admin@test.com', name: 'Admin', roles: ['admin'], voices: [], sections: [] };
 
 function makeEvent(opts: {
 	memberId?: string | null;
@@ -81,23 +83,15 @@ const ORG_A_TAKEDOWN = {
 describe('POST /api/takedowns/[id]/process — requires org context (#264)', () => {
 	beforeEach(() => vi.clearAllMocks());
 
-	it('returns 500 when locals.org is missing', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
-
+	it('throws when locals.org is missing', async () => {
+		// locals.org.id throws TypeError before getAuthenticatedMember is called
 		const event = makeEvent({ org: null });
-		const response = await POST(event);
-
-		// After fix: missing org context → 500 (same pattern as other protected routes)
-		expect(response.status).toBe(500);
+		await expect(POST(event)).rejects.toBeDefined();
 	});
 
-	it('returns 500 when locals.org is undefined', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
-
+	it('throws when locals.org is undefined', async () => {
 		const event = makeEvent({ org: undefined as any });
-		const response = await POST(event);
-
-		expect(response.status).toBe(500);
+		await expect(POST(event)).rejects.toBeDefined();
 	});
 });
 
@@ -109,7 +103,8 @@ describe('POST /api/takedowns/[id]/process — cross-org isolation (#264)', () =
 	beforeEach(() => vi.clearAllMocks());
 
 	it('returns 404 when admin requests takedown belonging to a different org', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue({ ...mockAdmin, id: 'admin_org_b' } as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		// The takedown belongs to org A, but the request comes from org B's admin
 		vi.mocked(getTakedownById).mockResolvedValue(ORG_A_TAKEDOWN);
 		vi.mocked(processTakedown).mockResolvedValue({ success: true });
@@ -120,14 +115,13 @@ describe('POST /api/takedowns/[id]/process — cross-org isolation (#264)', () =
 			takedownId: 'td_1'
 		});
 
-		const response = await POST(event);
-
 		// Must be 404 (not 403) to avoid revealing that the UUID exists
-		expect(response.status).toBe(404);
+		await expect(POST(event)).rejects.toMatchObject({ status: 404 });
 	});
 
 	it('does NOT call processTakedown when org does not match', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue(ORG_A_TAKEDOWN);
 		vi.mocked(processTakedown).mockResolvedValue({ success: true });
 
@@ -135,23 +129,22 @@ describe('POST /api/takedowns/[id]/process — cross-org isolation (#264)', () =
 			org: { id: 'org_hannijoggi_001', name: 'Hannijoggi', subdomain: 'hannijoggi' }
 		});
 
-		await POST(event);
+		try { await POST(event); } catch { /* expected throw */ }
 
 		expect(processTakedown).not.toHaveBeenCalled();
 	});
 
 	it('returns 404 (not 403) for cross-org — avoids leaking UUID existence via status code', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue(ORG_A_TAKEDOWN);
 
 		const crossOrgEvent = makeEvent({
 			org: { id: 'org_hannijoggi_001', name: 'Hannijoggi', subdomain: 'hannijoggi' }
 		});
-		const crossOrgResponse = await POST(crossOrgEvent);
 
 		// Both non-existent UUID and cross-org UUID should return 404
-		// so the caller cannot distinguish "doesn't exist" from "not yours"
-		expect(crossOrgResponse.status).toBe(404);
+		await expect(POST(crossOrgEvent)).rejects.toMatchObject({ status: 404 });
 	});
 });
 
@@ -163,7 +156,8 @@ describe('POST /api/takedowns/[id]/process — same-org succeeds (#264)', () => 
 	beforeEach(() => vi.clearAllMocks());
 
 	it('returns 200 when admin is in the same org as the takedown', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue(ORG_A_TAKEDOWN);
 		vi.mocked(processTakedown).mockResolvedValue({ success: true });
 
@@ -177,7 +171,8 @@ describe('POST /api/takedowns/[id]/process — same-org succeeds (#264)', () => 
 	});
 
 	it('calls processTakedown with the correct parameters when org matches', async () => {
-		vi.mocked(getMemberRole).mockResolvedValue('admin');
+		vi.mocked(getAuthenticatedMember).mockResolvedValue(mockAdmin as any);
+		vi.mocked(assertAdmin).mockImplementation(() => {});
 		vi.mocked(getTakedownById).mockResolvedValue(ORG_A_TAKEDOWN);
 		vi.mocked(processTakedown).mockResolvedValue({ success: true });
 
@@ -212,22 +207,17 @@ describe('processTakedown() — must verify org ownership (#264)', () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it('ProcessTakedownInput type must include orgId field', () => {
-		// After fix: ProcessTakedownInput gains orgId
-		// This is a type-level test expressed as a runtime shape check.
-		// The test documents the expected contract.
 		const validInput = {
 			takedownId: 'td_1',
-			orgId: 'org_crede_001', // must exist after fix
+			orgId: 'org_crede_001',
 			status: 'approved' as const,
 			processedBy: 'admin_001',
 			notes: 'Verified'
 		};
-		// Verify the shape is accepted (TypeScript will enforce this at compile time)
 		expect(validInput.orgId).toBeDefined();
 	});
 
 	it('returns { success: false } when takedown org_id does not match input orgId', async () => {
-		// Build a mock DB that returns a takedown belonging to org A
 		const mockDb = {
 			prepare: vi.fn((sql: string) => ({
 				bind: vi.fn((..._params: unknown[]) => ({
@@ -235,7 +225,7 @@ describe('processTakedown() — must verify org ownership (#264)', () => {
 						if (sql.includes('FROM takedowns')) {
 							return {
 								id: 'td_1',
-								org_id: 'org_crede_001', // belongs to org A
+								org_id: 'org_crede_001',
 								edition_id: 'edition_abc',
 								status: 'pending',
 								claimant_name: 'Alice',
@@ -258,16 +248,14 @@ describe('processTakedown() — must verify org ownership (#264)', () => {
 			}))
 		} as unknown as D1Database;
 
-		// After fix: processTakedown checks that takedown.org_id === input.orgId
 		const result = await realProcessTakedown(mockDb, {
 			takedownId: 'td_1',
-			orgId: 'org_hannijoggi_001' as any, // org B trying to process org A's takedown
+			orgId: 'org_hannijoggi_001' as any,
 			status: 'approved',
 			processedBy: 'admin_org_b',
 			notes: 'Test'
 		} as any);
 
-		// Must fail — org mismatch means it's not found from org B's perspective
 		expect(result.success).toBe(false);
 	});
 });

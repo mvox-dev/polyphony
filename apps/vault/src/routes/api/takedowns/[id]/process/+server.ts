@@ -1,8 +1,8 @@
 // POST /api/takedowns/[id]/process - Admin-only process takedown request (org-scoped)
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { processTakedown, getTakedownById } from '$lib/server/db/takedowns';
-import { getMemberRole, isAdminRole } from '$lib/server/db/permissions';
+import { getAuthenticatedMember, assertAdmin } from '$lib/server/auth/middleware';
 
 interface ProcessRequest {
 	action: 'approve' | 'reject';
@@ -10,59 +10,47 @@ interface ProcessRequest {
 }
 
 export const POST: RequestHandler = async ({ request, params, platform, cookies, locals }) => {
-	const org = locals.org;
-	if (!org) {
-		return json({ error: 'Organization context required' }, { status: 500 });
-	}
-
-	const memberId = cookies.get('member_id');
-
-	if (!memberId) {
-		return json({ error: 'Authentication required' }, { status: 401 });
-	}
-
 	const db = platform?.env?.DB;
 	if (!db) {
-		return json({ error: 'Database unavailable' }, { status: 500 });
+		throw error(500, 'Database not available');
 	}
 
-	const role = await getMemberRole(db, memberId);
-	if (!role || !isAdminRole(role)) {
-		return json({ error: 'Admin access required' }, { status: 403 });
-	}
+	const member = await getAuthenticatedMember(db, cookies, locals.org.id);
+	assertAdmin(member);
 
 	try {
 		// Verify takedown exists and belongs to this org before processing
 		const takedown = await getTakedownById(db, params.id);
-		if (!takedown || takedown.org_id !== org.id) {
-			return json({ error: 'Takedown request not found' }, { status: 404 });
+		if (!takedown || takedown.org_id !== locals.org.id) {
+			throw error(404, 'Takedown request not found');
 		}
 
 		const body = await request.json() as ProcessRequest;
 
 		if (body.action !== 'approve' && body.action !== 'reject') {
-			return json({ error: 'action must be "approve" or "reject"' }, { status: 400 });
+			throw error(400, 'action must be "approve" or "reject"');
 		}
 
 		const status = body.action === 'approve' ? 'approved' : 'rejected';
 		const result = await processTakedown(db, {
 			takedownId: params.id,
-			orgId: org.id,
+			orgId: locals.org.id,
 			status,
-			processedBy: memberId,
+			processedBy: member.id,
 			notes: body.notes || ''
 		});
 
 		if (!result.success) {
-			return json({ error: result.error || 'Takedown request not found' }, { status: 404 });
+			throw error(404, result.error || 'Takedown request not found');
 		}
 
 		return json({
 			success: true,
 			message: `Takedown request ${body.action}d successfully`
 		});
-	} catch (error) {
-		console.error('Process takedown error:', error);
-		return json({ error: 'Internal server error' }, { status: 500 });
+	} catch (err) {
+		if (err && typeof err === 'object' && 'status' in err) throw err;
+		console.error('Process takedown error:', err);
+		throw error(500, 'Internal server error');
 	}
 };

@@ -1,33 +1,20 @@
 // GET /api/takedowns - Admin-only list of takedown requests (org-scoped)
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { listTakedownRequests } from '$lib/server/db/takedowns';
-import { getMemberRole, isAdminRole } from '$lib/server/db/permissions';
+import { getAuthenticatedMember, assertAdmin } from '$lib/server/auth/middleware';
 
 export const GET: RequestHandler = async ({ url, platform, cookies, locals }) => {
-	const org = locals.org;
-	if (!org) {
-		return json({ error: 'Organization context required' }, { status: 500 });
-	}
-
-	const memberId = cookies.get('member_id');
-
-	if (!memberId) {
-		return json({ error: 'Authentication required' }, { status: 401 });
-	}
-
 	const db = platform?.env?.DB;
 	if (!db) {
-		return json({ error: 'Database unavailable' }, { status: 500 });
+		throw error(500, 'Database not available');
 	}
 
-	const role = await getMemberRole(db, memberId);
-	if (!role || !isAdminRole(role)) {
-		return json({ error: 'Admin access required' }, { status: 403 });
-	}
+	const member = await getAuthenticatedMember(db, cookies, locals.org.id);
+	assertAdmin(member);
 
 	const status = url.searchParams.get('status') as 'pending' | 'approved' | 'rejected' | null;
-	const takedowns = await listTakedownRequests(db, org.id, status || undefined);
+	const takedowns = await listTakedownRequests(db, locals.org.id, status || undefined);
 
 	return json({ takedowns });
 };
