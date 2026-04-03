@@ -269,7 +269,6 @@ describe("createInvite — must reject missing orgId (#251)", () => {
       createInvite(db, {
         orgId: null as unknown as OrgId,
         rosterMemberId: "member_1",
-        roles: [],
         invited_by: "member_admin",
       }),
     ).rejects.toThrow();
@@ -282,7 +281,6 @@ describe("createInvite — must reject missing orgId (#251)", () => {
       createInvite(db, {
         orgId: "" as OrgId,
         rosterMemberId: "member_1",
-        roles: [],
         invited_by: "member_admin",
       }),
     ).rejects.toThrow();

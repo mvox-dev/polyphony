@@ -29,7 +29,7 @@ function createMockEvent(
         cookieJar.delete(name);
       },
     },
-  } as Parameters<typeof GET>[0];
+  } as unknown as Parameters<typeof GET>[0];
 
   return { event, deletedCookies };
 }
