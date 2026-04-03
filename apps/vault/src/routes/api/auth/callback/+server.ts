@@ -131,6 +131,26 @@ function validateEmail(payload: JWTPayload): string {
 	return email;
 }
 
+/**
+ * Extract invite token from auth_return_to cookie if it points to /invite/accept.
+ * Fallback for when pending_invite cookie is lost in the OAuth redirect chain (#310).
+ */
+function extractInviteTokenFromReturnTo(cookies: Cookies): string | null {
+	const returnTo = cookies.get('auth_return_to');
+	if (!returnTo) return null;
+
+	try {
+		// returnTo is a path like /invite/accept?token=xxx
+		const url = new URL(returnTo, 'http://dummy');
+		if (url.pathname === '/invite/accept') {
+			return url.searchParams.get('token');
+		}
+	} catch {
+		// Malformed URL — ignore
+	}
+	return null;
+}
+
 async function routeToHandler(
 	db: D1Database,
 	cookies: Cookies,
@@ -138,11 +158,19 @@ async function routeToHandler(
 	name: string | undefined,
 	orgId: import('@polyphony/shared').OrgId
 ): Promise<never> {
-	// Check for pending invite token in cookie (set by /api/auth/login)
-	const inviteToken = cookies.get('pending_invite');
+	// Check for pending invite token in cookie (set by /login page or SSO handle)
+	let inviteToken = cookies.get('pending_invite');
+
+	// Fallback: extract invite token from auth_return_to if pending_invite was
+	// lost in the OAuth redirect chain (SSO → login → Registry → callback) (#310)
+	if (!inviteToken) {
+		inviteToken = extractInviteTokenFromReturnTo(cookies) ?? undefined;
+	}
+
 	if (inviteToken) {
-		// Clear the cookie
+		// Clear both cookies — invite is being handled
 		cookies.delete('pending_invite', { path: '/' });
+		cookies.delete('auth_return_to', { path: '/' });
 		return await handleInviteAcceptance(db, inviteToken, email, cookies, orgId);
 	}
 	return await handleLogin(db, email, name, cookies, orgId);
