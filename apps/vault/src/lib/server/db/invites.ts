@@ -291,6 +291,14 @@ export async function acceptInvite(
 		const { removeMemberFromOrganization } = await import('./member-organizations');
 		await removeMemberFromOrganization(db, rosterSlotId, String(invite.orgId));
 
+		// Delete invite BEFORE hard-deleting roster member — invites.roster_member_id
+		// has a FK to members(id) with no CASCADE, so deleting the member while the
+		// invite row still references it causes SQLITE_CONSTRAINT_FOREIGNKEY (#307).
+		await db
+			.prepare('DELETE FROM invites WHERE token = ?')
+			.bind(token)
+			.run();
+
 		// Hard-delete roster member row if it has no remaining org memberships
 		const orgCount = await db
 			.prepare('SELECT COUNT(*) as count FROM member_organizations WHERE member_id = ?')
@@ -318,11 +326,14 @@ export async function acceptInvite(
 		await addMemberRoles(db, memberId, invite.roles, invite.invited_by, invite.orgId);
 	}
 
-	// Delete invite after successful acceptance (cleanup)
-	await db
-		.prepare('DELETE FROM invites WHERE token = ?')
-		.bind(token)
-		.run();
+	// Delete invite after successful acceptance (cleanup) — skip if already
+	// deleted in the cross-org branch above
+	if (!existingMember) {
+		await db
+			.prepare('DELETE FROM invites WHERE token = ?')
+			.bind(token)
+			.run();
+	}
 
 	return { success: true, memberId };
 }
