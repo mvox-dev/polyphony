@@ -63,19 +63,19 @@ export async function queryMemberSections(
 }
 
 /**
- * Query all voices assigned to a member
+ * Query all voices assigned to a member for an organization
  * Returns voices ordered by primary first, then display_order ASC
  */
-export async function queryMemberVoices(db: D1Database, memberId: string): Promise<Voice[]> {
+export async function queryMemberVoices(db: D1Database, memberId: string, orgId: OrgId): Promise<Voice[]> {
 	const { results } = await db
 		.prepare(
 			`SELECT v.id, v.name, v.abbreviation, v.category, v.range_group, v.display_order, v.is_active, mv.is_primary
 			 FROM voices v
 			 JOIN member_voices mv ON v.id = mv.voice_id
-			 WHERE mv.member_id = ?
+			 WHERE mv.member_id = ? AND v.org_id = ?
 			 ORDER BY mv.is_primary DESC, v.display_order ASC`
 		)
-		.bind(memberId)
+		.bind(memberId, orgId)
 		.all<VoiceRow>();
 
 	return results.map((row) => ({
