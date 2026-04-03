@@ -374,7 +374,7 @@ async function loadMemberRelations(
 	const roles = rolesResult.results.map((r) => r.role);
 
 	// Get voices and sections using shared queries (sections scoped to org if provided)
-	const voices = await queryMemberVoices(db, memberRow.id);
+	const voices = await queryMemberVoices(db, memberRow.id, orgId);
 	const sections = await queryMemberSections(db, memberRow.id, orgId);
 
 	return {
