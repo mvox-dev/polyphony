@@ -6,7 +6,7 @@
     {
       "name": "team-lead",
       "agentType": "team-lead",
-      "model": "claude-opus-4-6",
+      "model": "claude-opus-4-6[1m]",
       "prompt": "prompts/palestrina.md",
       "lore": {
         "fullName": "Giovanni Pierluigi da Palestrina",
@@ -31,7 +31,7 @@
     {
       "name": "josquin",
       "agentType": "general-purpose",
-      "model": "claude-opus-4-6",
+      "model": "claude-opus-4-6[1m]",
       "color": "yellow",
       "prompt": "prompts/josquin.md",
       "lore": {
@@ -57,7 +57,7 @@
     {
       "name": "bentham",
       "agentType": "general-purpose",
-      "model": "claude-opus-4-6",
+      "model": "claude-opus-4-6[1m]",
       "color": "blue",
       "prompt": "prompts/bentham.md",
       "lore": {
