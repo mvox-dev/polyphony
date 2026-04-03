@@ -160,7 +160,7 @@ describe("GET /api/auth/login — return_to open-redirect guard", () => {
     it("always redirects (302) to registry regardless of return_to validity", async () => {
       const event = createMockEvent("https://evil.com");
 
-      const err: any = await GET(event as any).catch((e) => e);
+      const err: any = await Promise.resolve(GET(event as any)).catch((e: any) => e);
 
       expect(err.status).toBe(302);
       expect(err.location).toContain("registry.example.com");
@@ -169,7 +169,7 @@ describe("GET /api/auth/login — return_to open-redirect guard", () => {
     it("redirect URL includes vault_id and callback params", async () => {
       const event = createMockEvent("/dashboard");
 
-      const err: any = await GET(event as any).catch((e) => e);
+      const err: any = await Promise.resolve(GET(event as any)).catch((e: any) => e);
 
       expect(err.location).toContain("vault_id=test-vault-id");
       expect(err.location).toContain("callback=");

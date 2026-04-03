@@ -124,7 +124,7 @@ describe("GET /api/seasons", () => {
     const response = await GET_SEASONS(event);
 
     expect(response.status).toBe(200);
-    const data = await response.json();
+    const data = (await response.json()) as any[];
     expect(Array.isArray(data)).toBe(true);
     expect(data).toHaveLength(1);
     expect(data[0].name).toBe("Fall 2026");
@@ -136,7 +136,7 @@ describe("GET /api/seasons", () => {
 
     const response = await GET_SEASONS(event);
 
-    const data = await response.json();
+    const data = (await response.json()) as any[];
     expect(data).toEqual([]);
   });
 
@@ -150,7 +150,7 @@ describe("GET /api/seasons", () => {
 
     expect(mockGetSeasonByDate).toHaveBeenCalled();
     expect(mockGetAllSeasons).not.toHaveBeenCalled();
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.name).toBe("Fall 2026");
   });
 
@@ -226,7 +226,7 @@ describe("POST /api/seasons", () => {
     const response = await POST(event);
 
     expect(response.status).toBe(400);
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.error).toContain("Name");
   });
 
@@ -256,7 +256,7 @@ describe("POST /api/seasons", () => {
     const response = await POST(event);
 
     expect(response.status).toBe(400);
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.error).toContain("date");
   });
 
@@ -272,7 +272,7 @@ describe("POST /api/seasons", () => {
     const response = await POST(event);
 
     expect(response.status).toBe(400);
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.error).toContain("YYYY-MM-DD");
   });
 
@@ -325,7 +325,7 @@ describe("GET /api/seasons/[id]", () => {
     const response = await GET_SEASON(event);
 
     expect(response.status).toBe(200);
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.id).toBe("season-1");
     expect(data.name).toBe("Fall 2026");
   });
@@ -351,9 +351,9 @@ describe("GET /api/seasons/[id]", () => {
     const response = await GET_SEASON(event);
 
     expect(mockGetSeasonEvents).toHaveBeenCalled();
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(Array.isArray(data.events)).toBe(true);
-    expect(data.events).toHaveLength(1);
+    expect(data.events as any[]).toHaveLength(1);
   });
 
   it("does NOT fetch events without ?events=true", async () => {
@@ -399,7 +399,7 @@ describe("PATCH /api/seasons/[id]", () => {
     const response = await PATCH(event);
 
     expect(response.status).toBe(200);
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.name).toBe("Spring 2027");
   });
 
@@ -423,7 +423,7 @@ describe("PATCH /api/seasons/[id]", () => {
       expect.objectContaining({ start_date: "2027-03-01" }),
       expect.anything(),
     );
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.start_date).toBe("2027-03-01");
   });
 
@@ -456,7 +456,7 @@ describe("PATCH /api/seasons/[id]", () => {
     const response = await PATCH(event);
 
     expect(response.status).toBe(400);
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.error).toContain("YYYY-MM-DD");
   });
 
@@ -532,7 +532,7 @@ describe("DELETE /api/seasons/[id]", () => {
       "season-1",
       expect.anything(),
     );
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, unknown>;
     expect(data.success).toBe(true);
   });
 
