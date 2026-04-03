@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "check": "pnpm paraglide && sed -i '1i// @ts-nocheck' src/lib/paraglide/server.js && svelte-kit sync && sed -i '1i// @ts-nocheck' src/paraglide/server.js && svelte-check --tsconfig ./tsconfig.json",
+    "check": "pnpm paraglide && sed -i '1i// @ts-nocheck' src/lib/paraglide/server.js && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint ."

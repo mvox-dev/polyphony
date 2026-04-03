@@ -1,21 +1,72 @@
-#!/bin/sh
-# Pre-commit hook to ensure type safety and tests pass before commit
+#!/bin/bash
+# Pre-commit hook: Prettier + ESLint baseline + type check + tests
+# Install: git config core.hooksPath .githooks
 
-echo "🔍 Running type checks..."
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+echo "=== Pre-commit checks ==="
+
+# ---------------------------------------------------------------------------
+# 1. Prettier — check staged files only
+# ---------------------------------------------------------------------------
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR \
+  -- '*.ts' '*.js' '*.svelte' '*.json' '*.css' '*.html' | head -200)
+
+if [ -n "$STAGED_FILES" ]; then
+  echo "Checking formatting (Prettier)..."
+  # shellcheck disable=SC2086
+  if ! pnpm prettier --check $STAGED_FILES 2>/dev/null; then
+    echo ""
+    echo "Formatting errors found. Run: pnpm prettier --write <files>"
+    exit 1
+  fi
+  echo "Formatting OK."
+else
+  echo "No formattable files staged — skipping Prettier."
+fi
+
+# ---------------------------------------------------------------------------
+# 2. ESLint warning baseline — must not exceed maximum
+# ---------------------------------------------------------------------------
+
+BASELINE_FILE="$REPO_ROOT/.eslint-warning-baseline"
+
+if [ -f "$BASELINE_FILE" ]; then
+  MAX_WARNINGS=$(tr -d '[:space:]' < "$BASELINE_FILE")
+  echo "Checking ESLint warnings (baseline: $MAX_WARNINGS)..."
+
+  ESLINT_OUTPUT=$(pnpm eslint . --no-fix --format json 2>/dev/null || true)
+  WARNING_COUNT=$(echo "$ESLINT_OUTPUT" | node -e "
+    const data = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+    console.log(data.reduce((n, f) => n + f.warningCount, 0));
+  " 2>/dev/null || echo "0")
+
+  if [ "$WARNING_COUNT" -gt "$MAX_WARNINGS" ]; then
+    echo ""
+    echo "ESLint warning count ($WARNING_COUNT) exceeds baseline ($MAX_WARNINGS)."
+    echo "New code must not add warnings. Fix warnings or update .eslint-warning-baseline."
+    exit 1
+  fi
+  echo "ESLint warnings: $WARNING_COUNT / $MAX_WARNINGS (OK)"
+else
+  echo "No .eslint-warning-baseline file — skipping warning check."
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Type checking
+# ---------------------------------------------------------------------------
+
+echo "Running type checks..."
 pnpm check
 
-if [ $? -ne 0 ]; then
-  echo "❌ Type check failed. Please fix TypeScript errors before committing."
-  exit 1
-fi
+# ---------------------------------------------------------------------------
+# 4. Tests
+# ---------------------------------------------------------------------------
 
-echo "🧪 Running tests..."
+echo "Running tests..."
 pnpm test
 
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed. Please fix failing tests before committing."
-  exit 1
-fi
-
-echo "✅ All checks passed. Proceeding with commit."
-exit 0
+echo "=== Pre-commit checks passed ==="

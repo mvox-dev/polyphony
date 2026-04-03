@@ -13,6 +13,7 @@
     "check": "pnpm -r check",
     "validate": "pnpm check && pnpm test",
     "precommit": "pnpm validate",
+    "prepare": "git config core.hooksPath .githooks",
     "complexity": "./.github/scripts/check-complexity.sh"
   },
   "devDependencies": {
