@@ -133,6 +133,10 @@ Josquin merges after Bentham GREEN + team-lead approval. This is a delegation fr
 
 ## Known Pitfalls
 
+### Wrangler D1 Queries
+
+- **Before querying remote D1**, always read `docs/schema/README.md` (and relevant module files under `docs/schema/`) to know exact column names and table structure. Do NOT guess column names.
+
 ### D1 Critical Behaviors
 
 - **`PRAGMA foreign_keys = OFF` is a NO-OP on D1** — CASCADE always fires on DROP TABLE

@@ -36,4 +36,8 @@ Reviewed 5 items this session:
 - Integration test against real D1 — recommended but not yet started
 - Registry↔Vault contract test — recommended but not yet started
 
+## [GOTCHA] 2026-04-02 — Cross-org invite: roster slot must be merged, not abandoned
+
+When `acceptInvite` resolves an existing member via `getMemberByEmailGlobal`, the roster slot in the target org is orphaned — its `member_roles`, `member_voices`, `member_sections`, and `member_organizations` entry persist as phantom data. The fix must: (1) transfer roles/voices/sections from roster slot to real member, (2) remove roster slot from org, (3) optionally delete roster slot from `members` if no other org refs. Reviewed RED on first pass of #307. This pattern will recur for any future "merge member" logic.
+
 (*PD:Bentham*)
