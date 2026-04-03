@@ -81,6 +81,7 @@
   // State
   let togglingId = $state<string | null>(null);
   let deletingId = $state<string | null>(null);
+  let confirmingDeleteId = $state<string | null>(null);
   let reassigningId = $state<string | null>(null);
   let creating = $state(false);
   let rearranging = $state(false);
@@ -99,6 +100,7 @@
     const target = e.target as HTMLElement;
     if (!target.closest(".reassign-dropdown")) {
       openReassignDropdown = null;
+      confirmingDeleteId = null;
     }
   }
 
@@ -125,11 +127,8 @@
     }
   }
 
-  async function deleteItem(item: EntityWithCount) {
-    if (item.assignmentCount > 0) return;
-
-    if (!confirm(m.settings_entity_delete_confirm({ name: item.name }))) return;
-
+  async function performDelete(item: EntityWithCount) {
+    confirmingDeleteId = null;
     deletingId = item.id;
 
     try {
@@ -403,19 +402,40 @@
           <!-- Right side: Delete or Reassign -->
           <div class="reassign-dropdown relative border-l border-gray-200">
             {#if item.assignmentCount === 0}
-              <!-- No assignments: show delete button -->
-              <button
-                onclick={() => deleteItem(item)}
-                disabled={isProcessing}
-                class="rounded-r-lg px-2 py-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
-                title={m.settings_entity_delete_title()}
-              >
-                {#if deletingId === item.id}
-                  ⏳
-                {:else}
-                  🗑️
-                {/if}
-              </button>
+              {#if confirmingDeleteId === item.id}
+                <!-- Step 2: confirm -->
+                <div class="flex">
+                  <button
+                    onclick={() => performDelete(item)}
+                    disabled={deletingId === item.id}
+                    class="px-2 py-2 text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                    title={m.settings_entity_delete_title()}
+                  >
+                    {deletingId === item.id ? '⏳' : '✓'}
+                  </button>
+                  <button
+                    onclick={() => (confirmingDeleteId = null)}
+                    class="rounded-r-lg px-2 py-2 text-gray-400 transition hover:bg-gray-100"
+                    title={m.actions_cancel()}
+                  >
+                    ✗
+                  </button>
+                </div>
+              {:else}
+                <!-- Step 1: show trash icon -->
+                <button
+                  onclick={() => (confirmingDeleteId = item.id)}
+                  disabled={isProcessing}
+                  class="rounded-r-lg px-2 py-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                  title={m.settings_entity_delete_title()}
+                >
+                  {#if deletingId === item.id}
+                    ⏳
+                  {:else}
+                    🗑️
+                  {/if}
+                </button>
+              {/if}
             {:else}
               <!-- Has assignments: show reassign dropdown -->
               <button
