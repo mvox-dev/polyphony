@@ -47,8 +47,5 @@ export async function getActiveKey(db: D1Database): Promise<SigningKey | null> {
 export async function revokeKey(db: D1Database, id: string): Promise<void> {
 	const now = new Date().toISOString();
 
-	await db
-		.prepare('UPDATE signing_keys SET revoked_at = ? WHERE id = ?')
-		.bind(now, id)
-		.run();
+	await db.prepare('UPDATE signing_keys SET revoked_at = ? WHERE id = ?').bind(now, id).run();
 }

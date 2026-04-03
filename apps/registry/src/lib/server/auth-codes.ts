@@ -10,7 +10,9 @@ const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 /** Generate a random 6-character verification code */
 export function generateCode(): string {
 	const bytes = crypto.getRandomValues(new Uint8Array(CODE_LENGTH));
-	return Array.from(bytes).map((b) => CODE_CHARS[b % CODE_CHARS.length]).join('');
+	return Array.from(bytes)
+		.map((b) => CODE_CHARS[b % CODE_CHARS.length])
+		.join('');
 }
 
 export interface CreateCodeResult {
@@ -51,31 +53,56 @@ async function updateRateLimit(db: D1Database, email: string): Promise<void> {
 		.first<RateLimitRecord>();
 
 	if (!record) {
-		await db.prepare("INSERT INTO email_rate_limits (email, attempts, window_start) VALUES (?, 1, datetime('now'))")
-			.bind(email).run();
+		await db
+			.prepare(
+				"INSERT INTO email_rate_limits (email, attempts, window_start) VALUES (?, 1, datetime('now'))"
+			)
+			.bind(email)
+			.run();
 		return;
 	}
 
 	const windowEnd = new Date(record.window_start + 'Z').getTime() + RATE_LIMIT_WINDOW_MS;
 	if (Date.now() >= windowEnd) {
-		await db.prepare("UPDATE email_rate_limits SET attempts = 1, window_start = datetime('now') WHERE email = ?")
-			.bind(email).run();
+		await db
+			.prepare(
+				"UPDATE email_rate_limits SET attempts = 1, window_start = datetime('now') WHERE email = ?"
+			)
+			.bind(email)
+			.run();
 	} else {
-		await db.prepare('UPDATE email_rate_limits SET attempts = attempts + 1 WHERE email = ?')
-			.bind(email).run();
+		await db
+			.prepare('UPDATE email_rate_limits SET attempts = attempts + 1 WHERE email = ?')
+			.bind(email)
+			.run();
 	}
 }
 
 /** Store a new auth code in the database */
-async function storeAuthCode(db: D1Database, email: string, code: string, vaultId: string, callbackUrl: string): Promise<void> {
+async function storeAuthCode(
+	db: D1Database,
+	email: string,
+	code: string,
+	vaultId: string,
+	callbackUrl: string
+): Promise<void> {
 	const id = crypto.randomUUID();
 	const expiresAt = new Date(Date.now() + CODE_EXPIRY_MINUTES * 60 * 1000).toISOString();
-	await db.prepare(`INSERT INTO email_auth_codes (id, email, code, vault_id, callback_url, expires_at) VALUES (?, ?, ?, ?, ?, ?)`)
-		.bind(id, email, code, vaultId, callbackUrl, expiresAt).run();
+	await db
+		.prepare(
+			`INSERT INTO email_auth_codes (id, email, code, vault_id, callback_url, expires_at) VALUES (?, ?, ?, ?, ?, ?)`
+		)
+		.bind(id, email, code, vaultId, callbackUrl, expiresAt)
+		.run();
 }
 
 /** Create a new auth code for email verification (with rate limiting) */
-export async function createAuthCode(db: D1Database, email: string, vaultId: string, callbackUrl: string): Promise<CreateCodeResult> {
+export async function createAuthCode(
+	db: D1Database,
+	email: string,
+	vaultId: string,
+	callbackUrl: string
+): Promise<CreateCodeResult> {
 	const normalizedEmail = email.toLowerCase().trim();
 
 	const rateLimitError = await checkRateLimit(db, normalizedEmail);
@@ -155,7 +182,9 @@ export async function verifyCode(
  * Clean up expired codes and old rate limit records
  * Call periodically (e.g., via scheduled worker)
  */
-export async function cleanupExpiredRecords(db: D1Database): Promise<{ codes: number; limits: number }> {
+export async function cleanupExpiredRecords(
+	db: D1Database
+): Promise<{ codes: number; limits: number }> {
 	// Delete expired codes older than 24 hours
 	const codesResult = await db
 		.prepare("DELETE FROM email_auth_codes WHERE expires_at < datetime('now', '-24 hours')")

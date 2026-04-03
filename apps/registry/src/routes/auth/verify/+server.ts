@@ -17,7 +17,9 @@ interface CloudflarePlatform {
 /** Get active signing key from database */
 async function getSigningKey(db: D1Database): Promise<string> {
 	const key = await db
-		.prepare('SELECT private_key FROM signing_keys WHERE revoked_at IS NULL ORDER BY created_at DESC LIMIT 1')
+		.prepare(
+			'SELECT private_key FROM signing_keys WHERE revoked_at IS NULL ORDER BY created_at DESC LIMIT 1'
+		)
 		.first<{ private_key: string }>();
 	if (!key) throw error(500, 'Authentication service misconfigured');
 	return key.private_key;
@@ -26,7 +28,10 @@ async function getSigningKey(db: D1Database): Promise<string> {
 /** Create signed JWT for verified user */
 async function createAuthToken(db: D1Database, email: string, vaultId: string): Promise<string> {
 	const privateKey = await getSigningKey(db);
-	return signToken({ iss: 'https://polyphony.uk', sub: email, aud: vaultId, nonce: nanoid(), email }, privateKey);
+	return signToken(
+		{ iss: 'https://polyphony.uk', sub: email, aud: vaultId, nonce: nanoid(), email },
+		privateKey
+	);
 }
 
 export const GET: RequestHandler = async ({ url, platform }) => {
@@ -35,7 +40,8 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 
 	const code = url.searchParams.get('code');
 	const email = url.searchParams.get('email');
-	if (!code || !email) throw redirect(303, `/auth/error?message=${encodeURIComponent('Missing code or email')}`);
+	if (!code || !email)
+		throw redirect(303, `/auth/error?message=${encodeURIComponent('Missing code or email')}`);
 
 	const result = await verifyCode(db, code, email);
 	if (!result.success) {

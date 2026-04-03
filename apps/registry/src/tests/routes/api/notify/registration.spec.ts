@@ -204,18 +204,14 @@ describe('POST /api/notify/registration', () => {
 			expect(data.success).toBe(true);
 
 			expect(sendAdminNotification).toHaveBeenCalledOnce();
-			expect(sendAdminNotification).toHaveBeenCalledWith(
-				'test-key',
-				'admin@polyphony.uk',
-				{
-					orgName: 'City Chamber Choir',
-					subdomain: 'citychamber',
-					contactEmail: 'admin@citychoir.org',
-					memberName: 'John Director',
-					memberEmail: 'john@example.com',
-					orgId: 'org_abc123'
-				}
-			);
+			expect(sendAdminNotification).toHaveBeenCalledWith('test-key', 'admin@polyphony.uk', {
+				orgName: 'City Chamber Choir',
+				subdomain: 'citychamber',
+				contactEmail: 'admin@citychoir.org',
+				memberName: 'John Director',
+				memberEmail: 'john@example.com',
+				orgId: 'org_abc123'
+			});
 		});
 
 		it('should return 500 if email service unavailable', async () => {

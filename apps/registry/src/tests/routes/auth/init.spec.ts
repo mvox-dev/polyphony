@@ -36,28 +36,29 @@ interface AuthRequestEvent {
 }
 
 // Mock D1 database (no vault table - zero-storage)
-const createMockDb = (includePrivateKey: boolean = false, privateKey?: string) => ({
-	prepare: (sql: string) => {
-		const queryResult = async () => {
-			if (sql.includes('signing_keys') && includePrivateKey) {
-				return {
-					id: 'test-key-id',
-					private_key: privateKey,
-					public_key: JSON.stringify(testPublicKeyJwk)
-				};
-			}
-			return null;
-		};
-		
-		return {
-			// D1 allows calling .first() directly (no bind) or .bind().first()
-			first: queryResult,
-			bind: (...args: unknown[]) => ({
-				first: queryResult
-			})
-		};
-	}
-} as unknown as D1Database);
+const createMockDb = (includePrivateKey: boolean = false, privateKey?: string) =>
+	({
+		prepare: (sql: string) => {
+			const queryResult = async () => {
+				if (sql.includes('signing_keys') && includePrivateKey) {
+					return {
+						id: 'test-key-id',
+						private_key: privateKey,
+						public_key: JSON.stringify(testPublicKeyJwk)
+					};
+				}
+				return null;
+			};
+
+			return {
+				// D1 allows calling .first() directly (no bind) or .bind().first()
+				first: queryResult,
+				bind: (...args: unknown[]) => ({
+					first: queryResult
+				})
+			};
+		}
+	}) as unknown as D1Database;
 
 // Helper to create a valid SSO token
 async function createValidSSOToken(privateKey: string): Promise<string> {
@@ -89,7 +90,7 @@ describe('GET /auth', () => {
 		} satisfies AuthRequestEvent);
 
 		expect(response.status).toBe(400);
-		const data = await response.json() as ErrorResponse;
+		const data = (await response.json()) as ErrorResponse;
 		expect(data.error).toContain('vault_id');
 	});
 
@@ -101,7 +102,7 @@ describe('GET /auth', () => {
 		} satisfies AuthRequestEvent);
 
 		expect(response.status).toBe(400);
-		const data = await response.json() as ErrorResponse;
+		const data = (await response.json()) as ErrorResponse;
 		expect(data.error).toContain('callback');
 	});
 
@@ -115,7 +116,7 @@ describe('GET /auth', () => {
 		} satisfies AuthRequestEvent);
 
 		expect(response.status).toBe(400);
-		const data = await response.json() as ErrorResponse;
+		const data = (await response.json()) as ErrorResponse;
 		expect(data.error).toContain('callback URL');
 	});
 
@@ -123,7 +124,7 @@ describe('GET /auth', () => {
 		const url = new URL(
 			'http://localhost/auth?vault_id=testorg&callback=https://testorg.polyphony.uk/auth/callback'
 		);
-		
+
 		try {
 			await GET({
 				url,
@@ -135,7 +136,7 @@ describe('GET /auth', () => {
 					}
 				}
 			} satisfies AuthRequestEvent);
-			
+
 			// Should not reach here - redirect throws
 			expect(true).toBe(false);
 		} catch (redirect: any) {
