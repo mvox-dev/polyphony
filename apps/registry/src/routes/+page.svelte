@@ -38,61 +38,6 @@
 
 	<!-- Main Content -->
 	<main class="mx-auto max-w-5xl px-6 pb-16">
-		<!-- What is Polyphony -->
-		<section class="mb-16 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-100">
-			<h2 class="mb-4 text-2xl font-semibold text-slate-900">What is Polyphony?</h2>
-			<p class="mb-4 text-slate-600 leading-relaxed">
-				Polyphony is a <strong>federated platform</strong> that helps choirs manage their music
-				libraries, organize rehearsals, and share scores securely within
-				<strong>private circles</strong>.
-			</p>
-			<p class="text-slate-600 leading-relaxed">
-				Each choir operates their own <strong>Vault</strong> — an independent instance with full control
-				over their library, members, and events. Umbrella organizations can manage multiple affiliated
-				choirs from a single dashboard.
-			</p>
-		</section>
-
-		<!-- How it Works -->
-		<section class="mb-16">
-			<h2 class="mb-6 text-center text-2xl font-semibold text-slate-900">How it Works</h2>
-			<div class="grid gap-4 sm:grid-cols-3">
-				<div class="rounded-xl bg-slate-50 p-6 text-center">
-					<div
-						class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white font-bold"
-					>
-						1
-					</div>
-					<h3 class="font-medium text-slate-900">Register Your Collective</h3>
-					<p class="mt-2 text-sm text-slate-500">
-						Get your choir's own subdomain (e.g., yourchoir.polyphony.uk)
-					</p>
-				</div>
-				<div class="rounded-xl bg-slate-50 p-6 text-center">
-					<div
-						class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white font-bold"
-					>
-						2
-					</div>
-					<h3 class="font-medium text-slate-900">Invite Members</h3>
-					<p class="mt-2 text-sm text-slate-500">
-						Add singers by name — they authenticate via Google when they join
-					</p>
-				</div>
-				<div class="rounded-xl bg-slate-50 p-6 text-center">
-					<div
-						class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white font-bold"
-					>
-						3
-					</div>
-					<h3 class="font-medium text-slate-900">Manage Everything</h3>
-					<p class="mt-2 text-sm text-slate-500">
-						Scores, rehearsals, attendance, seasons — all in one place
-					</p>
-				</div>
-			</div>
-		</section>
-
 		<!-- Action Cards -->
 		<div class="grid gap-6 sm:grid-cols-2">
 			<!-- Find a Choir -->
