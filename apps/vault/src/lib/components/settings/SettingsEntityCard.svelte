@@ -322,6 +322,18 @@
 		items = originalItems;
 		rearranging = false;
 	}
+
+	// Section subtrees: each root + its children (orphans have empty children array)
+	const sectionGroups = $derived(
+		type === 'section'
+			? items
+					.filter((i) => !i.parentSectionId)
+					.map((parent) => ({
+						parent,
+						children: items.filter((i) => i.parentSectionId === parent.id)
+					}))
+			: []
+	);
 </script>
 
 <svelte:window onclick={handleClickOutside} />
@@ -405,135 +417,155 @@
 			<span class="hidden sm:inline">{m.settings_entity_click_help()}</span>
 		</p>
 
-		<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-			{#each items as item (item.id)}
-				{@const isProcessing =
-					togglingId === item.id || deletingId === item.id || reassigningId === item.id}
-				{@const isChild = !!item.parentSectionId}
-				{@const hasChildren = (item.childCount ?? 0) > 0}
-				<div
-					class="flex items-center rounded-lg border {item.isActive
-						? `${config.color.borderLight} ${config.color.bgLight}`
-						: 'border-gray-200 bg-gray-50'} {isChild ? 'ml-4 border-l-4' : ''}"
+		{#snippet itemRow(item: EntityWithCount, extraClass: string = '')}
+			{@const isProcessing =
+				togglingId === item.id || deletingId === item.id || reassigningId === item.id}
+			{@const hasChildren = (item.childCount ?? 0) > 0}
+			<div
+				class="flex items-center {extraClass} {item.isActive
+					? `${config.color.bgLight}`
+					: 'bg-gray-50'}"
+			>
+				<!-- Left side: Toggle active -->
+				<button
+					onclick={() => toggleItem(item)}
+					disabled={isProcessing}
+					class="flex flex-1 items-center justify-between px-3 py-2 text-left transition {config
+						.color.bgLightHover} disabled:opacity-50"
 				>
-					<!-- Left side: Toggle active -->
-					<button
-						onclick={() => toggleItem(item)}
-						disabled={isProcessing}
-						class="flex flex-1 items-center justify-between rounded-l-lg px-3 py-2 text-left transition {config
-							.color.bgLightHover} disabled:opacity-50"
-					>
-						<div class="flex min-w-0 items-center gap-1">
-							<span class="truncate font-medium {item.isActive ? '' : 'text-gray-500'}"
-								>{item.name}</span
-							>
-							<span class="shrink-0 text-xs text-gray-500">({item.abbreviation})</span>
-							{#if config.hasCategory && item.category === 'instrumental'}
-								<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs text-gray-600"
-									>{m.settings_entity_instr_badge()}</span
-								>
-							{/if}
-						</div>
-						<span
-							class="text-lg"
-							title={item.isActive ? m.settings_entity_active() : m.settings_entity_inactive()}
+					<div class="flex min-w-0 items-center gap-1">
+						<span class="truncate font-medium {item.isActive ? '' : 'text-gray-500'}"
+							>{item.name}</span
 						>
-							{#if togglingId === item.id}
-								<span class="text-gray-400">⏳</span>
-							{:else if item.isActive}
-								<span class="text-green-600">🟢</span>
-							{:else}
-								<span class="text-gray-400">⚪</span>
-							{/if}
-						</span>
-					</button>
-
-					<!-- Right side: Delete or Reassign -->
-					<div class="reassign-dropdown relative border-l border-gray-200">
-						{#if hasChildren}
-							<!-- Parent section: block deletion, show child names -->
-							<div class="rounded-r-lg px-2 py-2 text-gray-400" title={item.childNames?.join(', ')}>
-								<span class="text-xs leading-none">⬇{item.childCount}</span>
-							</div>
-						{:else if item.assignmentCount === 0}
-							{#if confirmingDeleteId === item.id}
-								<!-- Step 2: confirm -->
-								<div class="flex">
-									<button
-										onclick={() => performDelete(item)}
-										disabled={deletingId === item.id}
-										class="px-2 py-2 text-red-600 transition hover:bg-red-100 disabled:opacity-50"
-										title={m.settings_entity_delete_title()}
-									>
-										{deletingId === item.id ? '⏳' : '✓'}
-									</button>
-									<button
-										onclick={() => (confirmingDeleteId = null)}
-										class="rounded-r-lg px-2 py-2 text-gray-400 transition hover:bg-gray-100"
-										title={m.actions_cancel()}
-									>
-										✗
-									</button>
-								</div>
-							{:else}
-								<!-- Step 1: show trash icon -->
-								<button
-									onclick={() => (confirmingDeleteId = item.id)}
-									disabled={isProcessing}
-									class="rounded-r-lg px-2 py-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
-									title={m.settings_entity_delete_title()}
-								>
-									{#if deletingId === item.id}
-										⏳
-									{:else}
-										🗑️
-									{/if}
-								</button>
-							{/if}
-						{:else}
-							<!-- Has assignments: show reassign dropdown -->
-							<button
-								onclick={() =>
-									(openReassignDropdown = openReassignDropdown === item.id ? null : item.id)}
-								disabled={isProcessing}
-								class="flex items-center gap-0.5 rounded-r-lg px-2 py-2 text-blue-600 transition hover:bg-blue-50 disabled:opacity-50"
-								title={m.settings_entity_reassign_count({
-									count: String(item.assignmentCount)
-								})}
+						<span class="shrink-0 text-xs text-gray-500">({item.abbreviation})</span>
+						{#if config.hasCategory && item.category === 'instrumental'}
+							<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs text-gray-600"
+								>{m.settings_entity_instr_badge()}</span
 							>
-								{#if reassigningId === item.id}
-									⏳
-								{:else}
-									<span>↔️</span>
-									<span class="text-sm font-medium">{item.assignmentCount}</span>
-									<span class="text-xs">▼</span>
-								{/if}
-							</button>
-
-							{#if openReassignDropdown === item.id}
-								<div
-									class="absolute right-0 top-full z-10 mt-1 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
-								>
-									<div class="py-1">
-										<div class="border-b px-3 py-2 text-xs text-gray-500">
-											{m.settings_entity_reassign_to()}
-										</div>
-										{#each items.filter((i) => i.id !== item.id) as targetItem}
-											<button
-												onclick={() => reassignItem(item.id, targetItem.id)}
-												class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-											>
-												{targetItem.name} ({targetItem.abbreviation})
-											</button>
-										{/each}
-									</div>
-								</div>
-							{/if}
 						{/if}
 					</div>
+					<span
+						class="text-lg"
+						title={item.isActive ? m.settings_entity_active() : m.settings_entity_inactive()}
+					>
+						{#if togglingId === item.id}
+							<span class="text-gray-400">⏳</span>
+						{:else if item.isActive}
+							<span class="text-green-600">🟢</span>
+						{:else}
+							<span class="text-gray-400">⚪</span>
+						{/if}
+					</span>
+				</button>
+
+				<!-- Right side: Delete or Reassign -->
+				<div class="reassign-dropdown relative border-l border-gray-200">
+					{#if hasChildren}
+						<!-- Parent section: block deletion, show child names -->
+						<div class="px-2 py-2 text-gray-400" title={item.childNames?.join(', ')}>
+							<span class="text-xs leading-none">⬇{item.childCount}</span>
+						</div>
+					{:else if item.assignmentCount === 0}
+						{#if confirmingDeleteId === item.id}
+							<!-- Step 2: confirm -->
+							<div class="flex">
+								<button
+									onclick={() => performDelete(item)}
+									disabled={deletingId === item.id}
+									class="px-2 py-2 text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+									title={m.settings_entity_delete_title()}
+								>
+									{deletingId === item.id ? '⏳' : '✓'}
+								</button>
+								<button
+									onclick={() => (confirmingDeleteId = null)}
+									class="px-2 py-2 text-gray-400 transition hover:bg-gray-100"
+									title={m.actions_cancel()}
+								>
+									✗
+								</button>
+							</div>
+						{:else}
+							<!-- Step 1: show trash icon -->
+							<button
+								onclick={() => (confirmingDeleteId = item.id)}
+								disabled={isProcessing}
+								class="px-2 py-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+								title={m.settings_entity_delete_title()}
+							>
+								{#if deletingId === item.id}
+									⏳
+								{:else}
+									🗑️
+								{/if}
+							</button>
+						{/if}
+					{:else}
+						<!-- Has assignments: show reassign dropdown -->
+						<button
+							onclick={() =>
+								(openReassignDropdown = openReassignDropdown === item.id ? null : item.id)}
+							disabled={isProcessing}
+							class="flex items-center gap-0.5 px-2 py-2 text-blue-600 transition hover:bg-blue-50 disabled:opacity-50"
+							title={m.settings_entity_reassign_count({
+								count: String(item.assignmentCount)
+							})}
+						>
+							{#if reassigningId === item.id}
+								⏳
+							{:else}
+								<span>↔️</span>
+								<span class="text-sm font-medium">{item.assignmentCount}</span>
+								<span class="text-xs">▼</span>
+							{/if}
+						</button>
+
+						{#if openReassignDropdown === item.id}
+							<div
+								class="absolute right-0 top-full z-10 mt-1 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+							>
+								<div class="py-1">
+									<div class="border-b px-3 py-2 text-xs text-gray-500">
+										{m.settings_entity_reassign_to()}
+									</div>
+									{#each items.filter((i) => i.id !== item.id) as targetItem}
+										<button
+											onclick={() => reassignItem(item.id, targetItem.id)}
+											class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+										>
+											{targetItem.name} ({targetItem.abbreviation})
+										</button>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					{/if}
 				</div>
-			{/each}
-		</div>
+			</div>
+		{/snippet}
+
+		{#if type === 'section'}
+			<!-- Sections: grouped subtrees -->
+			<div class="space-y-3">
+				{#each sectionGroups as group (group.parent.id)}
+					<div class="overflow-hidden rounded-xl border {config.color.borderLight}">
+						{@render itemRow(group.parent)}
+						{#each group.children as child (child.id)}
+							<div class="border-t {config.color.borderLight}">
+								{@render itemRow(child, 'ml-4')}
+							</div>
+						{/each}
+					</div>
+				{/each}
+			</div>
+		{:else}
+			<!-- Voices: flat grid -->
+			<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+				{#each items as item (item.id)}
+					{@render itemRow(item)}
+				{/each}
+			</div>
+		{/if}
 	{/if}
 
 	<!-- Create new item form -->
