@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
+	import { SECTION_PRESETS } from '@polyphony/shared';
 
 	let { form }: { form: ActionData } = $props();
 
@@ -13,6 +14,7 @@
 	>('idle');
 	let subdomainError = $state('');
 	let isSubmitting = $state(false);
+	let selectedPresetId = $state('');
 
 	// Debounce timer for subdomain check
 	let checkTimer: ReturnType<typeof setTimeout> | null = null;
@@ -114,6 +116,14 @@
 				return '';
 		}
 	}
+
+	const choralIds = ['satb', 'ssaattbb', 'sab'];
+	const orchestralIds = ['strings', 'chamber', 'orchestra'];
+
+	const choralPresets = $derived(SECTION_PRESETS.filter((p) => choralIds.includes(p.id)));
+	const orchestralPresets = $derived(SECTION_PRESETS.filter((p) => orchestralIds.includes(p.id)));
+
+	const selectedPreset = $derived(SECTION_PRESETS.find((p) => p.id === selectedPresetId) ?? null);
 </script>
 
 <svelte:head>
@@ -218,6 +228,56 @@
 						{/if}
 					</div>
 					<p class="mt-1 text-sm text-gray-500">3-30 characters, letters, numbers, and hyphens</p>
+				</div>
+
+				<!-- Section Preset Picker -->
+				<div>
+					<label for="sections" class="block text-sm font-medium text-gray-700 mb-1">
+						Section Layout
+						<span class="font-normal text-gray-500">(optional)</span>
+					</label>
+					<select
+						id="sections"
+						name="sections"
+						bind:value={selectedPresetId}
+						class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+					>
+						<option value="">None — set up sections later</option>
+						<optgroup label="Choral">
+							{#each choralPresets as preset (preset.id)}
+								<option value={preset.id}>{preset.label} — {preset.description}</option>
+							{/each}
+						</optgroup>
+						<optgroup label="Orchestral">
+							{#each orchestralPresets as preset (preset.id)}
+								<option value={preset.id}>{preset.label} — {preset.description}</option>
+							{/each}
+						</optgroup>
+					</select>
+					<p class="mt-1 text-sm text-gray-500">
+						Pre-populate your vault with a standard set of sections.
+					</p>
+
+					{#if selectedPreset}
+						<div
+							class="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
+							aria-label="Section preview"
+						>
+							<p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+								Sections included
+							</p>
+							<div class="flex flex-wrap gap-1.5">
+								{#each selectedPreset.sections as section (section.name)}
+									<span
+										class="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-300 rounded text-sm text-gray-700"
+									>
+										<span class="font-mono text-xs text-gray-400">{section.abbreviation}</span>
+										{section.name}
+									</span>
+								{/each}
+							</div>
+						</div>
+					{/if}
 				</div>
 
 				<!-- Submit Button -->
