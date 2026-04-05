@@ -124,6 +124,18 @@
 	const orchestralPresets = $derived(SECTION_PRESETS.filter((p) => orchestralIds.includes(p.id)));
 
 	const selectedPreset = $derived(SECTION_PRESETS.find((p) => p.id === selectedPresetId) ?? null);
+
+	// Group preset sections into subtrees for hierarchical preview
+	const presetGroups = $derived(
+		selectedPreset
+			? selectedPreset.sections
+					.filter((s) => !s.parentName)
+					.map((root) => ({
+						root,
+						children: selectedPreset.sections.filter((s) => s.parentName === root.name)
+					}))
+			: []
+	);
 </script>
 
 <svelte:head>
@@ -266,14 +278,24 @@
 							<p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
 								Sections included
 							</p>
-							<div class="flex flex-wrap gap-1.5">
-								{#each selectedPreset.sections as section (section.name)}
-									<span
-										class="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-300 rounded text-sm text-gray-700"
-									>
-										<span class="font-mono text-xs text-gray-400">{section.abbreviation}</span>
-										{section.name}
-									</span>
+							<div class="space-y-1.5">
+								{#each presetGroups as group (group.root.name)}
+									<div class="overflow-hidden rounded border border-gray-200 bg-white">
+										<!-- Root section -->
+										<div class="flex items-center gap-1.5 px-2 py-1">
+											<span class="font-mono text-xs text-gray-400">{group.root.abbreviation}</span>
+											<span class="text-sm text-gray-700">{group.root.name}</span>
+										</div>
+										<!-- Child sections -->
+										{#each group.children as child (child.name)}
+											<div
+												class="flex items-center gap-1.5 border-t border-gray-100 bg-gray-50 px-2 py-1 pl-5"
+											>
+												<span class="font-mono text-xs text-gray-400">{child.abbreviation}</span>
+												<span class="text-sm text-gray-600">{child.name}</span>
+											</div>
+										{/each}
+									</div>
 								{/each}
 							</div>
 						</div>
