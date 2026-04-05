@@ -111,16 +111,26 @@ async function createOwnerMember(
   orgId: string,
   contactEmail: string,
 ) {
-  const memberId = generateId();
   const now = new Date().toISOString();
 
-  // Create member record with contactEmail as both name and email_id
-  await db
-    .prepare(
-      "INSERT INTO members (id, name, email_id, email_contact, invited_by) VALUES (?, ?, ?, NULL, NULL)",
-    )
-    .bind(memberId, contactEmail, contactEmail)
-    .run();
+  // Check if member already exists (cross-org registration)
+  const existing = await db
+    .prepare("SELECT id FROM members WHERE email_id = ?")
+    .bind(contactEmail)
+    .first<{ id: string }>();
+
+  let memberId: string;
+  if (existing) {
+    memberId = existing.id;
+  } else {
+    memberId = generateId();
+    await db
+      .prepare(
+        "INSERT INTO members (id, name, email_id, email_contact, invited_by) VALUES (?, ?, ?, NULL, NULL)",
+      )
+      .bind(memberId, contactEmail, contactEmail)
+      .run();
+  }
 
   // Link member to organization
   await db
