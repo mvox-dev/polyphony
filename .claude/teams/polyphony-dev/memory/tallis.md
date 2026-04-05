@@ -43,10 +43,7 @@
 
 [GOTCHA] 2026-04-05 — `GET()` in callback/+server.ts returns `MaybePromise<Response>` (SvelteKit type). Calling `.catch()` directly on it fails TS check. Must wrap: `Promise.resolve(GET(event)).catch(e => e)`.
 
-[GAP] 2026-04-05 — #296 backslash bypass guard NOT YET FIXED in production code. Fix needed: add `!startsWith("/\\")` to guard in:
-  - `apps/vault/src/routes/api/auth/login/+server.ts:13`
-  - `apps/vault/src/routes/api/auth/callback/+server.ts:133`
-  Tests are on `fix/296-backslash-bypass` as `it.fails()`.
+[CHECKPOINT] 2026-04-05 — #296 backslash bypass FIXED. Both `it.fails()` converted to `it()`, 24 tests GREEN.
 
 [GAP] 2026-03-19 — Remaining gaps in test-gaps.md (P1-P3 items still open):
   - auth/logout route tests (UNFILED)
