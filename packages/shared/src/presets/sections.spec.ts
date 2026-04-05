@@ -108,39 +108,124 @@ describe("flattenPreset — SSAATTBB (hierarchical)", () => {
   });
 });
 
-// ─── flattenPreset() — orchestral (no parent hierarchy, flat) ────────────────
+// ─── flattenPreset() — orchestral (hierarchical) ────────────────────────────
 
-describe("flattenPreset — strings", () => {
-  it("returns 5 sections", () => {
-    expect(flattenPreset("strings")).toHaveLength(5);
+describe("flattenPreset — strings (hierarchical)", () => {
+  it("returns 6 sections (1 parent + 5 children)", () => {
+    expect(flattenPreset("strings")).toHaveLength(6);
   });
 
-  it("all sections have parentName null", () => {
+  it("Strings is the parent with parentName null", () => {
     const sections = flattenPreset("strings");
-    for (const s of sections) {
-      expect(s.parentName).toBeNull();
-    }
+    const parent = sections.find((s) => s.name === "Strings");
+    expect(parent?.parentName).toBeNull();
   });
 
-  it("includes Violin I and Violin II", () => {
-    const names = flattenPreset("strings").map((s) => s.name);
-    expect(names).toContain("Violin I");
-    expect(names).toContain("Violin II");
+  it("Violin I and Violin II reference Strings as parent", () => {
+    const sections = flattenPreset("strings");
+    expect(sections.find((s) => s.name === "Violin I")?.parentName).toBe(
+      "Strings",
+    );
+    expect(sections.find((s) => s.name === "Violin II")?.parentName).toBe(
+      "Strings",
+    );
+  });
+
+  it("all children reference Strings", () => {
+    const sections = flattenPreset("strings");
+    const children = sections.filter((s) => s.parentName !== null);
+    expect(children).toHaveLength(5);
+    for (const child of children) {
+      expect(child.parentName).toBe("Strings");
+    }
   });
 });
 
-describe("flattenPreset — orchestra", () => {
-  it("returns sections with displayOrder starting at 1", () => {
-    const sections = flattenPreset("orchestra");
-    expect(sections.length).toBeGreaterThan(0);
-    expect(sections[0].displayOrder).toBe(1);
+describe("flattenPreset — chamber (hierarchical)", () => {
+  it("returns 10 sections", () => {
+    expect(flattenPreset("chamber")).toHaveLength(10);
   });
 
-  it("all sections have name and abbreviation", () => {
-    for (const s of flattenPreset("orchestra")) {
-      expect(s.name.length).toBeGreaterThan(0);
-      expect(s.abbreviation.length).toBeGreaterThan(0);
+  it("has 4 top-level parents", () => {
+    const sections = flattenPreset("chamber");
+    const parents = sections.filter((s) => s.parentName === null);
+    expect(parents.map((p) => p.name).sort()).toEqual([
+      "Brass",
+      "Percussion",
+      "Strings",
+      "Woodwinds",
+    ]);
+  });
+
+  it("children reference their correct parent", () => {
+    const sections = flattenPreset("chamber");
+    expect(sections.find((s) => s.name === "Flute")?.parentName).toBe(
+      "Woodwinds",
+    );
+    expect(sections.find((s) => s.name === "Horn")?.parentName).toBe("Brass");
+    expect(sections.find((s) => s.name === "Violin")?.parentName).toBe(
+      "Strings",
+    );
+  });
+});
+
+describe("flattenPreset — orchestra (hierarchical)", () => {
+  it("returns 18 sections", () => {
+    expect(flattenPreset("orchestra")).toHaveLength(18);
+  });
+
+  it("has 4 top-level parents", () => {
+    const sections = flattenPreset("orchestra");
+    const parents = sections.filter((s) => s.parentName === null);
+    expect(parents.map((p) => p.name).sort()).toEqual([
+      "Brass",
+      "Percussion",
+      "Strings",
+      "Woodwinds",
+    ]);
+  });
+
+  it("string children reference Strings", () => {
+    const sections = flattenPreset("orchestra");
+    for (const name of [
+      "Violin I",
+      "Violin II",
+      "Viola",
+      "Cello",
+      "Double Bass",
+    ]) {
+      expect(sections.find((s) => s.name === name)?.parentName).toBe("Strings");
     }
+  });
+
+  it("woodwind children reference Woodwinds", () => {
+    const sections = flattenPreset("orchestra");
+    for (const name of ["Flute", "Oboe", "Clarinet", "Bassoon"]) {
+      expect(sections.find((s) => s.name === name)?.parentName).toBe(
+        "Woodwinds",
+      );
+    }
+  });
+
+  it("brass children reference Brass", () => {
+    const sections = flattenPreset("orchestra");
+    for (const name of ["Horn", "Trumpet", "Trombone", "Tuba"]) {
+      expect(sections.find((s) => s.name === name)?.parentName).toBe("Brass");
+    }
+  });
+
+  it("Timpani references Percussion", () => {
+    const sections = flattenPreset("orchestra");
+    expect(sections.find((s) => s.name === "Timpani")?.parentName).toBe(
+      "Percussion",
+    );
+  });
+
+  it("displayOrder is sequential starting at 1", () => {
+    const sections = flattenPreset("orchestra");
+    sections.forEach((s, i) => {
+      expect(s.displayOrder).toBe(i + 1);
+    });
   });
 });
 
