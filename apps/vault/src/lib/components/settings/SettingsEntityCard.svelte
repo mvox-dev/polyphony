@@ -11,6 +11,10 @@
 		isActive: boolean;
 		assignmentCount: number;
 		category?: 'vocal' | 'instrumental'; // Only for voices
+		// Sections only
+		parentSectionId?: string | null;
+		childCount?: number;
+		childNames?: string[];
 	}
 
 	type EntityType = 'voice' | 'section';
@@ -405,10 +409,12 @@
 			{#each items as item (item.id)}
 				{@const isProcessing =
 					togglingId === item.id || deletingId === item.id || reassigningId === item.id}
+				{@const isChild = !!item.parentSectionId}
+				{@const hasChildren = (item.childCount ?? 0) > 0}
 				<div
 					class="flex items-center rounded-lg border {item.isActive
 						? `${config.color.borderLight} ${config.color.bgLight}`
-						: 'border-gray-200 bg-gray-50'}"
+						: 'border-gray-200 bg-gray-50'} {isChild ? 'ml-4 border-l-4' : ''}"
 				>
 					<!-- Left side: Toggle active -->
 					<button
@@ -444,7 +450,12 @@
 
 					<!-- Right side: Delete or Reassign -->
 					<div class="reassign-dropdown relative border-l border-gray-200">
-						{#if item.assignmentCount === 0}
+						{#if hasChildren}
+							<!-- Parent section: block deletion, show child names -->
+							<div class="rounded-r-lg px-2 py-2 text-gray-400" title={item.childNames?.join(', ')}>
+								<span class="text-xs leading-none">⬇{item.childCount}</span>
+							</div>
+						{:else if item.assignmentCount === 0}
 							{#if confirmingDeleteId === item.id}
 								<!-- Step 2: confirm -->
 								<div class="flex">
