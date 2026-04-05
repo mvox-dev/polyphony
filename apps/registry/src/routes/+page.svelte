@@ -32,7 +32,7 @@
 			<h1 class="text-4xl font-bold text-slate-900 sm:text-5xl">Polyphony</h1>
 		</div>
 		<p class="text-xl text-slate-600 sm:text-2xl">
-			Federated choral music sharing for trusted circles
+			Manage your ensemble's scores, members, and rehearsals — all in one place.
 		</p>
 	</header>
 
@@ -63,10 +63,8 @@
 						/>
 					</svg>
 				</div>
-				<h3 class="mb-2 text-xl font-semibold text-slate-900">Find a Choir</h3>
-				<p class="text-slate-600">
-					Browse the directory of registered choirs and ensembles using Polyphony.
-				</p>
+				<h3 class="mb-2 text-xl font-semibold text-slate-900">Find an ensemble</h3>
+				<p class="text-slate-600">Browse the directory of registered ensembles using Polyphony.</p>
 			</a>
 
 			<!-- Register Your Collective -->
@@ -88,16 +86,16 @@
 						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
 					</svg>
 				</div>
-				<h3 class="mb-2 text-xl font-semibold text-slate-900">Register Your Collective</h3>
+				<h3 class="mb-2 text-xl font-semibold text-slate-900">Register your ensemble</h3>
 				<p class="text-slate-600">
-					Start your choir's own Vault — manage your library, members, and events in one place.
+					Start your ensemble's own space — manage your library, members, and events. Free.
 				</p>
 			</a>
 		</div>
 
 		<!-- Features Preview -->
 		<section class="mt-16">
-			<h2 class="mb-8 text-center text-2xl font-semibold text-slate-900">Built for Choirs</h2>
+			<h2 class="mb-8 text-center text-2xl font-semibold text-slate-900">Built for ensembles</h2>
 			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 				<div class="text-center">
 					<div
@@ -200,7 +198,7 @@
 					class="font-medium text-indigo-600 hover:text-indigo-700">Institute of Beautiful Scores</a
 				>
 			</p>
-			<p class="mt-2 text-xs text-slate-400">Open source · Privacy-first · Built for choirs</p>
+			<p class="mt-2 text-xs text-slate-400">Open source · Privacy-first · Built for ensembles</p>
 			<p class="mt-3 text-xs text-slate-400">
 				<a href="https://github.com/mitselek/polyphony" class="hover:text-indigo-600">GitHub</a>
 				<span class="mx-2">·</span>
