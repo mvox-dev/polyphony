@@ -1,0 +1,17 @@
+#!/bin/bash
+# Append co-author trailer if not already present
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip merge commits and amends
+if [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "squash" ]; then
+  exit 0
+fi
+
+TRAILER="Co-authored-by: Mihkel Putrinš <mihkel.putrinsh@gmail.com>"
+
+# Only add if not already present
+if ! grep -qF "$TRAILER" "$COMMIT_MSG_FILE"; then
+  echo "" >> "$COMMIT_MSG_FILE"
+  echo "$TRAILER" >> "$COMMIT_MSG_FILE"
+fi
