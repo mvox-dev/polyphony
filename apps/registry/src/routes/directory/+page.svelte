@@ -1,13 +1,14 @@
 <script lang="ts">
 	// Vault directory - lists registered choirs
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
-	<title>Choir Directory | Polyphony</title>
-	<meta name="description" content="Browse choirs and ensembles using Polyphony." />
+	<title>{m.directory_page_title()}</title>
+	<meta name="description" content={m.directory_page_description()} />
 </svelte:head>
 
 <div class="min-h-screen bg-slate-50">
@@ -34,8 +35,8 @@
 	</header>
 
 	<main class="mx-auto max-w-5xl px-6 py-12">
-		<h1 class="text-3xl font-bold text-slate-900 mb-2">Choir Directory</h1>
-		<p class="text-slate-600 mb-8">Choirs and ensembles using Polyphony.</p>
+		<h1 class="text-3xl font-bold text-slate-900 mb-2">{m.directory_heading()}</h1>
+		<p class="text-slate-600 mb-8">{m.directory_subtitle()}</p>
 
 		{#if data.organizations.length === 0}
 			<!-- Empty State -->
@@ -58,12 +59,13 @@
 						/>
 					</svg>
 				</div>
-				<h2 class="text-xl font-semibold text-slate-900 mb-2">No choirs yet</h2>
+				<h2 class="text-xl font-semibold text-slate-900 mb-2">{m.directory_empty_heading()}</h2>
 				<p class="text-slate-600 max-w-md mx-auto">
-					Be the first to <a
+					{m.directory_empty_cta_prefix()}<a
 						href="/deploy"
-						class="text-indigo-600 hover:text-indigo-700 font-medium">create a Vault</a
-					> for your choir.
+						class="text-indigo-600 hover:text-indigo-700 font-medium"
+						>{m.directory_empty_cta_link()}</a
+					>{m.directory_empty_cta_suffix()}
 				</p>
 			</div>
 		{:else}
@@ -90,7 +92,7 @@
 							<div
 								class="flex items-center gap-2 text-slate-400 group-hover:text-indigo-600 transition"
 							>
-								<span class="text-sm">Visit</span>
+								<span class="text-sm">{m.common_visit()}</span>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									class="h-4 w-4"
@@ -112,8 +114,9 @@
 			</div>
 
 			<p class="mt-8 text-center text-sm text-slate-400">
-				{data.organizations.length}
-				{data.organizations.length === 1 ? 'choir' : 'choirs'} registered
+				{data.organizations.length === 1
+					? m.directory_organizations_count_one()
+					: m.directory_organizations_count_other({ count: data.organizations.length })}
 			</p>
 		{/if}
 	</main>

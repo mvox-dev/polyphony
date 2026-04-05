@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const message = $derived($page.url.searchParams.get('message') || 'Something went wrong');
 	const callback = $derived($page.url.searchParams.get('callback') || '');
@@ -18,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Sign In Failed | Polyphony</title>
+	<title>{m.auth_error_page_title()}</title>
 </svelte:head>
 
 <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -39,7 +40,7 @@
 			</svg>
 		</div>
 
-		<h1 class="mb-2 text-2xl font-bold text-gray-900">Sign In Failed</h1>
+		<h1 class="mb-2 text-2xl font-bold text-gray-900">{m.auth_error_heading()}</h1>
 
 		<p class="mb-6 text-gray-600">{message}</p>
 
@@ -49,15 +50,15 @@
 					href={retryUrl()}
 					class="inline-block w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
 				>
-					Try Again
+					{m.auth_error_try_again()}
 				</a>
 			{:else}
-				<p class="text-sm text-gray-500">Please return to the vault login page and try again.</p>
+				<p class="text-sm text-gray-500">{m.auth_error_return_prompt()}</p>
 			{/if}
 		</div>
 
 		<p class="mt-8 text-sm text-gray-400">
-			If this problem persists, contact your vault administrator.
+			{m.auth_error_contact_admin()}
 		</p>
 	</div>
 </div>

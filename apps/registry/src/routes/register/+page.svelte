@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
 	import { SECTION_PRESETS } from '@polyphony/shared';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { form }: { form: ActionData } = $props();
 
@@ -139,14 +140,14 @@
 </script>
 
 <svelte:head>
-	<title>Register Your Organization | Polyphony</title>
+	<title>{m.register_page_title()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
 	<div class="max-w-md w-full">
 		<div class="text-center mb-8">
-			<h1 class="text-3xl font-bold text-gray-900">Register Your Organization</h1>
-			<p class="mt-2 text-gray-600">Create a new choir or ensemble on Polyphony</p>
+			<h1 class="text-3xl font-bold text-gray-900">{m.register_heading()}</h1>
+			<p class="mt-2 text-gray-600">{m.register_subtitle()}</p>
 		</div>
 
 		<div class="bg-white rounded-xl shadow-sm p-8">
@@ -160,7 +161,7 @@
 				<!-- Organization Name -->
 				<div>
 					<label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-						Organization Name
+						{m.register_name_label()}
 					</label>
 					<input
 						type="text"
@@ -181,7 +182,7 @@
 				<!-- Contact Email -->
 				<div>
 					<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-						Contact Email
+						{m.register_contact_email_label()}
 					</label>
 					<input
 						type="email"
@@ -192,13 +193,13 @@
 						class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 						placeholder="contact@example.com"
 					/>
-					<p class="mt-1 text-sm text-gray-500">Primary contact for your organization</p>
+					<p class="mt-1 text-sm text-gray-500">{m.register_contact_email_hint()}</p>
 				</div>
 
 				<!-- Subdomain -->
 				<div>
 					<label for="subdomain" class="block text-sm font-medium text-gray-700 mb-1">
-						Your URL
+						{m.register_subdomain_label()}
 					</label>
 					<div class="flex items-center">
 						<input
@@ -228,25 +229,25 @@
 							<span class={getStatusClass(subdomainStatus)}>
 								{getStatusIcon(subdomainStatus)}
 								{#if subdomainStatus === 'checking'}
-									Checking availability...
+									{m.register_subdomain_checking()}
 								{:else if subdomainStatus === 'available'}
-									Available!
+									{m.register_subdomain_available()}
 								{:else}
 									{subdomainError}
 								{/if}
 							</span>
 						{:else if subdomain.length > 0 && subdomain.length < 3}
-							<span class="text-gray-500 text-sm">At least 3 characters required</span>
+							<span class="text-gray-500 text-sm">{m.register_subdomain_min_length()}</span>
 						{/if}
 					</div>
-					<p class="mt-1 text-sm text-gray-500">3-30 characters, letters, numbers, and hyphens</p>
+					<p class="mt-1 text-sm text-gray-500">{m.register_subdomain_hint()}</p>
 				</div>
 
 				<!-- Section Preset Picker -->
 				<div>
 					<label for="sections" class="block text-sm font-medium text-gray-700 mb-1">
-						Section Layout
-						<span class="font-normal text-gray-500">(optional)</span>
+						{m.register_sections_label()}
+						<span class="font-normal text-gray-500">{m.common_optional()}</span>
 					</label>
 					<select
 						id="sections"
@@ -254,20 +255,20 @@
 						bind:value={selectedPresetId}
 						class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
 					>
-						<option value="">None — set up sections later</option>
-						<optgroup label="Choral">
+						<option value="">{m.register_sections_none()}</option>
+						<optgroup label={m.register_sections_optgroup_choral()}>
 							{#each choralPresets as preset (preset.id)}
 								<option value={preset.id}>{preset.label} — {preset.description}</option>
 							{/each}
 						</optgroup>
-						<optgroup label="Orchestral">
+						<optgroup label={m.register_sections_optgroup_orchestral()}>
 							{#each orchestralPresets as preset (preset.id)}
 								<option value={preset.id}>{preset.label} — {preset.description}</option>
 							{/each}
 						</optgroup>
 					</select>
 					<p class="mt-1 text-sm text-gray-500">
-						Pre-populate your vault with a standard set of sections.
+						{m.register_sections_populate_hint()}
 					</p>
 
 					{#if selectedPreset}
@@ -276,7 +277,7 @@
 							aria-label="Section preview"
 						>
 							<p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-								Sections included
+								{m.register_sections_included()}
 							</p>
 							<div class="space-y-1.5">
 								{#each presetGroups as group (group.root.name)}
@@ -309,16 +310,16 @@
 					class="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
 				>
 					{#if isSubmitting}
-						Creating Organization...
+						{m.register_actions_creating()}
 					{:else}
-						Create Organization
+						{m.register_actions_submit()}
 					{/if}
 				</button>
 			</form>
 		</div>
 
 		<p class="mt-6 text-center text-sm text-gray-500">
-			By registering, you agree to our terms of service
+			{m.register_terms()}
 		</p>
 	</div>
 </div>

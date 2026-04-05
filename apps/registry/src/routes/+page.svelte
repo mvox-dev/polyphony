@@ -1,13 +1,10 @@
 <script lang="ts">
-	// Landing page for Polyphony Registry
+	import * as m from '$lib/paraglide/messages.js';
 </script>
 
 <svelte:head>
-	<title>Polyphony — Federated Choral Music Sharing</title>
-	<meta
-		name="description"
-		content="A federated platform for choirs to manage and share their music libraries securely within trusted circles."
-	/>
+	<title>{m.landing_page_title()}</title>
+	<meta name="description" content={m.landing_page_description()} />
 </svelte:head>
 
 <div class="min-h-screen bg-linear-to-b from-slate-50 to-white">
@@ -32,7 +29,7 @@
 			<h1 class="text-4xl font-bold text-slate-900 sm:text-5xl">Polyphony</h1>
 		</div>
 		<p class="text-xl text-slate-600 sm:text-2xl">
-			Manage your ensemble's scores, members, and rehearsals — all in one place.
+			{m.landing_subtitle()}
 		</p>
 	</header>
 
@@ -63,8 +60,8 @@
 						/>
 					</svg>
 				</div>
-				<h3 class="mb-2 text-xl font-semibold text-slate-900">Find an ensemble</h3>
-				<p class="text-slate-600">Browse the directory of registered ensembles using Polyphony.</p>
+				<h3 class="mb-2 text-xl font-semibold text-slate-900">{m.landing_find_title()}</h3>
+				<p class="text-slate-600">{m.landing_find_desc()}</p>
 			</a>
 
 			<!-- Register Your Collective -->
@@ -86,16 +83,18 @@
 						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
 					</svg>
 				</div>
-				<h3 class="mb-2 text-xl font-semibold text-slate-900">Register your ensemble</h3>
+				<h3 class="mb-2 text-xl font-semibold text-slate-900">{m.landing_register_title()}</h3>
 				<p class="text-slate-600">
-					Start your ensemble's own space — manage your library, members, and events. Free.
+					{m.landing_register_desc()}
 				</p>
 			</a>
 		</div>
 
 		<!-- Features Preview -->
 		<section class="mt-16">
-			<h2 class="mb-8 text-center text-2xl font-semibold text-slate-900">Built for ensembles</h2>
+			<h2 class="mb-8 text-center text-2xl font-semibold text-slate-900">
+				{m.landing_features_heading()}
+			</h2>
 			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 				<div class="text-center">
 					<div
@@ -116,8 +115,8 @@
 							/>
 						</svg>
 					</div>
-					<h3 class="font-medium text-slate-900">Score Library</h3>
-					<p class="text-sm text-slate-500">Works, editions, physical copies</p>
+					<h3 class="font-medium text-slate-900">{m.landing_feature_scores_title()}</h3>
+					<p class="text-sm text-slate-500">{m.landing_feature_scores_desc()}</p>
 				</div>
 				<div class="text-center">
 					<div
@@ -138,8 +137,8 @@
 							/>
 						</svg>
 					</div>
-					<h3 class="font-medium text-slate-900">Member Management</h3>
-					<p class="text-sm text-slate-500">Roles, voices, sections</p>
+					<h3 class="font-medium text-slate-900">{m.landing_feature_members_title()}</h3>
+					<p class="text-sm text-slate-500">{m.landing_feature_members_desc()}</p>
 				</div>
 				<div class="text-center">
 					<div
@@ -160,8 +159,8 @@
 							/>
 						</svg>
 					</div>
-					<h3 class="font-medium text-slate-900">Events & Attendance</h3>
-					<p class="text-sm text-slate-500">Rehearsals, concerts, RSVP</p>
+					<h3 class="font-medium text-slate-900">{m.landing_feature_events_title()}</h3>
+					<p class="text-sm text-slate-500">{m.landing_feature_events_desc()}</p>
 				</div>
 				<div class="text-center">
 					<div
@@ -182,8 +181,8 @@
 							/>
 						</svg>
 					</div>
-					<h3 class="font-medium text-slate-900">Umbrella Support</h3>
-					<p class="text-sm text-slate-500">Manage affiliated choirs</p>
+					<h3 class="font-medium text-slate-900">{m.landing_feature_umbrella_title()}</h3>
+					<p class="text-sm text-slate-500">{m.landing_feature_umbrella_desc()}</p>
 				</div>
 			</div>
 		</section>
@@ -198,7 +197,7 @@
 					class="font-medium text-indigo-600 hover:text-indigo-700">Institute of Beautiful Scores</a
 				>
 			</p>
-			<p class="mt-2 text-xs text-slate-400">Open source · Privacy-first · Built for ensembles</p>
+			<p class="mt-2 text-xs text-slate-400">{m.landing_footer_tagline()}</p>
 			<p class="mt-3 text-xs text-slate-400">
 				<a href="https://github.com/mitselek/polyphony" class="hover:text-indigo-600">GitHub</a>
 				<span class="mx-2">·</span>

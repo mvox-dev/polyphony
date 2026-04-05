@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages.js';
+
 	let { data } = $props();
 
 	const snapshot = $derived(data.snapshot);
@@ -53,21 +55,37 @@
 
 	const memberHistory = $derived(history.map((h: any) => h.member_count));
 	const worksHistory = $derived(history.map((h: any) => h.works_count));
+
+	const eventItems = $derived([
+		{ label: m.dashboard_event_rehearsals(), count: events.rehearsal, color: 'blue' },
+		{ label: m.dashboard_event_concerts(), count: events.concert, color: 'purple' },
+		{ label: m.dashboard_event_retreats(), count: events.retreat, color: 'emerald' },
+		{ label: m.dashboard_event_festivals(), count: events.festival, color: 'amber' }
+	]);
+
+	const authItems = $derived([
+		{ label: m.dashboard_auth_oauth_started(), key: 'oauth_initiated', color: 'indigo' },
+		{ label: m.dashboard_auth_sso_fast_path(), key: 'sso_fast_path', color: 'emerald' },
+		{ label: m.dashboard_auth_oauth_completed(), key: 'oauth_completed', color: 'blue' },
+		{ label: m.dashboard_auth_email_sent(), key: 'email_auth_sent', color: 'amber' },
+		{ label: m.dashboard_auth_email_verified(), key: 'email_auth_verified', color: 'purple' }
+	]);
 </script>
 
 <svelte:head>
-	<title>Dashboard — Polyphony</title>
-	<meta
-		name="description"
-		content="Live platform statistics for Polyphony — federated choral music sharing."
-	/>
+	<title>{m.dashboard_page_title()}</title>
+	<meta name="description" content={m.dashboard_page_description()} />
 </svelte:head>
 
 <div class="min-h-screen bg-linear-to-b from-slate-50 to-white">
 	<!-- Header -->
 	<header class="mx-auto max-w-5xl px-6 pt-12 pb-8">
 		<div class="flex items-center gap-3">
-			<a href="/" class="text-slate-400 hover:text-indigo-600 transition" aria-label="Back to home">
+			<a
+				href="/"
+				class="text-slate-400 hover:text-indigo-600 transition"
+				aria-label={m.common_back_home_aria()}
+			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-5 w-5"
@@ -79,9 +97,9 @@
 					<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
 				</svg>
 			</a>
-			<h1 class="text-3xl font-bold text-slate-900">Platform Dashboard</h1>
+			<h1 class="text-3xl font-bold text-slate-900">{m.dashboard_heading()}</h1>
 		</div>
-		<p class="mt-2 text-slate-500">Live statistics for the Polyphony network</p>
+		<p class="mt-2 text-slate-500">{m.dashboard_subtitle()}</p>
 	</header>
 
 	<main class="mx-auto max-w-5xl px-6 pb-16">
@@ -89,20 +107,22 @@
 			<!-- No data available -->
 			<div class="rounded-2xl bg-white p-12 text-center shadow-sm ring-1 ring-slate-100">
 				<p class="text-slate-500">
-					No dashboard data available yet. Stats will appear once the platform has been running.
+					{m.dashboard_no_data()}
 				</p>
 			</div>
 		{:else}
 			<!-- Vault Stats Cards -->
 			{#if snapshot}
 				<section class="mb-8">
-					<h2 class="mb-4 text-lg font-semibold text-slate-700">Platform Overview</h2>
+					<h2 class="mb-4 text-lg font-semibold text-slate-700">
+						{m.dashboard_section_overview()}
+					</h2>
 					<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 						<!-- Organizations -->
 						<div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
 							<div class="flex items-center justify-between">
 								<div>
-									<p class="text-sm text-slate-500">Organizations</p>
+									<p class="text-sm text-slate-500">{m.dashboard_stat_organizations()}</p>
 									<p class="mt-1 text-2xl font-bold text-slate-900">{snapshot.org_count}</p>
 								</div>
 								<div
@@ -130,7 +150,7 @@
 						<div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
 							<div class="flex items-center justify-between">
 								<div>
-									<p class="text-sm text-slate-500">Members</p>
+									<p class="text-sm text-slate-500">{m.dashboard_stat_members()}</p>
 									<p class="mt-1 text-2xl font-bold text-slate-900">{snapshot.member_count}</p>
 								</div>
 								<div
@@ -168,7 +188,7 @@
 						<div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
 							<div class="flex items-center justify-between">
 								<div>
-									<p class="text-sm text-slate-500">Works</p>
+									<p class="text-sm text-slate-500">{m.dashboard_stat_works()}</p>
 									<p class="mt-1 text-2xl font-bold text-slate-900">{snapshot.works_count}</p>
 								</div>
 								<div
@@ -206,7 +226,7 @@
 						<div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
 							<div class="flex items-center justify-between">
 								<div>
-									<p class="text-sm text-slate-500">Library Size</p>
+									<p class="text-sm text-slate-500">{m.dashboard_stat_library_size()}</p>
 									<p class="mt-1 text-2xl font-bold text-slate-900">
 										{formatSize(snapshot.total_file_size)}
 									</p>
@@ -237,9 +257,11 @@
 				<!-- Today's Events -->
 				{#if events.rehearsal || events.concert || events.retreat || events.festival}
 					<section class="mb-8">
-						<h2 class="mb-4 text-lg font-semibold text-slate-700">Today's Events</h2>
+						<h2 class="mb-4 text-lg font-semibold text-slate-700">
+							{m.dashboard_section_events()}
+						</h2>
 						<div class="grid gap-3 sm:grid-cols-4">
-							{#each [{ label: 'Rehearsals', count: events.rehearsal, color: 'blue' }, { label: 'Concerts', count: events.concert, color: 'purple' }, { label: 'Retreats', count: events.retreat, color: 'emerald' }, { label: 'Festivals', count: events.festival, color: 'amber' }] as item}
+							{#each eventItems as item}
 								{#if item.count > 0}
 									<div class="rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100">
 										<span class="text-sm text-slate-500">{item.label}</span>
@@ -255,9 +277,11 @@
 			<!-- Auth Activity -->
 			{#if activity}
 				<section class="mb-8">
-					<h2 class="mb-4 text-lg font-semibold text-slate-700">Today's Auth Activity</h2>
+					<h2 class="mb-4 text-lg font-semibold text-slate-700">
+						{m.dashboard_section_auth_activity()}
+					</h2>
 					<div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
-						{#each [{ label: 'OAuth Started', key: 'oauth_initiated', color: 'indigo' }, { label: 'SSO Fast Path', key: 'sso_fast_path', color: 'emerald' }, { label: 'OAuth Completed', key: 'oauth_completed', color: 'blue' }, { label: 'Email Sent', key: 'email_auth_sent', color: 'amber' }, { label: 'Email Verified', key: 'email_auth_verified', color: 'purple' }] as item}
+						{#each authItems as item}
 							<div
 								class="rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100 text-center"
 							>
@@ -272,7 +296,7 @@
 					<!-- Auth activity sparkline -->
 					{#if dailyAuthCounts.length > 1}
 						<div class="mt-4 rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-							<p class="mb-2 text-sm text-slate-500">Auth events (30 days)</p>
+							<p class="mb-2 text-sm text-slate-500">{m.dashboard_auth_sparkline_label()}</p>
 							<svg class="h-16 w-full" viewBox="0 0 400 64" preserveAspectRatio="none">
 								<path
 									d={sparklinePath(dailyAuthCounts, 400, 64)}
