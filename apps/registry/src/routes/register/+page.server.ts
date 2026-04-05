@@ -3,6 +3,7 @@
 
 import { redirect, isRedirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { getPresetIds } from '@polyphony/shared';
 
 /**
  * Form action handler for organization registration
@@ -25,6 +26,11 @@ export const actions: Actions = {
 		// Validate required fields
 		if (!name || !contactEmail || !subdomain) {
 			return { success: false, error: 'All fields are required' };
+		}
+
+		// Validate optional sections preset ID
+		if (sections !== undefined && !getPresetIds().includes(sections)) {
+			return { success: false, error: 'Invalid section preset' };
 		}
 
 		try {
