@@ -124,6 +124,24 @@ Only one agent (or defined pair) owns the working branch at any moment. Ownershi
 
 Josquin merges after Bentham GREEN + team-lead approval. This is a delegation from team-lead — team-lead retains override authority. Bentham never merges.
 
+### Merge Procedure
+
+**Always merge locally, never via `gh pr merge`.** This ensures the `prepare-commit-msg` hook runs and adds the co-author trailer.
+
+```bash
+git checkout main
+git pull
+git merge --squash <feature-branch>
+git commit -m "feat(#XXX): description"
+git push
+```
+
+Then close the PR and delete the branch:
+```bash
+gh pr close <number>
+git push origin --delete <feature-branch>
+```
+
 ### Issue Closure
 
 **Only team-lead closes issues.** After merge, team-lead posts a structured completion comment:
