@@ -100,7 +100,8 @@
 
 	function handleClickOutside(e: MouseEvent) {
 		const target = e.target as HTMLElement;
-		if (!target.isConnected || !target.closest('.reassign-dropdown')) {
+		if (!target.isConnected) return;
+		if (!target.closest('.reassign-dropdown')) {
 			openReassignDropdown = null;
 			confirmingDeleteId = null;
 		}
