@@ -130,7 +130,10 @@ async function handleLogin(
   const returnTo = cookies.get("auth_return_to");
   cookies.delete("auth_return_to", { path: "/" });
   const destination =
-    returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")
+    returnTo &&
+    returnTo.startsWith("/") &&
+    !returnTo.startsWith("//") &&
+    !returnTo.startsWith("/\\")
       ? returnTo
       : "/";
   throw redirect(302, destination);

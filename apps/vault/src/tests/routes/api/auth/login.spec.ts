@@ -129,39 +129,33 @@ describe("GET /api/auth/login — return_to open-redirect guard", () => {
       );
     });
 
-    // RED (#296): guard does not yet reject /\ prefix — convert to it() when fixed
-    it.fails(
-      "does NOT set cookie for backslash bypass (/\\evil.com)",
-      async () => {
-        // /\evil.com passes startsWith("/") && !startsWith("//") but Chromium
-        // normalises \ → / in Location headers, turning it into //evil.com
-        const event = createMockEvent("/\\evil.com");
+    // GREEN (#296): guard now rejects /\ prefix
+    it("does NOT set cookie for backslash bypass (/\\evil.com)", async () => {
+      // /\evil.com passes startsWith("/") && !startsWith("//") but Chromium
+      // normalises \ → / in Location headers, turning it into //evil.com
+      const event = createMockEvent("/\\evil.com");
 
-        await expect(GET(event as any)).rejects.toThrow("Redirect to");
+      await expect(GET(event as any)).rejects.toThrow("Redirect to");
 
-        expect(event.cookies.set).not.toHaveBeenCalledWith(
-          "auth_return_to",
-          expect.anything(),
-          expect.anything(),
-        );
-      },
-    );
+      expect(event.cookies.set).not.toHaveBeenCalledWith(
+        "auth_return_to",
+        expect.anything(),
+        expect.anything(),
+      );
+    });
 
-    // RED (#296): convert to it() when fixed
-    it.fails(
-      "does NOT set cookie for double-backslash variant (/\\\\/evil.com)",
-      async () => {
-        const event = createMockEvent("/\\\\/evil.com");
+    // GREEN (#296): guard now rejects /\ prefix
+    it("does NOT set cookie for double-backslash variant (/\\\\/evil.com)", async () => {
+      const event = createMockEvent("/\\\\/evil.com");
 
-        await expect(GET(event as any)).rejects.toThrow("Redirect to");
+      await expect(GET(event as any)).rejects.toThrow("Redirect to");
 
-        expect(event.cookies.set).not.toHaveBeenCalledWith(
-          "auth_return_to",
-          expect.anything(),
-          expect.anything(),
-        );
-      },
-    );
+      expect(event.cookies.set).not.toHaveBeenCalledWith(
+        "auth_return_to",
+        expect.anything(),
+        expect.anything(),
+      );
+    });
 
     it("does NOT set cookie for mixed slash-backslash (//\\evil.com)", async () => {
       const event = createMockEvent("//\\evil.com");

@@ -115,9 +115,9 @@ beforeEach(() => {
 
 // ─── Backslash bypass vectors ─────────────────────────────────────────────────
 
-// RED (#296): convert all it.fails() to it() once the guard rejects /\ prefix
+// GREEN (#296): guard now rejects /\ prefix
 describe("callback redirect guard — backslash bypass (#296)", () => {
-  it.fails("redirects to / when auth_return_to is /\\evil.com", async () => {
+  it("redirects to / when auth_return_to is /\\evil.com", async () => {
     const cookies = makeCookies("/\\evil.com");
 
     const err: any = await Promise.resolve(GET(makeEvent(cookies))).catch(
@@ -127,7 +127,7 @@ describe("callback redirect guard — backslash bypass (#296)", () => {
     expect(err.location).toBe("/");
   });
 
-  it.fails("redirects to / when auth_return_to is /\\\\/evil.com", async () => {
+  it("redirects to / when auth_return_to is /\\\\/evil.com", async () => {
     const cookies = makeCookies("/\\\\/evil.com");
 
     const err: any = await Promise.resolve(GET(makeEvent(cookies))).catch(
@@ -148,18 +148,15 @@ describe("callback redirect guard — backslash bypass (#296)", () => {
     expect(err.location).toBe("/");
   });
 
-  it.fails(
-    "redirects to / when auth_return_to is /\\\\evil.com (multiple backslashes)",
-    async () => {
-      const cookies = makeCookies("/\\\\evil.com");
+  it("redirects to / when auth_return_to is /\\\\evil.com (multiple backslashes)", async () => {
+    const cookies = makeCookies("/\\\\evil.com");
 
-      const err: any = await Promise.resolve(GET(makeEvent(cookies))).catch(
-        (e: unknown) => e,
-      );
+    const err: any = await Promise.resolve(GET(makeEvent(cookies))).catch(
+      (e: unknown) => e,
+    );
 
-      expect(err.location).toBe("/");
-    },
-  );
+    expect(err.location).toBe("/");
+  });
 });
 
 // ─── Existing guards regression ───────────────────────────────────────────────
