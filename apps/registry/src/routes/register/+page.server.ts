@@ -20,6 +20,7 @@ export const actions: Actions = {
 		const name = formData.get('name')?.toString()?.trim();
 		const contactEmail = formData.get('email')?.toString()?.trim();
 		const subdomain = formData.get('subdomain')?.toString()?.toLowerCase()?.trim();
+		const sections = formData.get('sections')?.toString()?.trim() || undefined;
 
 		// Validate required fields
 		if (!name || !contactEmail || !subdomain) {
@@ -62,7 +63,8 @@ export const actions: Actions = {
 					name,
 					subdomain,
 					type: 'collective',
-					contactEmail
+					contactEmail,
+					...(sections ? { sections } : {})
 				})
 			});
 
