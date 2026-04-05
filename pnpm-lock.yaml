@@ -43,6 +43,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20260401.1
         version: 4.20260401.1
+      '@inlang/paraglide-js':
+        specifier: ^2.10.0
+        version: 2.12.0
       '@sveltejs/adapter-cloudflare':
         specifier: ^6.0.0
         version: 6.0.1(@sveltejs/kit@2.52.0(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.51.2)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)))(svelte@5.51.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)))(wrangler@4.79.0(@cloudflare/workers-types@4.20260401.1))
@@ -4086,8 +4089,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.15.0
-      acorn-jsx: 5.3.2(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-jsx: 5.3.2(acorn@8.16.0)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -4743,7 +4746,7 @@ snapshots:
   unplugin@2.3.11:
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      acorn: 8.15.0
+      acorn: 8.16.0
       picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
 
