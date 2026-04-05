@@ -31,6 +31,7 @@ Every message you send via SendMessage must be prepended with the current timest
 
 All persistent text output (architecture decisions, PR descriptions, shared knowledge files, scratchpad entries) must carry the author's name: `(*PD:<AgentName>*)`. Place on a new line below the block, or next to the section heading if you wrote the entire section.
 
+
 ## Stack
 
 | Component       | Technology                 | Notes                                                     |

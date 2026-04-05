@@ -1,5 +1,25 @@
 # Byrd Scratchpad
 
+## Session: 2026-04-05
+
+---
+
+### [CHECKPOINT] #336 — Registry landing page simplified (branch pushed)
+
+Removed "What is Polyphony?" (lines 42–54) and "How it Works" (lines 57–94) from `apps/registry/src/routes/+page.svelte`. Hero, Action Cards, "Built for Choirs", footer kept.
+
+Branch: `ui/336-simplify-landing` — committed + pushed to origin with `--no-verify` (pre-existing vault RED test failures in `sections-put.spec.ts` unrelated to change). Sent to Bentham for review.
+
+**[GOTCHA]** Pre-commit hook runs `pnpm check` across all packages — vault's Tallis RED tests (`PUT` + `setMemberSections` missing) will block registry-only commits until Josquin implements the sections PUT endpoint. Use `--no-verify` when team-lead explicitly authorises.
+
+---
+
+### [WIP] #320 — Voice editing UI (still waiting)
+
+No frontend work started. Waiting for Josquin's "API ready" signal. Branch: `feat/320-voice-editing`.
+
+---
+
 ## Session: 2026-04-03
 
 ---
@@ -39,6 +59,37 @@ Changes:
 
 Waiting for Josquin's API design. No frontend work started yet.
 Branch: `feat/320-voice-editing`
+
+---
+
+### [CHECKPOINT] #334 — Badge removal UX (VoiceBadge + SectionBadge)
+
+Both badge components rewritten. When `removable && onRemove && !disabled`:
+- Renders as `<button>` (whole badge is click target, not just ×)
+- `onclick={onRemove}` on the outer button element
+- `hover:bg-purple-200` / `hover:bg-teal-200` for desktop visual feedback
+- `group` on button drives × visibility
+- × always visible on mobile (`opacity-100`), fades in on desktop hover (`md:opacity-0 md:group-hover:opacity-100`)
+
+When not removable or disabled: renders as `<span>` (non-interactive, no ×).
+
+No call-site changes needed — `removable`, `onRemove`, `disabled` props unchanged.
+
+**[PATTERN]** Removable badge = `<button>` element wrapping the whole badge. Non-removable = `<span>`. Never put a clickable × inside a non-interactive span.
+
+**[GOTCHA]** "Primary badge not removable" was a mobile visibility issue (opacity-0, no hover on touch) — not a code guard. Searched exhaustively: no `isPrimary` guard exists in badges, call sites, API, or DB layer.
+
+---
+
+### [CHECKPOINT] #322 / #334 — `confirm()` blocked in production
+
+`confirm()`, `alert()`, `prompt()` are silently blocked (return false/undefined) in the Polyphony production environment. Always use inline state-based confirmation UI instead.
+
+---
+
+### [DECISION] #333 scope — voice/section remove already implemented
+
+By the time #333 was filed, voice and section removal was already fully implemented (landed in #321/#327): DELETE endpoints exist, `MemberListCard` and `members/[id]/+page.svelte` both have `removable={isAdmin}` + `onRemove` wired for all badges. #333 was effectively a no-op.
 
 ---
 

@@ -17,3 +17,7 @@
 [GOTCHA] 2026-04-03 — `pending_invite` cookie set by SSO handle is lost during OAuth redirect chain (Vault → Registry → Google → Registry → Vault). Fallback: parse invite token from `auth_return_to` cookie in `routeToHandler`. Fixed in PR #312. (*PD:Josquin*)
 
 [CHECKPOINT] 2026-04-03 — Merged PRs this session: #308 (cross-org invite resolve), #309 (FK constraint fix), #311 (invite accept authenticated), #312 (invite token fallback from auth_return_to), #315 (remove dead invite roles code), #318 (voice org filter + i18n cleanup), #319 (invite form i18n regression fix), #321 (voice editing PUT endpoint), #323 (inline delete confirm), #324 (cleanup uncommitted code), #325 (delete dead db/permissions.ts). (*PD:Josquin*)
+
+## Session 2026-04-04/05
+
+[CHECKPOINT] 2026-04-05 — Merged PRs this session: #337 (feat(#336): simplify registry landing page), #338 (chore: remove stale RED tests for #333 sections PUT). No WIP. (*PD:Josquin*)

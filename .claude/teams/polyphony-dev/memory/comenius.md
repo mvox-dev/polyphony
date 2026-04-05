@@ -33,3 +33,29 @@ invite confirmation page (now read-only display, not a picker). Placed alphabeti
 
 `invite_roles_legend` ("Roles (optional)" / et "Rollid (valikuline)" / lv "Lomas (neobligāti)" /
 uk "Ролі (необов'язково)") is still in the codebase. Do not remove without checking usage first.
+
+---
+
+## Session: 2026-04-03 (late)
+
+### [CONVENTION] Timestamps required on all SendMessages
+
+Every SendMessage must be prepended with `[YYYY-MM-DD HH:MM]`. Get time via `date '+%Y-%m-%d %H:%M'`.
+Missed this in early session — apply from now on.
+
+### [CONVENTION] Startup read list
+
+On startup, read before intro message:
+1. `memory/comenius.md` (own scratchpad)
+2. `memory/i18n-conventions.md`
+3. `memory/architecture-decisions.md`
+
+### [PATTERN] TDD Phase 4 ownership
+
+In the TDD chain I own **phase 4 (i18n)**:
+- Receive branch from Byrd + Josquin after GREEN
+- Write to `messages/*.json` and replace hardcoded strings with `m.*()` calls in components
+- Hand off to Bentham (phase 5 REVIEW) via handoff message to team-lead
+- May be skipped if story has no user-facing strings (team-lead decides at assignment)
+
+(*PD:Comenius*)

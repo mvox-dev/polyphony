@@ -2,7 +2,7 @@
 
 ## Session State
 
-[CHECKPOINT] Session 2026-04-03 — Came online, introduced self to team-lead. No tasks assigned this session. Standby throughout.
+[CHECKPOINT] Session 2026-04-03 — Came online, introduced self to team-lead. No tasks assigned. Clarified that "TDD Partners" prompt update was for TDD chain agents only (Tallis, Josquin, Byrd, Bentham) — Victoria not part of that chain. No prompt changes for me.
 
 ## Pending Work
 
