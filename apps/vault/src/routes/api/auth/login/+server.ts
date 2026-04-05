@@ -10,7 +10,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
   // Store return_to in a cookie so auth callback can redirect back to intended page
   const returnTo = url.searchParams.get("return_to");
-  if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+  if (
+    returnTo &&
+    returnTo.startsWith("/") &&
+    !returnTo.startsWith("//") &&
+    !returnTo.startsWith("/\\")
+  ) {
     cookies.set("auth_return_to", returnTo, {
       path: "/",
       httpOnly: true,
