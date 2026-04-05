@@ -6,6 +6,25 @@ import {
 } from "../../../../../routes/api/public/organizations/+server";
 import type { RequestEvent } from "@sveltejs/kit";
 
+// Helper: build a mock D1Database that also supports db.batch()
+function makeMockDb(overrides?: Partial<D1Database>): D1Database {
+  const prepared = {
+    bind: vi.fn(function (this: unknown) {
+      return { run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }) };
+    }),
+    run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
+    all: vi.fn().mockResolvedValue({ results: [] }),
+    first: vi.fn().mockResolvedValue(null),
+  };
+  return {
+    prepare: vi.fn(() => prepared),
+    batch: vi.fn().mockResolvedValue([]),
+    dump: vi.fn(),
+    exec: vi.fn(),
+    ...overrides,
+  } as unknown as D1Database;
+}
+
 type OrgParams = Record<string, never>;
 type OrgResponse =
   | { organizations: any[] }
@@ -355,5 +374,221 @@ describe("POST /api/public/organizations", () => {
     } catch (err: any) {
       expect(err.status).toBe(500);
     }
+  });
+});
+
+// ─── POST with sections preset (#340) ────────────────────────────────────────
+
+describe("POST /api/public/organizations — with sections preset", () => {
+  let mockEvent: Partial<RequestEvent>;
+
+  beforeEach(() => {
+    mockEvent = {
+      request: { json: vi.fn() } as unknown as Request,
+      platform: { env: { DB: makeMockDb() } },
+    } as any;
+  });
+
+  it("accepts a valid sections preset ID and returns 201", async () => {
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: "satb",
+    });
+
+    const response = await POST(mockEvent as any);
+    expect(response.status).toBe(201);
+  });
+
+  it("calls db.batch() to insert sections when preset is provided", async () => {
+    const db = makeMockDb();
+    mockEvent.platform = { env: { DB: db } } as any;
+
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: "satb",
+    });
+
+    await POST(mockEvent as any);
+
+    // createPresetSections calls db.batch() at least once for the INSERT pass
+    expect(db.batch).toHaveBeenCalled();
+  });
+
+  it("calls db.batch() twice for hierarchical preset (inserts + parent updates)", async () => {
+    const db = makeMockDb();
+    mockEvent.platform = { env: { DB: db } } as any;
+
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: "ssaattbb",
+    });
+
+    await POST(mockEvent as any);
+
+    // First batch: all 12 INSERT statements
+    // Second batch: parent_section_id UPDATE statements for 8 children
+    expect((db.batch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
+  });
+
+  it("first batch for ssaattbb contains 12 prepared statements", async () => {
+    const batchCalls: D1PreparedStatement[][] = [];
+    const db = makeMockDb({
+      batch: vi.fn((stmts: D1PreparedStatement[]) => {
+        batchCalls.push(stmts);
+        return Promise.resolve([]);
+      }),
+    });
+    mockEvent.platform = { env: { DB: db } } as any;
+
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: "ssaattbb",
+    });
+
+    await POST(mockEvent as any);
+
+    expect(batchCalls[0]).toHaveLength(12);
+  });
+
+  it("second batch for ssaattbb contains 8 parent update statements", async () => {
+    const batchCalls: D1PreparedStatement[][] = [];
+    const db = makeMockDb({
+      batch: vi.fn((stmts: D1PreparedStatement[]) => {
+        batchCalls.push(stmts);
+        return Promise.resolve([]);
+      }),
+    });
+    mockEvent.platform = { env: { DB: db } } as any;
+
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: "ssaattbb",
+    });
+
+    await POST(mockEvent as any);
+
+    // ssaattbb has 8 child sections (S1, S2, A1, A2, T1, T2, B1, B2)
+    expect(batchCalls[1]).toHaveLength(8);
+  });
+
+  it("rejects invalid sections preset ID with 400", async () => {
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: "bagpipe-choir",
+    });
+
+    await expect(POST(mockEvent as any)).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("rejects non-string sections value with 400", async () => {
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: 42,
+    });
+
+    await expect(POST(mockEvent as any)).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("rejects sections: null with 400", async () => {
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Test Choir",
+      subdomain: "testchoir",
+      type: "collective",
+      contactEmail: "test@example.com",
+      sections: null,
+    });
+
+    await expect(POST(mockEvent as any)).rejects.toMatchObject({ status: 400 });
+  });
+});
+
+// ─── POST without sections — backward compatibility (#340) ───────────────────
+
+describe("POST /api/public/organizations — without sections (backward compat)", () => {
+  let mockDB: D1Database;
+  let mockEvent: Partial<RequestEvent>;
+
+  beforeEach(() => {
+    mockDB = makeMockDb();
+    mockEvent = {
+      request: { json: vi.fn() } as unknown as Request,
+      platform: { env: { DB: mockDB } },
+    } as any;
+  });
+
+  it("returns 201 when sections field is absent", async () => {
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Classic Choir",
+      subdomain: "classic",
+      type: "collective",
+      contactEmail: "classic@example.com",
+    });
+
+    const response = await POST(mockEvent as any);
+    expect(response.status).toBe(201);
+  });
+
+  it("does NOT call db.batch() for section inserts when sections is absent", async () => {
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Classic Choir",
+      subdomain: "classic",
+      type: "collective",
+      contactEmail: "classic@example.com",
+    });
+
+    await POST(mockEvent as any);
+
+    expect(mockDB.batch).not.toHaveBeenCalled();
+  });
+
+  it("still creates organization and owner member", async () => {
+    const queries: string[] = [];
+    const db = makeMockDb({
+      prepare: vi.fn((sql: string) => {
+        queries.push(sql);
+        return {
+          bind: vi.fn(() => ({
+            run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
+          })),
+        } as unknown as D1PreparedStatement;
+      }),
+    });
+    mockEvent.platform = { env: { DB: db } } as any;
+
+    (mockEvent.request!.json as any) = vi.fn().mockResolvedValue({
+      name: "Classic Choir",
+      subdomain: "classic",
+      type: "collective",
+      contactEmail: "classic@example.com",
+    });
+
+    const response = await POST(mockEvent as any);
+    expect(response.status).toBe(201);
+
+    expect(queries.some((q) => q.includes("INSERT INTO members"))).toBe(true);
+    expect(queries.some((q) => q.includes("INSERT INTO member_roles"))).toBe(
+      true,
+    );
   });
 });
