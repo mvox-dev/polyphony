@@ -12,6 +12,7 @@ import {
 import { registerSubdomain } from "$lib/server/cloudflare/domains";
 import type { CreateOrganizationInput } from "$lib/types";
 import { generateId } from "$lib/server/utils/id";
+import { flattenPreset, getPresetIds } from "@polyphony/shared";
 
 /**
  * GET /api/public/organizations
@@ -50,10 +51,15 @@ function validateStringField(
   return value.trim();
 }
 
+interface OrgCreationParsed {
+  org: CreateOrganizationInput;
+  sectionPresetId: string | null;
+}
+
 /**
  * Parse and validate organization creation request body
  */
-function parseOrgCreationInput(body: unknown): CreateOrganizationInput {
+function parseOrgCreationInput(body: unknown): OrgCreationParsed {
   if (!body || typeof body !== "object") {
     throw error(400, "Request body must be an object");
   }
@@ -74,11 +80,29 @@ function parseOrgCreationInput(body: unknown): CreateOrganizationInput {
     );
   }
 
+  let sectionPresetId: string | null = null;
+  if (input.sections !== undefined) {
+    if (typeof input.sections !== "string") {
+      throw error(400, "Invalid field: sections (must be a preset ID string)");
+    }
+    const validIds = getPresetIds();
+    if (!validIds.includes(input.sections)) {
+      throw error(
+        400,
+        `Invalid sections preset: "${input.sections}". Valid: ${validIds.join(", ")}`,
+      );
+    }
+    sectionPresetId = input.sections;
+  }
+
   return {
-    name,
-    subdomain: subdomain.toLowerCase(),
-    type: input.type,
-    contactEmail,
+    org: {
+      name,
+      subdomain: subdomain.toLowerCase(),
+      type: input.type,
+      contactEmail,
+    },
+    sectionPresetId,
   };
 }
 
@@ -117,9 +141,63 @@ async function createOwnerMember(
   return { memberId, email: contactEmail };
 }
 
+async function createPresetSections(
+  db: D1Database,
+  orgId: string,
+  presetId: string,
+): Promise<void> {
+  const flat = flattenPreset(presetId);
+
+  // First pass: insert all sections (without parent references)
+  const idMap = new Map<string, string>(); // name → generated section id
+  const statements: D1PreparedStatement[] = [];
+
+  for (const section of flat) {
+    const id = `${orgId}-${section.name.toLowerCase().replace(/\s+/g, "-")}`;
+    idMap.set(section.name, id);
+
+    statements.push(
+      db
+        .prepare(
+          "INSERT INTO sections (id, org_id, name, abbreviation, parent_section_id, display_order, is_active) VALUES (?, ?, ?, ?, NULL, ?, 1)",
+        )
+        .bind(
+          id,
+          orgId,
+          section.name,
+          section.abbreviation,
+          section.displayOrder,
+        ),
+    );
+  }
+
+  await db.batch(statements);
+
+  // Second pass: set parent references for sections that have them
+  const parentUpdates: D1PreparedStatement[] = [];
+  for (const section of flat) {
+    if (section.parentName) {
+      const childId = idMap.get(section.name);
+      const parentId = idMap.get(section.parentName);
+      if (childId && parentId) {
+        parentUpdates.push(
+          db
+            .prepare("UPDATE sections SET parent_section_id = ? WHERE id = ?")
+            .bind(parentId, childId),
+        );
+      }
+    }
+  }
+
+  if (parentUpdates.length > 0) {
+    await db.batch(parentUpdates);
+  }
+}
+
 async function performOrganizationCreation(
   db: D1Database,
   orgInput: CreateOrganizationInput,
+  sectionPresetId: string | null,
   env: {
     CF_ACCOUNT_ID?: string;
     CF_API_TOKEN?: string;
@@ -134,6 +212,11 @@ async function performOrganizationCreation(
     organization.id,
     orgInput.contactEmail,
   );
+
+  // Create preset sections if specified
+  if (sectionPresetId) {
+    await createPresetSections(db, organization.id, sectionPresetId);
+  }
 
   const domainResult = await registerSubdomain(orgInput.subdomain, {
     CF_ACCOUNT_ID: env.CF_ACCOUNT_ID,
@@ -174,12 +257,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     throw error(400, "Invalid JSON body");
   }
 
-  const orgInput = parseOrgCreationInput(body);
+  const { org: orgInput, sectionPresetId } = parseOrgCreationInput(body);
 
   try {
     const { organization, owner } = await performOrganizationCreation(
       platform.env.DB,
       orgInput,
+      sectionPresetId,
       {
         CF_ACCOUNT_ID: platform.env.CF_ACCOUNT_ID,
         CF_API_TOKEN: platform.env.CF_API_TOKEN,
