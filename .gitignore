@@ -52,3 +52,4 @@ apps/vault/src/lib/paraglide/
 
 # Seed documents (internal notes)
 docs/seed documents/
+.claude/teams/polyphony-dev/wrangler-logs/
