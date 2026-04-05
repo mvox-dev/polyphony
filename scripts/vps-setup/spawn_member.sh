@@ -22,6 +22,10 @@ TEAM_DIR="$HOME/.claude/teams/$TEAM_NAME"
 CONFIG="$TEAM_DIR/config.json"
 ROSTER="$HOME/workspace/.claude/teams/polyphony-dev/roster.json"
 PROMPTS_DIR="$HOME/workspace/.claude/teams/polyphony-dev/prompts"
+TOKENS_FILE="$HOME/.polyphony-tokens"
+
+# Agents with dedicated worktrees
+WORKTREE_AGENTS="byrd josquin tallis comenius"
 
 [[ -f "$CONFIG" ]] || { echo "ERROR: $CONFIG not found. Run TeamCreate first."; exit 1; }
 [[ -f "$ROSTER" ]] || { echo "ERROR: $ROSTER not found."; exit 1; }
@@ -52,6 +56,24 @@ fi
 
 LEAD_SESSION_ID=$(jq -r '.leadSessionId' "$CONFIG")
 
+# Resolve working directory: worktree agents get ~/worktrees/<name>, others get ~/workspace
+AGENT_CWD="$HOME/workspace"
+if echo "$WORKTREE_AGENTS" | grep -qw "$AGENT_NAME"; then
+  WORKTREE_DIR="$HOME/worktrees/$AGENT_NAME"
+  if [[ -d "$WORKTREE_DIR" ]]; then
+    AGENT_CWD="$WORKTREE_DIR"
+  else
+    echo "WARNING: Worktree $WORKTREE_DIR not found, using ~/workspace"
+  fi
+fi
+
+# Resolve GH_TOKEN from tokens file (YAML: grep agent block, extract pat)
+AGENT_GH_TOKEN=""
+if [[ -f "$TOKENS_FILE" ]]; then
+  AGENT_GH_TOKEN=$(awk "/^  ${AGENT_NAME}:/{found=1} found && /pat:/{print \$2; exit}" "$TOKENS_FILE")
+  [[ "$AGENT_GH_TOKEN" == "~" ]] && AGENT_GH_TOKEN=""
+fi
+
 SPAWN_SCRIPT=$(mktemp /tmp/spawn-cmd-XXXXXX.sh)
 {
   echo '#!/usr/bin/env bash'
@@ -60,6 +82,10 @@ SPAWN_SCRIPT=$(mktemp /tmp/spawn-cmd-XXXXXX.sh)
   echo '[ -f /opt/warp-ca.pem ] && export NODE_EXTRA_CA_CERTS=/opt/warp-ca.pem'
   echo 'source ~/.bashrc 2>/dev/null || true'
   echo "export CLAUDE_ENV_ID=\"POLY\""
+  echo "cd \"$AGENT_CWD\""
+  if [[ -n "$AGENT_GH_TOKEN" ]]; then
+    echo "export GH_TOKEN=\"$AGENT_GH_TOKEN\""
+  fi
   if [[ -n "$PROMPT_FILE" ]]; then
     echo "PROMPT=\"\$(cat '$PROMPT_FILE')\""
   fi
@@ -91,6 +117,7 @@ jq --arg name "$AGENT_NAME" \
    --arg color "$COLOR" \
    --arg paneId "$TMUX_PANE_ID" \
    --argjson joinedAt "$TIMESTAMP" \
+   --arg cwd "$AGENT_CWD" \
    '.members += [{
      agentId: $agentId,
      name: $name,
@@ -100,7 +127,7 @@ jq --arg name "$AGENT_NAME" \
      joinedAt: $joinedAt,
      tmuxPaneId: $paneId,
      backendType: "tmux",
-     cwd: "",
+     cwd: $cwd,
      subscriptions: []
    }]' "$CONFIG" > "${CONFIG}.tmp" && mv "${CONFIG}.tmp" "$CONFIG"
 
