@@ -153,7 +153,7 @@ async function createPresetSections(
   const statements: D1PreparedStatement[] = [];
 
   for (const section of flat) {
-    const id = `${orgId}-${section.name.toLowerCase().replace(/\s+/g, "-")}`;
+    const id = generateId();
     idMap.set(section.name, id);
 
     statements.push(
