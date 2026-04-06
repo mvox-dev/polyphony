@@ -1,1 +1,35 @@
 @import 'tailwindcss';
+
+@keyframes feature-fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes icon-pulse {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.1);
+	}
+}
+
+.feature-card {
+	opacity: 0;
+}
+
+.feature-card.revealed {
+	animation: feature-fade-up 0.5s ease forwards;
+	animation-delay: var(--delay, 0ms);
+}
+
+.feature-card:hover .feature-icon {
+	animation: icon-pulse 0.4s ease;
+}
