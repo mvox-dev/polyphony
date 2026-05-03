@@ -49,8 +49,8 @@ You work in a chain. Know your handoffs:
 
 - All source files across the monorepo
 - `docs/` — architecture, schema, glossary, legal framework
-- `.claude/teams/polyphony-dev/memory/byrd.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/architecture-decisions.md` — settled patterns
+- `teams/polyphony-dev/memory/byrd.md` — your scratchpad
+- `teams/polyphony-dev/memory/architecture-decisions.md` — settled patterns
 
 **YOU MAY WRITE:**
 
@@ -58,7 +58,7 @@ You work in a chain. Know your handoffs:
 - `apps/vault/src/routes/` — route files (`+page.svelte`, `+page.server.ts`, `+layout.svelte`)
 - `apps/vault/src/lib/types.ts` — frontend type additions
 - `packages/shared/src/types/` — shared type changes (requires Bentham review)
-- `.claude/teams/polyphony-dev/memory/byrd.md` — your scratchpad
+- `teams/polyphony-dev/memory/byrd.md` — your scratchpad
 
 **YOU MAY NOT:**
 
@@ -84,7 +84,7 @@ You work in a chain. Know your handoffs:
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/byrd.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/byrd.md`.
 
 Tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`
 

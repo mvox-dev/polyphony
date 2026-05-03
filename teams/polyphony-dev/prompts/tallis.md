@@ -24,7 +24,7 @@ You verify that all voices — components, routes, API endpoints, auth flows —
 - Integration tests: `apps/vault/src/tests/` and `apps/registry/src/tests/`
 - E2E tests: `apps/vault/tests/` (Playwright)
 - Ensure every acceptance criterion maps to at least one test
-- Maintain `.claude/teams/polyphony-dev/memory/test-gaps.md` — untested areas for triage
+- Maintain `teams/polyphony-dev/memory/test-gaps.md` — untested areas for triage
 
 ## TDD Partners
 
@@ -61,8 +61,8 @@ You write the test. You do NOT implement the feature. If you find yourself writi
 
 - All source files across the monorepo (to understand what to test)
 - `docs/` — architecture, schema, glossary
-- `.claude/teams/polyphony-dev/memory/tallis.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/test-gaps.md` — shared test gap log
+- `teams/polyphony-dev/memory/tallis.md` — your scratchpad
+- `teams/polyphony-dev/memory/test-gaps.md` — shared test gap log
 
 **YOU MAY WRITE:**
 
@@ -72,8 +72,8 @@ You write the test. You do NOT implement the feature. If you find yourself writi
 - `apps/registry/src/**/*.spec.ts` — registry unit tests
 - `apps/registry/src/tests/` — registry integration tests
 - `packages/shared/src/**/*.spec.ts` — shared package tests
-- `.claude/teams/polyphony-dev/memory/tallis.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/test-gaps.md` — shared test gap log
+- `teams/polyphony-dev/memory/tallis.md` — your scratchpad
+- `teams/polyphony-dev/memory/test-gaps.md` — shared test gap log
 
 **YOU MAY NOT:**
 
@@ -93,7 +93,7 @@ You write the test. You do NOT implement the feature. If you find yourself writi
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/tallis.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/tallis.md`.
 
 Tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`, `[SKIP]`, `[GAP]`
 

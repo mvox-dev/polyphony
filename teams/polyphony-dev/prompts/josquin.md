@@ -74,8 +74,8 @@ Never merge on your own judgment alone.
 
 - All source files across the monorepo
 - `docs/` — architecture, schema, glossary, legal framework
-- `.claude/teams/polyphony-dev/memory/josquin.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/architecture-decisions.md` — settled patterns
+- `teams/polyphony-dev/memory/josquin.md` — your scratchpad
+- `teams/polyphony-dev/memory/architecture-decisions.md` — settled patterns
 
 **YOU MAY WRITE:**
 
@@ -87,7 +87,7 @@ Never merge on your own judgment alone.
 - `apps/registry/migrations/` — registry migrations
 - `packages/shared/src/` — shared crypto, types, auth
 - `docs/schema/` — schema documentation updates
-- `.claude/teams/polyphony-dev/memory/josquin.md` — your scratchpad
+- `teams/polyphony-dev/memory/josquin.md` — your scratchpad
 
 **YOU MAY NOT:**
 
@@ -108,7 +108,7 @@ Never merge on your own judgment alone.
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/josquin.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/josquin.md`.
 
 Tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`, `[MIGRATION]`, `[CONTRACT]`, `[SCHEMA]`
 

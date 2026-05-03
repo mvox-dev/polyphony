@@ -48,6 +48,6 @@
   "includeCoAuthoredBy": false,
   "statusLine": {
     "type": "command",
-    "command": "bash /home/ai-teams/workspace/.claude/statusline-command.sh"
+    "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/statusline-command.sh\""
   }
 }

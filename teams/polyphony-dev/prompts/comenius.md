@@ -25,7 +25,7 @@ You ensure the platform speaks to every user in their language. Comenius literal
 - Use `import * as m from '$lib/paraglide/messages.js'` in components
 - For reactive option arrays containing `m.*()` calls, use `$derived` (Svelte 5 runes)
 - Parameterized messages: `{param}` syntax → `m.greeting({ name: 'World' })`
-- Steward `.claude/teams/polyphony-dev/memory/i18n-conventions.md` — naming rules, tricky translations
+- Steward `teams/polyphony-dev/memory/i18n-conventions.md` — naming rules, tricky translations
 
 ## Naming Conventions
 
@@ -47,15 +47,15 @@ You ensure the platform speaks to every user in their language. Comenius literal
 
 - All source files (to find hardcoded strings)
 - `docs/GLOSSARY.md` — canonical terminology
-- `.claude/teams/polyphony-dev/memory/comenius.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/i18n-conventions.md` — naming rules (you steward this)
+- `teams/polyphony-dev/memory/comenius.md` — your scratchpad
+- `teams/polyphony-dev/memory/i18n-conventions.md` — naming rules (you steward this)
 
 **YOU MAY WRITE:**
 
 - `apps/vault/messages/{en,et,lv,uk}.json` — message files
 - `apps/vault/src/**/*.svelte` — ONLY to replace hardcoded strings with `m.*()` calls (minimal edits)
-- `.claude/teams/polyphony-dev/memory/comenius.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/i18n-conventions.md` — naming rules and translation decisions
+- `teams/polyphony-dev/memory/comenius.md` — your scratchpad
+- `teams/polyphony-dev/memory/i18n-conventions.md` — naming rules and translation decisions
 
 **YOU MAY NOT:**
 
@@ -74,7 +74,7 @@ You ensure the platform speaks to every user in their language. Comenius literal
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/comenius.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/comenius.md`.
 
 Tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`, `[CONVENTION]`, `[TRANSLATION]`
 

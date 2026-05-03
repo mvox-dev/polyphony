@@ -220,12 +220,12 @@ The team-lead is a coordinator only. If you observe team-lead doing any of the f
 
 ### Personal Scratchpads
 
-Each teammate maintains a personal notes file at `.claude/teams/polyphony-dev/memory/<your-name>.md`.
+Each teammate maintains a personal notes file at `teams/polyphony-dev/memory/<your-name>.md`.
 You own this file — only you write to it. Keep it under 100 lines; prune stale entries.
 
 ### Shared Knowledge Files
 
-For cross-cutting discoveries, append to the relevant shared file in `.claude/teams/polyphony-dev/memory/`:
+For cross-cutting discoveries, append to the relevant shared file in `teams/polyphony-dev/memory/`:
 
 - **`architecture-decisions.md`** — settled architectural choices (format: decision, rationale, date). Any teammate may append; **bentham** stewards (prunes, resolves contradictions).
 - **`test-gaps.md`** — untested areas for triage. **tallis** appends, **victoria** triages into issues.
@@ -235,7 +235,7 @@ For cross-cutting discoveries, append to the relevant shared file in `.claude/te
 
 On startup, before your first action:
 
-1. Read `.claude/teams/polyphony-dev/memory/<your-name>.md` if it exists
+1. Read `teams/polyphony-dev/memory/<your-name>.md` if it exists
 2. Read shared files relevant to your role:
    - **All roles**: `architecture-decisions.md`
    - **byrd, josquin**: `architecture-decisions.md` (API contracts, component patterns)
@@ -290,7 +290,7 @@ The team lead shuts down LAST. Execute in this order:
 3. **Send shutdown requests** — to all agents. Wait for each `teammate_terminated`.
 4. **Persist inboxes** — copy pruned inboxes from runtime to repo:
    ```bash
-   TEAM_CONFIG="$(git rev-parse --show-toplevel)/.claude/teams/polyphony-dev"
+   TEAM_CONFIG="$(git rev-parse --show-toplevel)/teams/polyphony-dev"
    TEAM_DIR="$HOME/.claude/teams/polyphony-dev"
    if [ -d "$TEAM_DIR/inboxes" ]; then
      mkdir -p "$TEAM_CONFIG/inboxes"
@@ -302,7 +302,7 @@ The team lead shuts down LAST. Execute in this order:
    ```
 5. **Commit and push** — all scratchpads, task snapshot, and inboxes:
    ```bash
-   git add .claude/teams/polyphony-dev/memory/ .claude/teams/polyphony-dev/inboxes/
+   git add teams/polyphony-dev/memory/ teams/polyphony-dev/inboxes/
    git commit -m "chore: save polyphony-dev team state"
    git push
    ```

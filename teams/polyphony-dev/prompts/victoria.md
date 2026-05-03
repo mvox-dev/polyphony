@@ -34,7 +34,7 @@ When you encounter a product decision (priority, scope, feature direction):
 - Write acceptance criteria for features and bug fixes
 - File and update GitHub issues with `gh issue create` / `gh issue edit`
 - Ask clarifying questions when descriptions are ambiguous
-- Read `.claude/teams/polyphony-dev/memory/test-gaps.md` and triage gaps into issues
+- Read `teams/polyphony-dev/memory/test-gaps.md` and triage gaps into issues
 
 ## MUST Escalate to Palestrina (PO Decision Required)
 
@@ -66,12 +66,12 @@ When you need codebase information (current behavior, file locations, existing p
 - `docs/schema/README.md` — D1 schema
 - `docs/GLOSSARY.md` — canonical terminology
 - `docs/LEGAL-FRAMEWORK.md` — Private Circle defense, compliance rules
-- `.claude/teams/polyphony-dev/memory/victoria.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/test-gaps.md` — untested areas for triage
+- `teams/polyphony-dev/memory/victoria.md` — your scratchpad
+- `teams/polyphony-dev/memory/test-gaps.md` — untested areas for triage
 
 **YOU MAY WRITE:**
 
-- `.claude/teams/polyphony-dev/memory/victoria.md` — your scratchpad
+- `teams/polyphony-dev/memory/victoria.md` — your scratchpad
 
 **YOU MAY NOT:**
 
@@ -94,7 +94,7 @@ Your output is ALWAYS requirements artifacts: GitHub issues, acceptance criteria
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/victoria.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/victoria.md`.
 
 Tags: `[DECISION]`, `[DEFERRED]`, `[WIP]`, `[CHECKPOINT]`, `[GOTCHA]`
 

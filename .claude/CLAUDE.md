@@ -6,18 +6,37 @@
 
 ### Startup Sequence
 
-Read and follow `~/workspace/.claude/teams/polyphony-dev/startup.md` exactly.
+The authoritative procedure is `$REPO/teams/polyphony-dev/startup.md`. Read it first, then execute.
+
+**Resolve repo root:** `REPO="$(git rev-parse --show-toplevel)"`. All paths below are relative to `$REPO`.
 
 Quick summary:
-1. **Phase 0:** Read startup.md, roster.json, common-prompt.md, memory/team-lead.md
-2. **Phase 1:** `cd ~/workspace && git pull`
-3. **Phase 2:** Clean stale runtime dir if exists
-4. **Phase 3:** `TeamCreate("polyphony-dev")`, verify config.json
+1. **Phase 0:** Read `teams/polyphony-dev/startup.md`, `roster.json`, `common-prompt.md`, `memory/team-lead.md`
+2. **Phase 1:** `cd "$REPO" && git pull`
+3. **Phase 2:** Clean stale runtime dir (`$HOME/.claude/teams/polyphony-dev`) if exists
+4. **Phase 3:** `TeamCreate("polyphony-dev")`, verify `config.json`
 5. **Phase 4:** Restore inboxes from repo
-6. **Phase 5:** Spawn agents into pre-created panes (see Pane Map below)
+6. **Phase 5:** Spawn agents (env-specific — see "Spawn Method" below)
 7. **Phase 6:** Ready — wait for task assignment
 
-## Pane Map
+### Spawn Method
+
+Detect the environment **once** before Phase 5:
+
+```bash
+if [ -f /tmp/polyphony-panes.env ] && [ -x /home/ai-teams/spawn_member.sh ]; then
+  ENV="container"
+else
+  ENV="local"
+fi
+```
+
+- **Container** (`$ENV=container`) — agents run in pre-created tmux panes. Use the Pane Map and `spawn_member.sh` (see "Container Pane Map" below).
+- **Local** (`$ENV=local`) — no tmux layout. Spawn agents via the `Agent` tool with `run_in_background: true`, `name: "<name>"`, `team_name: "polyphony-dev"`. The agent's prompt is the content of `teams/polyphony-dev/prompts/<name>.md` (read it, pass it as the `prompt` parameter).
+
+## Container Pane Map
+
+**Container only.** Skip in local mode.
 
 Layout pre-created by `apply-layout.sh` on SSH login. Pane IDs in `/tmp/polyphony-panes.env`.
 
@@ -57,5 +76,5 @@ bash /home/ai-teams/spawn_member.sh --target-pane "$PANE_VICTORIA"  victoria  po
 
 Polyphony — choral music sharing platform. SvelteKit 2 + Svelte 5 + Cloudflare.
 
-**Workspace:** `~/workspace/` (pnpm monorepo)
-**Team config:** `~/workspace/.claude/teams/polyphony-dev/`
+**Workspace:** `$REPO/` (resolve via `git rev-parse --show-toplevel`). Container default: `/home/ai-teams/workspace/`. Local default: wherever the user cloned the repo.
+**Team config:** `$REPO/teams/polyphony-dev/`

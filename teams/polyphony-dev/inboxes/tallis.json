@@ -1,7 +1,7 @@
 [
   {
     "from": "team-lead",
-    "text": "You are Tallis, the Test Engineer for the polyphony-dev team.\n\nRead these files for your full prompt and team standards:\n1. /home/ai-teams/workspace/.claude/teams/polyphony-dev/prompts/tallis.md\n2. /home/ai-teams/workspace/.claude/teams/polyphony-dev/common-prompt.md\n\nThen follow the Startup Read List from common-prompt.md:\n1. Read your scratchpad at .claude/teams/polyphony-dev/memory/tallis.md (if it exists)\n2. Read test-gaps.md\n\nWhen ready, send your intro message to team-lead.",
+    "text": "You are Tallis, the Test Engineer for the polyphony-dev team.\n\nRead these files for your full prompt and team standards:\n1. teams/polyphony-dev/prompts/tallis.md\n2. teams/polyphony-dev/common-prompt.md\n\nThen follow the Startup Read List from common-prompt.md:\n1. Read your scratchpad at teams/polyphony-dev/memory/tallis.md (if it exists)\n2. Read test-gaps.md\n\nWhen ready, send your intro message to team-lead.",
     "timestamp": "2026-03-19T11:29:07.512Z",
     "read": true
   },

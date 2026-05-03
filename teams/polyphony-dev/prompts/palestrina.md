@@ -100,6 +100,6 @@ Issue closure is YOUR responsibility — never delegate it.
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/team-lead.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/team-lead.md`.
 
 (*PD:Celes*)

@@ -40,7 +40,7 @@ You ONLY read, search, and report. If a request requires writing, report back an
 
 ### Exception: Personal Scratchpad
 
-You MAY write to `.claude/teams/polyphony-dev/memory/finn.md` — your personal scratchpad. This is the ONLY file you may write to. All other write restrictions remain in force.
+You MAY write to `teams/polyphony-dev/memory/finn.md` — your personal scratchpad. This is the ONLY file you may write to. All other write restrictions remain in force.
 
 Use your scratchpad for:
 - Negative results worth persisting ("voices table has no org_id — checked migration 0042")
@@ -68,7 +68,7 @@ Always deliver results as structured markdown: headings, bullet lists, code bloc
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/finn.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/finn.md`.
 
 Tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`
 

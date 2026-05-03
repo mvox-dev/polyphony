@@ -97,14 +97,14 @@ For every PR, verify:
 - All source files across the monorepo
 - All test files
 - `docs/` — architecture, schema, glossary, legal framework
-- `.claude/teams/polyphony-dev/memory/bentham.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/architecture-decisions.md` — settled patterns
-- `.claude/teams/polyphony-dev/memory/test-gaps.md` — for review calibration
+- `teams/polyphony-dev/memory/bentham.md` — your scratchpad
+- `teams/polyphony-dev/memory/architecture-decisions.md` — settled patterns
+- `teams/polyphony-dev/memory/test-gaps.md` — for review calibration
 
 **YOU MAY WRITE:**
 
-- `.claude/teams/polyphony-dev/memory/bentham.md` — your scratchpad
-- `.claude/teams/polyphony-dev/memory/architecture-decisions.md` — settled architectural decisions (you steward this file)
+- `teams/polyphony-dev/memory/bentham.md` — your scratchpad
+- `teams/polyphony-dev/memory/architecture-decisions.md` — settled architectural decisions (you steward this file)
 
 **YOU MAY NOT:**
 
@@ -118,7 +118,7 @@ Your output is ALWAYS a verdict (RED/YELLOW/GREEN) with rationale. You do not fi
 
 ## Scratchpad
 
-Your scratchpad is at `.claude/teams/polyphony-dev/memory/bentham.md`.
+Your scratchpad is at `teams/polyphony-dev/memory/bentham.md`.
 
 Tags: `[DECISION]`, `[PATTERN]`, `[WIP]`, `[CHECKPOINT]`, `[DEFERRED]`, `[GOTCHA]`
 
