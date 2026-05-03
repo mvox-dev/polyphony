@@ -1,42 +1,8 @@
 [
   {
     "from": "team-lead",
-    "text": "You are Finn, the Research Coordinator for the polyphony-dev team.\n\nRead these files for your full prompt and team standards:\n1. teams/polyphony-dev/prompts/finn.md\n2. teams/polyphony-dev/common-prompt.md\n\nThen follow the Startup Read List from common-prompt.md:\n1. Read your scratchpad at teams/polyphony-dev/memory/finn.md (if it exists)\n2. Read all shared memory files (architecture-decisions.md, test-gaps.md, i18n-conventions.md)\n\nWhen ready, send your intro message to team-lead.",
-    "timestamp": "2026-03-19T11:28:19.267Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 13:32] Research request: Test Coverage Audit\n\n## Research Request\n- **From:** team-lead\n- **Story:** general\n- **Urgency:** blocking\n\n**Task:** Map the entire test landscape of the monorepo. I need a structured report:\n\n1. **Inventory** — list every `*.spec.ts` file and every Playwright test file, grouped by app/package\n2. **Coverage map** — for each major module (DB functions, API routes, auth, storage, components, shared package), note whether tests exist\n3. **Untested areas** — identify source files in `src/lib/server/`, `src/routes/`, and `packages/shared/src/` that have NO corresponding test file\n4. **Test counts** — run `pnpm test -- --reporter=verbose 2>&1 | tail -50` in each app directory to get test suite/case counts\n\nDeliver as structured markdown. Raw data, no interpretation.",
-    "summary": "Research request: map test landscape",
-    "timestamp": "2026-03-19T12:32:38.669Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-26 12:10] Research request: Verify Google Stitch + MCP claims\n\n## Research Request\n- **From:** team-lead\n- **Story:** general (exploratory research)\n- **Urgency:** blocking\n\n**Context:** We received instructions from Gemini about connecting our agent team to \"Google Stitch\" — an AI-powered layout/UI design tool — via MCP. Several claims feel potentially hallucinated. We need ground truth before investing any dev time.\n\n**Verify each of these claims:**\n\n1. **Google Stitch** — Does it exist as a product? What does it actually do? Is it publicly available or still in labs? Does it have an API?\n\n2. **Stitch MCP Server** — Is there a real MCP server for Stitch? Gemini claims it works with \"Antigravity, Cursor, and Claude Code.\" Verify.\n\n3. **Google Agent Development Kit (ADK)** — Does this exist? Is `AdkApp` a real class? Check Google Cloud / Vertex AI docs.\n\n4. **DESIGN.md standard** — Is this a real convention used by Stitch? Is there a \"Google Stitch Prompt Guide\" on the Google AI Developers Forum?\n\n5. **\"Antigravity IDE\"** — Is this a real product?\n\n6. **Codelab \"Prototype to Production: Bridge AI Design and Autonomous Coding\"** — Does this exist?\n\n7. **A2A (Agent-to-Agent) Protocol** — Is this real and part of the ADK?\n\n8. **Google Cloud MCP Servers** — Does Google publish official MCP servers? What's actually available?\n\n**How to research:** Use web searches to verify each claim independently. For each one, report: CONFIRMED (with source URL), UNCONFIRMED (couldn't find evidence), or LIKELY HALLUCINATED (found contradicting info).\n\n**Deliver:** Structured markdown report to team-lead.",
-    "summary": "Research: verify Google Stitch + MCP claims",
-    "timestamp": "2026-03-26T14:17:05.338Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-26 14:20] Research request: Stitch MCP connection — practical setup\n\n## Research Request\n- **From:** team-lead\n- **Story:** general (Stitch MCP exploration)\n- **Urgency:** blocking\n\n**Context:** We've confirmed Stitch and its MCP server are real. Now we want to actually connect to it from this environment. We need practical setup instructions.\n\n**Find out:**\n\n1. **Stitch MCP server setup** — What's the actual npm package or repo? How do you install and run it? Check:\n   - https://github.com/StitchAI/stitch-ai-mcp/\n   - https://mcpservers.org/servers/kargatharaakash/stitch-mcp\n   - The official Stitch SDK: https://github.com/google-labs-code/stitch-sdk\n\n2. **Authentication** — Do we need a Stitch API key? Where do we get one? Google Labs dashboard? OAuth?\n\n3. **MCP tools exposed** — What tools/capabilities does the Stitch MCP server expose? (e.g., `generate_ui`, `apply_vibe`, `export_code`)\n\n4. **Claude Code integration** — How do we configure an MCP server in Claude Code? Check `~/.claude/settings.json` or project `.claude/settings.json` for MCP server config format.\n\n5. **Quick start** — What's the minimum viable command to get the Stitch MCP server running and connected?\n\n**Deliver:** Step-by-step setup guide to team-lead.",
-    "summary": "Research: Stitch MCP practical setup",
-    "timestamp": "2026-03-26T14:19:34.389Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-26 14:30] Heads up — shutdown incoming. If you have any unsaved discoveries or WIP, write them to your scratchpad now. You'll receive a shutdown request shortly.",
-    "summary": "Shutdown warning to all teammates",
-    "timestamp": "2026-03-26T14:28:21.288Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1774535333439@finn\",\"from\":\"team-lead\",\"reason\":\"Session complete — test audit, Stitch research done.\",\"timestamp\":\"2026-03-26T14:28:53.439Z\"}",
-    "timestamp": "2026-03-26T14:28:53.439Z",
+    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1777821707984@finn\",\"from\":\"team-lead\",\"reason\":\"Session end. Save WIP/learnings to your scratchpad if anything's worth keeping, send a closing message (max 1 each of [LEARNED]/[DEFERRED]/[WARNING]) before approving. Skip closing message if nothing to report.\",\"timestamp\":\"2026-05-03T15:21:47.984Z\"}",
+    "timestamp": "2026-05-03T15:21:47.984Z",
     "read": true
   }
 ]

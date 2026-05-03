@@ -1,63 +1,8 @@
 [
   {
     "from": "team-lead",
-    "text": "You are Bentham, the Architecture Reviewer for the polyphony-dev team.\n\nRead these files for your full prompt and team standards:\n1. teams/polyphony-dev/prompts/bentham.md\n2. teams/polyphony-dev/common-prompt.md\n\nThen follow the Startup Read List from common-prompt.md:\n1. Read your scratchpad at teams/polyphony-dev/memory/bentham.md (if it exists)\n2. Read architecture-decisions.md and test-gaps.md (for review calibration)\n\nWhen ready, send your intro message to team-lead.",
-    "timestamp": "2026-03-19T11:28:29.259Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 13:32] Task: Test Architecture Review\n\n## Task\n- **From:** team-lead\n- **Story:** general (test coverage audit)\n- **Phase:** review\n\n**What:** Review the test architecture of the monorepo from an architectural perspective. I need your assessment on:\n\n1. **Are we testing the right boundaries?** — server/client separation, auth middleware, DB access layer, API contracts\n2. **Missing test categories** — do we have unit tests but no integration tests? E2E but no API contract tests?\n3. **Security-critical paths** — are permission checks (`apps/vault/src/lib/server/auth/permissions.ts`), JWT verification (`packages/shared/src/auth/verify.ts`), and OAuth flow tested adequately?\n4. **D1 migration safety** — any migration-related test coverage?\n5. **Architectural verdict** — RED/YELLOW/GREEN on overall test health, with rationale\n\n**Context:** Branch is `master`, clean working tree. Read source and test files to form your assessment.\n\n**Report-back:** Structured verdict to team-lead when complete.",
-    "summary": "Review test architecture health",
-    "timestamp": "2026-03-19T12:32:52.772Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 13:40] Review request: #286 — JWT expiry test fix\n\n## Review Request\n- **Story:** #286 — Fix JWT expiry test\n- **Branch:** `fix/286-jwt-expiry-test`\n- **Author:** Tallis\n- **Scope:** Test-only change in `packages/shared/src/auth/verify.spec.ts`\n\n**What changed:** Replaced a TODO stub (L127-155) with 3 real expiry tests using `vi.useFakeTimers()`:\n1. Rejects expired token (6 min past TTL)\n2. Rejects token expired by 1 second (boundary)\n3. Accepts token not yet expired (4 min into 5 min TTL)\n\nAll 26 shared tests pass.\n\n**Review focus:** Test correctness, boundary coverage, timer cleanup.\n\n**Report-back:** RED/YELLOW/GREEN verdict to team-lead.",
-    "summary": "Review request #286 to Bentham",
-    "timestamp": "2026-03-19T12:39:57.406Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 13:46] Review request: #287 — return_to redirect guard tests\n\n## Review Request\n- **Story:** #287 — Test return_to open-redirect guard on /api/auth/login\n- **Branch:** `fix/287-return-to-redirect-guard`\n- **Author:** Tallis\n- **Scope:** New test file `apps/vault/src/tests/routes/api/auth/login.spec.ts` (11 tests)\n\n**What changed:** New test file covering the `return_to` open-redirect guard on the vault auth login route:\n- 4 valid path tests (relative paths with cookie set)\n- 4 invalid value tests (absolute URLs, protocol-relative, empty string — no cookie set)\n- 1 missing param test (safe default)\n- 2 redirect behavior tests (302 to registry, correct params)\n\nAll 11 tests pass. Implementation was already correct.\n\n**Review focus:** Security coverage completeness — are there any bypass vectors not tested? Test correctness.\n\n**Report-back:** RED/YELLOW/GREEN verdict to team-lead.",
-    "summary": "Review request #287 to Bentham",
-    "timestamp": "2026-03-19T12:45:32.204Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 13:51] Review request: #288 — Fix middleware assertion gaps\n\n## Review Request\n- **Story:** #288 — Fix middleware tests with missing assertions\n- **Branch:** `fix/288-middleware-assertions`\n- **Author:** Tallis\n- **Scope:** Modified `apps/vault/src/tests/lib/server/auth/middleware.spec.ts` — two it() blocks fixed\n\n**What changed:**\n1. **\"allows request when role meets minimum\"** — mock data was wrong (used member with empty roles, contradicting test name). Fixed to use `admin-456` with `['admin']` role. Added 3 assertions: authorized=true, member defined, correct member ID.\n2. **\"rejects request when role below minimum\"** — mock data was correct but assertions missing. Added 3 assertions: authorized=false, status=403, error message.\n\n7/7 middleware tests pass.\n\n**Review focus:** Are the assertion patterns consistent with other middleware tests? Is the mock data fix correct?\n\n**Report-back:** RED/YELLOW/GREEN verdict to team-lead.",
-    "summary": "Review request #288 to Bentham",
-    "timestamp": "2026-03-19T12:50:39.347Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 13:56] Review request: #290 — Seasons API tests\n\n## Review Request\n- **Story:** #290 — Add tests for Seasons API endpoints\n- **Branch:** `feat/290-seasons-api-tests`\n- **Author:** Tallis\n- **Scope:** New file `apps/vault/src/tests/routes/api/seasons.spec.ts` (27 tests)\n\n**What changed:** New test file covering all 5 seasons route handlers:\n- GET list (4 tests) — list, empty, date filter, auth\n- POST create (8 tests) — valid, whitespace trim, validation errors, 409 conflict, admin required\n- GET single (5 tests) — by ID, 404, events include flag, auth\n- PATCH update (7 tests) — updates, validation, 404, 409, admin required\n- DELETE (3 tests) — success, 404, admin required\n\nAll 27 tests pass.\n\n**Review focus:** Coverage completeness for a CRUD API, permission check patterns, mock consistency.\n\n**Report-back:** RED/YELLOW/GREEN verdict to team-lead.",
-    "summary": "Review request #290 to Bentham",
-    "timestamp": "2026-03-19T12:55:58.983Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-19 18:32] Review request: #291 — Paraglide test infra fix\n\n## Review Request\n- **Story:** #291 — Fix failing test suites — missing Paraglide build artifact\n- **Branch:** `fix/291-paraglide-test-infra`\n- **Author:** Josquin\n- **Scope:** `apps/vault/vite.config.ts` + 2 new mock files\n\n**What changed:**\n- Added resolve aliases in `vite.config.ts` (test mode only) pointing `$lib/paraglide/runtime` and `$lib/paraglide/server` to lightweight mock files\n- `src/tests/mocks/paraglide-runtime.ts` — exports `locales`, `baseLocale`, `getLocale`, `setLocale`\n- `src/tests/mocks/paraglide-server.ts` — exports `paraglideMiddleware` (passthrough)\n- Aliases use array format ordered before `$lib` so they match first\n\n**Verification by Josquin:**\n- Removed `src/lib/paraglide/` entirely → 102 files / 1317 tests pass\n- Restored it → still passes\n- No production code changed\n\n**Review focus:** Are the mocks sufficient? Could they hide real bugs by being too permissive? Is the alias ordering safe?\n\n**Report-back:** RED/YELLOW/GREEN verdict to team-lead.",
-    "summary": "Review request #291 to Bentham",
-    "timestamp": "2026-03-19T16:32:23.722Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "[2026-03-26 14:30] Heads up — shutdown incoming. If you have any unsaved discoveries or WIP, write them to your scratchpad now. You'll receive a shutdown request shortly.",
-    "summary": "Shutdown warning to all teammates",
-    "timestamp": "2026-03-26T14:28:21.292Z",
-    "read": true
-  },
-  {
-    "from": "team-lead",
-    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1774535334190@bentham\",\"from\":\"team-lead\",\"reason\":\"Session complete — all reviews done.\",\"timestamp\":\"2026-03-26T14:28:54.190Z\"}",
-    "timestamp": "2026-03-26T14:28:54.190Z",
+    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1777821708580@bentham\",\"from\":\"team-lead\",\"reason\":\"Session end. Save WIP/learnings to your scratchpad if anything's worth keeping, send a closing message (max 1 each of [LEARNED]/[DEFERRED]/[WARNING]) before approving. Skip closing message if nothing to report.\",\"timestamp\":\"2026-05-03T15:21:48.580Z\"}",
+    "timestamp": "2026-05-03T15:21:48.580Z",
     "read": true
   }
 ]

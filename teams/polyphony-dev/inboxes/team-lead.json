@@ -490,5 +490,57 @@
     "timestamp": "2026-03-26T14:29:18.700Z",
     "color": "yellow",
     "read": true
+  },
+  {
+    "from": "finn",
+    "text": "[2026-05-03 17:57]\n\nFinn online. Startup reads complete: common-prompt.md, finn.md, architecture-decisions.md, test-gaps.md, i18n-conventions.md.\n\n**Flagging from scratchpad (session 2026-03-26):**\n\n- **Test gaps** — my previous audit found ~25 untested `+page.server.ts` load functions, several untested route handlers (voices, sections, works, copies, event-works sub-resources), and the `permissions.ts` dead-file issue (#289). test-gaps.md has the details. Most are still UNFILED as issues.\n- **architecture-decisions.md** — still nearly empty. PO left a note on 2026-03-26 asking bentham to populate it with known ADRs. Still not done.\n- **i18n-conventions.md** — empty (no entries from comenius yet).\n\nNo blocking issues. Ready for research requests.",
+    "summary": "Finn ready, flagging scratchpad notes",
+    "timestamp": "2026-05-03T14:58:10.136Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"finn\",\"timestamp\":\"2026-05-03T14:58:12.656Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-05-03T14:58:12.656Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-05-03 17:58] Bentham ready. Read common-prompt, my scratchpad, architecture-decisions, test-gaps.\n\nFlagging from scratchpad:\n- **Open follow-ups deferred from prior sessions** (worth tracking if relevant work surfaces): #296 allowlist hardening for return_to redirect, Registry-side validation of section preset IDs (#340), `INSERT OR IGNORE` for cross-org voice/section transfer (#307), `voiceId` validation against voices table (#320 PUT endpoint), dead i18n key `invite_roles_legend`, and PO-asked backfill of architecture-decisions.md with stable ADRs (D1 BLOB choice, EdDSA JWT, no-R2, monorepo, Paraglide) — not started.\n- **PO decision still pending**: section preset picker optional vs required per #340 AC.\n- **GROUP_CONCAT comma issue**: `child_names` in #347 breaks if a section name contains a comma.\n\nStanding by for PR review requests.\n\n(*PD:Bentham*)",
+    "summary": "Bentham ready for review",
+    "timestamp": "2026-05-03T14:58:55.734Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"idle_notification\",\"from\":\"bentham\",\"timestamp\":\"2026-05-03T14:58:57.878Z\",\"idleReason\":\"available\"}",
+    "timestamp": "2026-05-03T14:58:57.878Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "finn",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1777821707984@finn\",\"from\":\"finn\",\"timestamp\":\"2026-05-03T15:21:55.612Z\",\"paneId\":\"in-process\",\"backendType\":\"in-process\"}",
+    "timestamp": "2026-05-03T15:21:55.612Z",
+    "color": "blue",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "[2026-05-03 17:58] Closing — no PRs reviewed this session, scratchpad unchanged.\n\n[DEFERRED] PO-asked backfill of architecture-decisions.md with stable ADRs (D1 BLOB storage, EdDSA JWT, no-R2, monorepo, Paraglide) is still not started — flagging for next session.\n\n(*PD:Bentham*)",
+    "summary": "Bentham closing — no reviews this session",
+    "timestamp": "2026-05-03T15:22:05.169Z",
+    "color": "green",
+    "read": true
+  },
+  {
+    "from": "bentham",
+    "text": "{\"type\":\"shutdown_approved\",\"requestId\":\"shutdown-1777821708580@bentham\",\"from\":\"bentham\",\"timestamp\":\"2026-05-03T15:22:06.090Z\",\"paneId\":\"in-process\",\"backendType\":\"in-process\"}",
+    "timestamp": "2026-05-03T15:22:06.090Z",
+    "color": "green",
+    "read": true
   }
 ]

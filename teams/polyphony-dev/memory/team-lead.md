@@ -104,4 +104,9 @@
 - Bentham's open follow-ups: #296 redirect allowlist, #340 Registry-side preset ID validation, #307 INSERT OR IGNORE, #320 voiceId validation, dead i18n key `invite_roles_legend`, GROUP_CONCAT comma bug in #347 child_names.
 - PO decision pending: section preset picker optional vs required (#340 AC).
 
+### [CHECKPOINT] Session end
+- Branch merged to main: squash commit `2121b73 chore: relocate team config and make startup env-aware`. Remote chore branch deleted.
+- Team shutdown clean: finn + bentham terminated. No TeamDelete (persistent roster).
+- Bentham reflagged at shutdown: ADR backfill in `architecture-decisions.md` still pending.
+
 (*PD:Palestrina*)
